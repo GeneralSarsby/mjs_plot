@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF8">
+	<meta http-equiv="refresh" content="6000">
+	 <meta name="viewport" content="initial-scale=1.0">
+	<style>
+      body, canvas, html{
+        margin: 0px;
+        padding: 0px;
+		overflow: hidden
+      }
+	  html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0px;
+}
+	</style>
+	<script src="../mjs_plot_0_3_n.js"></script>
+</head>
+<body onresize="draw_graphs()" >
+
+		<canvas id="canvas4" width="300" height="300"></canvas><br>
+
+</body>
+<script>
+
+	//make new graph object and tell it it's name and the canvas to use. 
+	var exp_graph = mjs_plot.new_graph("exp_graph","canvas4");
+	//make some data
+	var x1=[-0.99,-0.945,-0.874,-0.859,-0.64,-0.573,-0.433,-0.042,-0.007,0.054,0.088,0.222,0.401,0.465,0.633,0.637,0.735,0.762,0.791,0.981];
+	var y1=[0.418,0.412,0.452,0.48,0.453,0.501,0.619,0.9,0.911,0.966,0.966,1.123,1.414,1.683,2.101,1.94,2.473,2.276,2.352,3.544];
+
+	exp_graph.set_data([[x1,y1]]);
+
+	exp_graph.set_captions(['exponential example']);
+
+	exp_graph.default_graphics_style.mode = 'line dot';
+	exp_graph.default_graphics_style.title = "Exponential Demo";
+
+	exp_graph.default_graphics_style.x_axis_title =  "x axis";
+	exp_graph.default_graphics_style.y_axis_title =  "y axis";
+
+	draw_graphs();
+	
+	function draw_graphs(){
+		//resize
+		exp_graph.canvas.width =window.innerWidth ;
+		exp_graph.canvas.height = window.innerHeight;
+		//tell the graph to plot
+		exp_graph.mjs_plot();
+	}
+
+</script>
+</html>

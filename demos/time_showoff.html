@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+  <meta http-equiv="refresh" content="6000">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+body {margin:10px;padding:10px;min-width: 320px;max-width:800px;margin-left:auto;margin-right:auto;}
+p {}
+h1 {text-align:center;font-family:Courier New}
+    </style>
+	<script src="time_data.js"></script>
+	<script src="../mjs_plot_0_3_n.js"></script>
+  </head>
+    <body onresize="draw_graphs()" onload="draw_graphs()">
+  <h1>MJSplot - Dates and Times</h1>
+  <p><a href="../index.html">[index]</a></p>
+<p>Drawing graphs in your web browser. Interactively. For scientists. Now with actual absolute times and dates.</p>
+
+<p>Use the mouse to click and draw rectangles to zoom in. Single click to zoom out and view everything. Right click to zoom out just a bit. Touchscreen users can use a <a href="timedemo.html">mobile-friendly version</a> and use two fingers to draw out a rectangle, release one finger to do the zoom.</p>
+
+  <center>
+ <canvas id="canvas4" width="600" height="400"></canvas><br>
+   </center>
+   
+   <p>
+   Note how the time axis always has human usable steps that are appropriate for the zoom level. Days (1,2,7), Hours (1,2,3,6,12), minutes (1,2,5,10,15,20,30), seconds (1,2,5,10,20,30), and milliseconds (1,2,5,10,20,50,100,200,500).
+  
+ 
+   </p>
+   <p>
+   <button onclick="zoom_to_months()">View months</button>
+   <strong>Months work</strong>, use the button to zoom way out. You can see that some months have more days in than others, this is handled just fine. <a href="trust_in_media.html">Years work too</a>, but is a little imperfect with damn leap years (I've got plans for that).
+   </p>
+   <p>
+   When zoomed in the <strong>appropriate reference time</strong> is shown with the axis label. Which is nothing when there are already years shown. But if you are zoomed in to the second it will provide context so you are never lost.
+   </p>
+   <p>
+   <strong>Time to number conversions</strong> are also included in the function menu. You can convert time to any unit from a reference. Units are: days, hours, minutes, or seconds. And the reference time can be the start of the data, end of the data, now (the time you clicked the button), or ago (always the current time when the transforms are run).
+   </p>
+   <p>
+   The measure tool can now <strong>measure difference and gradients</strong> with time correctly. By clicking on the 
+   <img src="../measure_button.png" alt="measure button" height="15" width="15"> button at the top to change to measure mode. Click and drag to see the difference and gradient with correct units for time in /s /m /h and /day. 
+   </p>
+
+</body>
+	<script>
+
+	// log(y)
+	//make new graph object and tell it it's name and the canvas to use. 
+	var some_graph = mjs_plot.new_graph("some_graph","canvas4");
+
+	//convrt the time strings to milliseconds
+	//times and widths are arrays imported from time_data.js
+	xdata = mjs_plot.convert_time_strings(times)
+	ydata = widths;
+
+	some_graph.set_data([[xdata,ydata]]);
+
+	some_graph.set_captions(['xy']);
+	
+	some_graph.default_graphics_style.title = "Thing";
+	some_graph.default_graphics_style.subtitle = 'Historical Data';
+	some_graph.default_graphics_style.x_axis_title =  "Time";
+	some_graph.default_graphics_style.y_axis_title =  "Width /Hz";
+	
+	//this is the new important change
+	some_graph.default_graphics_style.y_scale_mode =  "log";
+	some_graph.default_graphics_style.x_scale_mode =  "time";
+	
+	function draw_graphs(){
+		//resize
+		//some_graph.canvas.width = window.innerWidth*0.9;
+		//some_graph.canvas.height = Math.min(some_graph.canvas.width*0.606,window.innerHeight*0.6);
+		some_graph.canvas.width = document.body.clientWidth-20;
+		some_graph.canvas.height = Math.min(0.628*some_graph.canvas.width,0.7*window.innerHeight) ;
+		some_graph.mjs_plot();
+	}
+	function zoom_to_months(){
+		some_graph.graphics_style.x_manual_min = 1416502608349;
+		some_graph.graphics_style.x_manual_max = 1433142191649;
+		some_graph.graphics_style.x_scale_auto_min = false;
+		some_graph.graphics_style.x_scale_auto_max = false;
+		some_graph.mjs_plot();
+	}
+
+    </script>
+</html>

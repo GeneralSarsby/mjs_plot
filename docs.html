@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<meta name="viewport" content="initial-scale=1.0">
+<style>
+
+body {color: #333;background-color: #eee;
+	margin:10px;padding:10px;min-width: 320px;max-width:800px;margin-left:auto;margin-right:auto;margin-top:0px;
+padding-top:0px;font-family: "helvetica"}
+p {}
+h1 {font-size: 12vw;text-align:center; background-color: #eee;margin: 0px auto 0px}
+h3{font-weight: normal;margin:10px;text-align:center;}
+h2{margin: 5px; font-size:medium}
+a:visited{color:#333}
+nav a{color:#777; font-size: x-small}
+h1 a{color:#777}
+
+.featurebox {
+width: 251px;
+	margin:5px;
+	border: solid 1px #ccc;
+	 border-radius: 5px;
+	display: inline-block;
+	vertical-align: middle;
+	background-color: #fff;
+	}
+	
+#boxes{
+	min-width: 320px;max-width:800px;
+	text-align: center;
+} 
+    </style>
+</head>
+<nav><a href="index.html">[Index]</a> <a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
+
+<h1><a href="index.html">MJSplot</a></h1>
+
+<h2 id="walkthrough"> Quick Walkthrough </h2>
+<p> I've loaded the <tt>Pressures</tt> graph with some real data collected from an experimental fridge for you to try.</p>
+<ol>
+ <li> Mouse over and you will see a cross hairs indicating position x and y. The numerical precision of the indicators is sensible for the scale.
+ <li> Click and drag a rectangle over a section to zoom in. Mobile users can use two fingers to draw out a rectangle, then release to zoom.
+ <li> Single click to use the auto-zoom (can see everything). Mobile users can use the 'Auto Zoom' button in the lower left.
+ <li> Right click to zoom out. Mobile users can use the 'Zoom Out' button in the lower left.
+ <li> Hovering over the top and bottom will reveal buttons and menus.
+ <li> On the bottom buttons, click the <img src="./ylog_button.png" alt="y log button" height="20" width="20"> button. It changes the y axis to logarithmic (base 10).
+ <li> Start zooming around, see how the y axis scale always looks good (even when zoomed in tight).
+ <li> At the top: click the  <img src="./measure_button.png" alt="measure button" height="20" width="20"> button to change to measure mode. (You started in the zoom mode)
+ <li> Click and drag to measure deltas, measure the gradient g=, and measure the time-constant of an exponential decay tau=. (this is an log-lin graph now after all). For examples: find out the heights of the peaks on the pink line (still)? Or how long did the step in the pot pressure last near -2 hours? What was the rate of the acp40out near the beginning?
+ <li> Reload the page. Your zooming in and the axis choice are as you left them. Everything you change on the graph is saved to LocalStorage .
+ <li> Data looking a bit rough? hover over the bottom to find the <img src="./f_x_button.png" alt="function button" height="20"> menu button. Click it to reveal some functions.
+ Find and click the <tt>smooth</tt> button. This runs a smoothing transform on the data. You can see the y-axis title has changed to reflect you choice, and under the subtitle there is [smooth] showing the stack of transforms. All of the transforms in the <img src="./f_x_button.png" alt="function button" height="20"> menu can stack on top of each other, except for <tt>reset</tt> that removes all transforms, and <tt>pop</tt> that removes just the last one.
+ <li> Not enough smoothing? Some transforms can modify their arguments by clicking on it again. Here it changes the smoothing aperture, you can see the y-axis change to show this too.
+ <li> You can switch lines on and off in the <tt>lines</tt> menu.
+ <li> Try out some regression analysis in the <tt>fits</tt> menu. 
+</ol>
+
+<p> Want to know more? read the <a href='./cheat_sheet.png'> Cheat Sheet (png) </a>, <a href='./cheat_sheet.svg'>(svg)</a>.</p>
+<!--
+<p> That's my two minutes up. But you might be interested in the other key features: getting your data out in a copypastable way. White on black. Independent axes scale auto zooms. Sticky point measure mode. Captioning and digital display options. And simply just why the other graphs don't look as good.</p>
+-->
+<h2 id="demos">Demo Pages</h2>
+<p> <a href='./demos/data.html'> Data Summary </a>. Pulls data from different sources, Three graphs on a screen. Shows setting defaults. A frozen snapshot from a live page.</p>
+<p> <a href='./demos/exp_test.html'> Exponential Data </a>. Mobile Friendly. A full screen demo with a single series. Try out the different fittings in the fit menu </p>
+<p> <a href='./demos/diode_test.html'> Temperature Data </a>. Mobile Friendly. A snapshot of some measured temperatures.</p>
+<p> <a href='./demos/timedemo.html'>Widths</a> Example of using time data. Data loaded from file. Zoom from Months to Seconds</p>
+<p> <a href='demos/trust_in_media.html'>Trust in Media</a> Another example of time data on the scale of years. Data hand typed into the html.</p>
+
+<h2 id="motivation">Motivation</h2>
+<p>
+Experiments are running, and you need to watch them. Using remote desktop to the computer running data-acquisition can be tricky or unavailable. You need to view things online through a web browser.
+</p>
+<p>
+Graphs from labview suck. Bad scales, off graph text. Saving graphs from labview is also not network safe, loosing the network connection will cause the labview program to wait - indefinitely. So the decision was to export data and plot in the browser. There are many programs to draw  graphs, some of them well written, feature rich, and stable. But not simple enough and not with the features I wanted. So I set out to write the simplest, easy to implement, graphing software for scientists.
+</p>
+<p>
+MJSplot then grew. It now does many more things that others don't. Now I can really <em>explore</em> data from a web browser, not just look at the some view someone else choose.
+</p>
+<p>
+Other graphing programs <a href="./comparisons/comparisons.html">can really suck</a>. I want better looking graphs.
+</p>
+
+
+<h2>Key-features</h2>
+<dl>
+<dt>Easy to implement</dt><dd> Needs only a canvas element, your data import, one static library import, and a few javascript lines to customize and get going. There are helper blocks in labview to export data to make things easy.</dd>
+<dt>Time series</dt><dd><a href='demos/time_showoff.html'>Beautiful looking time series data</a> that scales to show the most useful lables with only reasonable steps accross years to seconds.</dd>
+<dt>Nice looking</dt><dd>Scales go only in 1s,2s,5s in any power of 10. No more silly auto scales. Sensible number of minor ticks that changes depending on the available room.</dd>
+<dt>Data fitting</dt><dd>Linear, polynomials, and exponential fits. Interpolated or extrapolated lines.</dd>
+<dt>Expressive data manipulations</dt><dd>Flexible and stackable data transformations so you can really explore the data. Smoothing, re-sampling, differentiation, integrating, normalisation, y-vs-y, background removal (auto and manual), rooting, loging, cutting out, and more.</dd>
+<dt>Export data</dt><dd> Get your data out. Never data-trapped. Easily get CVS, Tab-delimited, or even code of the data on screen.</dd>
+<dt>Export images</dt><dd>You can get 300dpi images of the graph for printing. Optionally save to 8.5cm wide at 4x3 ratio, 300dpi for publications. Transparent background by default: good for posters.</dd> 
+<dt>Log scales</dt><dd>Logarithmic scales needed by scientists will look good too.</dd>
+<dt>Any sizes</dt><dd> Trivially change the canvas size and recall plot(). The graph will look great.
+</dd> 
+<dt>Interactive</dt><dd> Zoom in/out, move around, make measurements, and a data reader. Easily find the gradient, height of peaks, or period of waves. Find the time constant or power law in log/lin and log/log graphs.</dd> 
+<dt>Independent left/right top/bottom autoscaling</dt><dd> Random spikes won't ruin your view. </dd> 
+<dt>Nightmode</dt><dd> One-button black/white to white/black. I check my data at night. I'm sure others do too. 
+<dt>Good colours</dt><dd> Easy to differentiate lines. Colours are separated in HLS space, and work on black or white backgrounds.</dd>
+<dt>Persistent changes</dt><dd> Zooming in/Nightmode/axis scales/linemodes are all saved and auto loaded form local-storage on a per graph basis.</dd> 
+<dt>Any resolution screen</dt><dd> Graphs should work well with 300px to 3000px. Good for packing in the corner of the screen or a 2 meters away overhead. One click scale-everything button so you don't need to worry about tiny/huge text.</dd> 
+<dt>Sensible data precision</dt><dd> The hover-over data reader uses knowledge of the graph to only show the correct amount of numerical precision.</dd> 
+</dl>
+
+<h2 id="implementation">Implementation</h2>
+<p>I recommend looking at the source code of the demo pages above. It should give you a good idea.</p>
+<p>This is a typical implementation:</p>
+<p>You will write your data to a file on your webserver as a few arrays like this:</p>
+<tt>
+time = [1,2,3,4,5,6];<br>
+pot = [2,4,3,4,2,1];<br>
+still = [9,8,7,6,5,4];<br>
+</tt>
+<p>There are <a href="#helpers">[Helpers]</a> to make this easier.</p>
+<p>I'm calling this <tt>pressures.js</tt> but the name doesn't matter.</p>
+<p> Note <tt>Time</tt> here is just a number not an absolute time. To use absolute time you would use <tt>time = ['2015 sept 4','2015 sept 5','2015 sept 6','2015 Sept 8','2015  Sept 13']</tt>
+. This is covered in more detail below in the <a href="#timeseries">[Time Series]</a> section below.
+
+
+</p>
+ <p>In your html file you'll need to load it in the <tt>&lt;head&gt;</tt> block:</p>
+<tt>&lt;script src="pressures.js"&gt;&lt;/script&gt;</tt>
+<p>Also in in  <tt>&lt;head&gt;</tt>, load in the library for the current version:</p>
+<tt> &lt;script src="mjs_plot_0_3_n.js"&gt;&lt;/script&gt; </tt>
+<p> Somewhere in your <tt>&lt;body&gt;</tt>, add a canvas:</p>
+<tt> &lt;canvas id="democanvas" width="600" height="400"&gt;&lt;/canvas&gt;</tt>
+<p> in a <tt>&lt;script&gt;</tt> block after the body</p>
+<tt>
+	//make a graph object <br>
+	var pressure_graph = new_graph("pressure_graph","democanvas");<br>
+	//give it data<br>
+	pressure_graph.set_data([[time,pot],[time,still]]);<br>
+	</tt>
+	<p>The argument is an array <tt>[]</tt> of a two element array <tt>[x,y]</tt>, where each <tt>x</tt> and <tt>y</tt> are the arrays of data.</p>
+	<p> I'm using <tt>time</tt> as the x array for both lines, but you can use anything.</p>
+	<tt>
+	//set the captions	(optional)<br>
+	pressure_graph.set_captions(['pot','still']); <br>
+	</tt>
+	<p>This is an array of strings to use as captions.</p>
+	<tt>
+	//set up some graphics styling (optional)<br>
+	pressure_graph.default_graphics_style.title = "Pressures";  <br>
+	pressure_graph.default_graphics_style.subtitle = 'Fridge6';<br>
+	pressure_graph.default_graphics_style.x_axis_title =  "Hours";<br>
+	pressure_graph.default_graphics_style.y_axis_title =  "pressure mbar";<br>
+	//plot the graph<br>
+	pressure_graph.mjs_plot();<br>
+</tt>
+<h3>Full screen view</h3>
+<p>It can be useful to have only one graph on screen and for it to take up all of the available space.</p>
+<p>This can be done by changing the size of the canvas using a big more javascript.</p>
+<tt>&lt;body onresize="draw_graphs()" onload="draw_graphs()"&gt;</tt><br>
+<p>Have the body of the document call a function when it changes size (and on load as it needs to be ran at least once)</p>
+<tt>
+	function draw_graphs(){<br>
+		some_graph.canvas.width = window.innerWidth;<br>
+		some_graph.canvas.height = window.innerHeight;<br>
+		//tell the graph to plot<br>
+		some_graph.mjs_plot();<br>
+	}<br>
+</tt>
+<p>Define a simple style</p>
+<tt>
+&lt;style&gt;
+body, canvas, html{<br>
+margin: 0px;<br>
+padding: 0px;<br>
+overflow: hidden<br>
+}<br>
+html, body {<br>
+width:  100%;<br>
+height: 100%;<br>
+}<br>
+&lt;/style&gt;
+</tt>
+<p>
+Then fix the mobile interface automatic scaling.
+</p>
+<tt>  &lt;meta name="viewport" content="initial-scale=1.0"&gt;</tt>
+
+<h3 id='timeseries'>Time Series Data</h3>
+<p>
+If you want to use time on the x-axis. Now you can.
+You'll need to write you times as strings in a format that can be read by your javascript engine.
+Check <a href="./tools/time.html">Time Tester</a> to see what works. The <a href="./helpers/labview.html">Labview helper</a> page has a box pre-made for this.
+</p>
+<p>You need only a few modifiactions to the setup.</p>
+<p>Once the data is loaded into the browser you will need two lines like</p>
+<p><tt>times = convert_time_strings(time_strings);</tt></p>
+<p>and</p>
+<p><tt>your_graph.default_graphics_style.x_scale_mode = "time";</tt></p>
+<p>
+The first line converts all the time strings into the internal milliseconds from epoc January 1st 1970.
+The seconds line just tells MJSplot to use these (very large) numbers as times.
+</p>
+<p>Look at the two time-series example from the <a href="#demos">[Demos]</a> section</p>
+
+
+
+<h2 id="helpers">Helpers</h2>
+
+<p> Exporting your data to a javascript file isn't a very common thing to do. I've written a few helper functions to make the job easier.</p>
+<ul>
+<li><a href="./helpers/labview.html">Labview Integration</a>
+<li><a href="./helpers/matlab.html">Matlab Integration</a>
+</ul>
+
+<p>I expect this list of helpers to grow as there is more adoption. If you've written one and would like to share, email it to me and I'll put it here.</p>
+
+
+
+
+<h2 id="weaknesses">Weaknesses</h2>
+<p>
+Numbers smaller than 1e-250 are zero, Data larger than +-1e250 is undrawable. Datasets larger than 10k can be slow.
+Touchscreen interactivity can be small. Fullscrren dosn't work on Apple's safari. 
+</p>
+
+<h2 id="style">A note on style</h2>
+<p>MJSplots have a style that focuses on:</p>
+<ul>
+<li>Strong exterior alignment lines.
+<li>No trapped whitespace.
+<li>Maximum area for data.
+</ul>
+<p>
+I've moved the labels inside the axes in such a way that it won't overlap the data. There is going to be always one spare section on all sides so that the text should not cover up anything. Scale labels remain on the bottom and the left, keeping with tradition. Major and minor ticks are on all sides, removing the need for grid lines that add clutter over the data. It's all about getting the best view of your data, the larger viewport area shows more of it than a labels out design.
+</p>
+
+
+<h2 id="download">Downloads</h2>
+<p>
+MJSplot is open source. You can grab a copy just by looking at the source code for this page.
+If you jumped straight here, I suggest you look at <a href="#helpers">[Helpers]</a> for additional downloads.
+</p>
+<p>
+<a href='mjs_plot_0_3_n_min.js'>mjs_plot_0_3_n.js</a> is a link to the latest version in the 0_3 branch that will not have any breaking api changes. This is the one to use.
+I don't have a CDN so please don't hot-link it. Individual versions available below.</p>
+
+
+<ul>
+<li><a href='mjs_plot_0_3_3svg.js'>mjs_plot_0_3_3svg.js</a> Current version. 2015-05-27
+<li><a href='mjs_plot_0_3_2.js'>mjs_plot_0_3_2.js</a> 2015-05-21
+<li><a href='mjs_plot_0_3_1.js'>mjs_plot_0_3_1.js</a> 2015-05-06
+<li><a href='mjs_plot_0_2_17n.js'>mjs_plot_0_2_17n.js</a> 2015-04-29
+<li><a href='mjs_plot_0_2_16.js'>mjs_plot_0_2_16.js</a> 2015-04-17
+<li><a href='mjs_plot_0_2_15.js'>mjs_plot_0_2_15.js</a> 2015-04-10
+<li><a href='mjs_plot_0_2_14.js'>mjs_plot_0_2_14.js</a> 2015-03-11
+<li><a href='mjs_plot_0_2_12.js'>mjs_plot_0_2_12.js</a> 2015-02-24
+<li><a href='mjs_plot_0_2_11b3.js'>mjs_plot_0_2_11b3.js</a> 2015-02-17
+<li><a href='mjs_plot_0_2_11b2.js'>mjs_plot_0_2_11b2.js</a> 2015-02-17
+<li><a href='mjs_plot_0_2_11.js'>mjs_plot_0_2_11.js</a> 2015-01-29
+<li><a href='mjs_plot_0_2_10c.js'>mjs_plot_0_2_10c.js</a> 2015-01-19
+<li><a href='mjs_plot_0_2_10b.js'>mjs_plot_0_2_10b.js</a> 2015-01-17
+<li><a href='mjs_plot_0_2_10.js'>mjs_plot_0_2_10.js</a> 2014-12-08
+<li><a href='mjs_plot_0_2_9c.js'>mjs_plot_0_2_9c.js</a>
+</ul>
+
+<p>The file above are full-size. If you want faster page times then you should use a javascript minimizer like <a href='http://jscompress.com/'>jscompress</a>.</p>
+
+<p>New in 0_3_3svg: </p>
+<ul>
+<li> SVG support!
+<li> fixed a bunch of time related inperfections. bugs.
+
+
+</ul>
+
+<p>New in 0_3_2: </p>
+<ul>
+<li> added mean_normalise function y' = (y-mean(y))/sigma(y)
+<li> added area consideration to gauss fitting. much more usefull now.
+<li> time does scaling to the nearest start of the unit. i.e. going up in every 2h is 0,2,4,6,8 etc, not 1,3,5,7.
+<li> improved tick labels for time. check if the highprecision is needed. Results in shorter strings with no losses.
+<li> changed the size of the buttons to scale with the size of the tick text rather than the size of the ticks.
+<li> fixed the mid variable not beging declaired.
+<li> the mouse move event text on mobile devices is at the edge rather than near the finger.
+<li> removed limitation of 1e-13 being the smallest plottable number. now it is 1e-203 ish. 
+<li> modified/fixed time scale behavour when working in different time zones
+
+</ul>
+<p>New in 0_3_1: </p>
+<ul>
+<li>added mode menu in top right
+<li>removed dot_size and circle_size
+<li>added symbol_size as replacement
+<li>removed feature: draw label over the graph.
+<li>added symbols cross and x
+<li>added captions menu
+<li>added captions_display and show_captions to graphics style.
+<li>fixed fonts changing size in on_mouse_over
+<li>added normalisation for fits when using a time axis. Huge improvement (now usable)
+<li>preliminary support for poltting error bars. new allowed formats:
+<ul>
+			<li>			[x,y] // existing
+			<li>[x,y,yerror] //using yerrors
+			<li>[x,y,yerror,xerror] //using x and y errors.
+			<p>
+			Note: errors are not accounted for in transformations. yet.
+			support for errors should be considered unstable.
+			</p>
+</ul>
+<li>changed namespace. now using a javascirpt module pattern.
+<ul>
+			<li>use mjs_plot.new_graph(name,canvas)
+			<li>mjs_plot.convert_time_strings(strings)
+			<li>mjs_plot.get_graph_style()
+			<p>
+			All the helper funtioncs are hidden away from the global name space.
+			added "use strict"; to many functions to avoid pollution.
+			</p>
+</ul>
+</ul>
+
+<p>New in 0_2_17n: </p>
+<ul>
+<li>Added shim function between mouse_move_event and the event hander
+         so that if the function hasn't ended it won't try to call it again. This improves performance on slow systems.
+<li>Added fps counter and DEBUGG_FPS global flag.
+<li>Reverted graph position overlay to be near the pointer, with 
+         position caped to be on screen. This fixes a performance regression.
+<li>Added custom function to functions.
+<li>Function parser can now use the "now" variable. useful if working with time data.
+<li>Line menu has add function line button and keeps track of fuction lines.
+<li>Cleaned up code when drawing simple line on the graph.
+<li>Modified the code for datetime printing. still trying to get this right.
+</ul>
+
+<p>New in 0_2_16: </p>
+<ul>
+<li>Vastly improved the axis labels stepping charastic using font-metrics on the left
+	     and right sides. meaning slim fonts jump to stepping less. 
+<li>Improved performace after dragging (about x/2 drawing time)
+<li>Improved performace in mjs_plot() if not dragging, no need to save a drag image.
+<li>Added code to check for visable sequences of data, and then to only draw the data that appears
+	     on screen. Huge improvements in performance when zoomed in. (between 40-70% imporvement in draw time)
+<li>Then only do that if the view is zoomed in, as finding sequences takes time.
+<li>Added show_grid option to graphic_style, grid button in lower left, grid drawing
+<li>Added fullscreen button in lower right corner. Using the fullscreen API.
+<li>Measure mode on mobile devices saves the gradient and measurments after the user lifted one finger.
+<li>Fixed regression in the options menu where the background wasn't transparent
+<li>Added option for middle ground colour. but this is not used anywhere yet.
+<li>Modified date printing behavour.
+<li>Added the 5day interval for timemode axies. the jump from 2d to 7d was too much.
+</ul>
+
+<p>New in 0_2_15: </p>
+<ul>
+<li>Pinch to zoom! It's finally working.
+<li>Changed default apperence, font to "sans-serif", white->#111111, dark->#eeeeee.
+<li>Added markers on mouse-zoom while dragging to make it easyer to see where the zoom is going.
+<li>Pinch to zoom on mobile works in drag mode.
+<li>Pinch zoom scale has min 0.1x and max of 10x
+<li>Reading off graphs is now easyer as the labels have stroked text
+<li>Data reader mode has stroked text for easyer reading.
+<li>Drag mode is default for mobile devices
+</ul>
+
+
+<p>New in 0_2_14: </p>
+<ul>
+<li> (carried forwards from 2_2_13) changed -mx+c button to be a user selectable line by drawing. Was an automatic line, but that is now acheviable by picking a linear fit and then subtract fit.
+<li> <a href='demos/time_showoff.html'>added time axis mode</a>
+<li> added functions to print a time at different precisions
+<li> added methods to find correct time axis
+<li> added transofrms to convert time to numbers
+<li> added time menu in functions menu
+<li> modified code to use get_axis_string so that time can be provided in the measure, x-c,y-c tools.
+<li> added website to info button
+</ul>
+
+<p>New in 0_2_12: </p>
+<ul>
+<li> Added JSON export [[][]]
+<li> Added matlab style data export. [] with spaces between the numbers. 
+</ul>
+<p>New in 0_2_11b3 (Quick Fix): </p>
+<ul>
+<li> Fixed minor bug in MJSprecision. Did not pick the shortest string. 
+</ul>
+<p>New in 0_2_11b2 (2_2_11b release skipped): </p>
+<ul>
+<li> Added ax^b, a*blnx, gauss, and abx^c fits
+<li> Added remove-fit transform
+<li> Added remove-outliers transform
+<li> Added keep only outliers transform
+<li> Added fit option 'old' to show the old fit and not make a  new one (useful for understanding the new functions)
+<li> Added graph.old_fit to hold the old fit.
+<li> Added subtitle2 to graphics style for a second line of subtitles
+<li> Added jitter function
+<li> The transforms list drawn position now depends on if the subtitles are drawn or not. (looks better)
+<li> Improved the drawing of histograms. The bars now only go to zero. 
+<li> Fixed bug with integrate transform. 
+<li> Added spacing function. 1/spacing is useful for finding the data density
+<li> Added touch only on screen zoom out button, and auto zoom button.
+<li> Fixed problem with the menu text now being drawn on mobile devices.
+<li> Changed default fit-text position.
+<li> Fixed bug with number_quote causing crashes when given NaNs
+</ul>
+
+<p>New in 0_2_11:</p>
+<ul>
+<li>Overhaul of the information button. Now shows other graph information
+<li>Added y=c fitting (trivial)
+<li>Added option for fits to extrapolate rather than interpolate
+<li>Fixed bug where the user chooses a manual man/min scale that is off the range of the data and then picks an autoscale direction that is away from the data causing max to be lower than min (or viser versa).
+<li>Moved fitting function into fits object, unified fitting code.
+<li>Fixed bug with fittings on log scale drawing odd lines between -ve line points
+<li>Added graphics_style.fit_color boolean, no ui available yet.
+</ul>
+
+<p>New in 0_2_10c:</p>
+<ul>
+<li>Changed ctx.lineJoin to rounded from miter. Looks better. And fixes bugs on Chrome
+<li>Improved touch support. including zoom out button. (no right click on a touch screen!)
+<li>View under finger on touch screens.
+<li>Added mobile detection support as well as touch support. This means touch enabled laptops are not borked.
+<li>Added flag DEBUGG_FORCE_TOUCH to help testing.
+<li>Fixed regression in placement of transforms list.
+</ul>
+
+<p>New in 0_2_10b:</p>
+<ul>
+<li>Removed cookie based storage, reverted back to saving full JSON'd graphics_style object. All storage is local_storage.
+<li>Basic touch screen support
+<li>improved options menu layout to fit the screen better and simpler code.
+<li>improved the visibility of the caption text by using strokeText() this only works if the background isn't transparent.
+<li>fixed graph.graphics_style.hidden_lines not being populated after a graphics_style reset.
+<li>improved visibility of fit text by using strokeText
+<li>fixed issue with the scale stepping changing if 0 was on the edge. (change between -0.0 and 0.0) causing the stepping flag to jump randomly depending on floating point rounding.
+<li>added mouse mode 'mouse' for moving objects.
+<li>added captions_position object to graphics_style
+<li>added fit_text_position object to graphics_style
+<li>can use mouse mode to move the position of the fit text, captions, and title spacing.
+<li>captions have correct alignment depending on which quadrant they are in.
+</ul>
+
+<p>New in 0_2_10:</p>
+<ul>
+<li>Exported graphs now use a transparent background. This is much better for posters/presentations.
+<li>Using the text_align to better place text.
+</ul>
+
+<p>New in 0_2_9c: 
+</p>
+<ul><li>Can use local storage if it is available. defaults back to cookie storage.
+<li>export menu for more export options.
+<ul>
+<li>low res png, uses 1:1 canvas pixels to png.
+<li>high res png, scales up by a factor of 3 to make it about 300dpi. good for printing.
+<li>data tabbed, for excel, calc, origin,matlab etc. same as before.
+<li>data code style, e.g <tt>lineone_x = [-0.042,-0.007,0.054,0.088,0.222,0.401,0.465];<br>
+lineone_y = [0.9,0.911,0.966,0.966,1.123,1.414,1.683];</tt>.<br>
+Makes programming safe names from the captions.
+<li>data CSV.
+<li>png for figure. This makes a 1000px*750px image scaled up by 2.5x. This is what you would want if you were making figures for a paper.
+</ul>
+<li> Cleaned up code: Unified the find_limits() and use_scale() functions.
+<li> Options pane. Users can now modify almost everything contained in graphics_style via GUI. (needs improving).
+</ul>
+
+<h2 id="contact">Contact</h2>
+<p>If you've got an implementation I'd love to see MJSplot in action in the wild, or if you just have questions/comments I'd like to know.</p>
+<p>You can reach me directly via my university email, on domain lancs.ac.uk with the user "m.sarsby"</p>
+ 
+<p> I've put together a <a href="https://plus.google.com/114017013549078536058" rel="publisher">Google+</a> if you want to stop by there</p>
+
+<br>
+<br>
+<p> MJS 2014-2015</p>
+</body>
+
+<script>
+	var pressure_graph = new_graph("pressure_graph","democanvas");
+	pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
+	pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
+	pressure_graph.default_graphics_style.title = "Example Graph";
+	pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
+	pressure_graph.default_graphics_style.x_axis_title =  "Hours";
+	pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
+	pressure_graph.default_graphics_style.hidden_lines = [ false, false, false, true, true, true, true ];
+	pressure_graph.default_graphics_style.color_fg =  "#111111";
+	pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
+	
+	pressure_graph.mjs_plot();
+	
+	
+	
+	function draw_graphs(){
+	//resize to page
+	pressure_graph.canvas.width = document.body.clientWidth-20;
+	pressure_graph.canvas.height = Math.min(0.628*pressure_graph.canvas.width,0.7*window.innerHeight) ;
+	pressure_graph.mjs_plot();
+	}
+</script>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<meta name="viewport" content="initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="mjsplot.css">
+<style>
+#gslist dt {
+	font-family: monospace;
+}
+
+#gslist dd {
+	margin-bottom: 0.5em;
+}
+</style>
+</head>
+ <body>
+ <nav><a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
+
+<h1><a href="index.html">MJSplot</a></h1>
+<h2>Implementation.</h2>
+<p>
+There are very few exposed functions; for simplisity.
+</p>
+
+<p>
+Include a copy in the <tt>&lt;head&gt;</tt>.<br>
+<tt> &lt;script src="mjs_plot_0_3_n.js"&gt;&lt;/script&gt; </tt>
+</p>
+
+<p>
+Make a graph, and set the data and captions. In a <tt>&lt;script&gt;</tt> <br>
+<tt>
+your_graph = mjs_plot.new_graph( graphname , canvasID );<br>
+your_graph.set_data(yourdata);<br>
+your_graph.set_captions(captions);<br>
+</tt>
+
+</p>
+<p>
+All the styling stuff is stored in two objects:<br>
+<tt>your_graph.default_graphics_style.property = something</tt><br>
+and <br>
+<tt>your_graph.graphics_style.property = something</tt><br>
+They are accessed in the same way, except the <tt>default_graphics_style</tt> defines the initial view.
+User modifications are percistant over page reloads. Use <tt>graphics_style</tt> if your want
+to force a change.
+</p>
+
+<p>
+Ploting:<br>
+<tt>your_graph.mjs_plot()</tt>
+</p>
+<p>The details are below. For a more tutorial style guide see the <a href="./docs.html#implementation">docs</a></p>
+<h2>mjs_plot.new_graph( graphname , canvasID );</h2>
+<p>
+<tt>canvasID</tt> is the id you give to the canvas you want to draw on.
+</p>
+<p>
+<tt>graphname</tt> is a string to name the graph. Used for percistance. 
+</p>
+
+<h2>.set_data(yourdata);</h2>
+<p>
+<tt>yourdata</tt> is an array. Each item in the array is a series representated by an array of arrays in the form [x,y]. i.e. for a single series:<br>
+<tt>your_graph.set_data([[x1,y1]])</tt><br>
+For two series:<br>
+<tt>your_graph.set_data([[x1,y1],[x2,y2]])</tt><br>
+Where each <tt>x1</tt>,<tt>y1</tt> etc. is an array of numbers.
+</p>
+
+
+<h2>.set_captions(captions);</h2>
+<p>
+<tt>captions</tt> is an array of strings. Each item in the array names the corrisponding series. I.e.<br>
+<tt>your_graph.set_captions(["series1","series2"])</tt>
+</p>
+
+<h2>.mjs_plot();</h2>
+<p>
+Call when you want an update of the graph. Needs calling at least once (during setup). Common sinarios are: you changed the canvas size, and/or added new data to the graph.
+</p>
+
+<h2>graphics_style and default_graphics_style</h2>
+<p>
+This object contains everything customisable on the graph.
+</p>
+<p> starting with the most common:
+</p>
+
+<dl id="gslist">
+<dt>title</dt><dd>a string for the title of the graph. e.g. <tt>yourgraph.default_graphics_style.title="CPU load";</tt>. </dd>
+<dt>subtitle</dt><dd>graphs subtitle. Can use also subtitle2 for a second line under the first.</dd>
+<dt>x_axis_title</dt><dd>string of the x axis title. </dd>
+<dt>y_axis_title</dt><dd>string of the y axis title.</dd>
+
+<dt>y_scale_mode</dt><dd>What mode the axis is in. A string of "lin", "log", or "time".</dd>
+<dt>x_scale_mode</dt><dd>As above. If using time data, it's is very handy to
+set the axis to "time" by default.</dd>
+<dt>symbol_mode</dt><dd>a string of "none", "dot", "cdot", "box", "circ", "x", or "cross"</dd>
+<dt>line_mode</dt><dd>a string of "none", "line", "approx", "interp", "zig", "zag", "mid", or "hist"</dd>
+<dt>symbol_size</dt><dd>Size of the symbols in px.</dd>
+<dt>line_thickness</dt><dd>thickness of the lines drawn between points in px</dd>
+<dt>font_name</dt><dd>the font used for any text, a string like "serif" "impact" "monospace" or "sans-serif" etc.</dd>
+<dt>color_fg</dt><dd>the forground color. a string like "#111' or '#ff0011'.</dd>
+<dt>color_bg</dt><dd>the background color.</dd>
+<dt>guideWidthx</dt><dd> the target spacing for ticks on the x axis in px. </dd>
+<dt>guideWidthy</dt><dd> the target spacing for ticks on the y axis in px. </dd>
+<dt>tick_len</dt><dd>Length of the ticks in px.</dd>
+<dt>minor_tick_len</dt><dd>length of the minor ticks in px.</dd>
+<dt>graph_line_thickness</dt><dd> thickness of lines drawn for the boarders and ticks</dd>
+<dt>scaling_factor</dt><dd> Changes every length scale by a factor. defaults to 1.0. Using 2 would double every size and .5 would half everything. This is useful for large screens far away so you don't have to change everything manually.</dd>
+
+</dd>
+
+</dl>
+
+
+<!--
+	  : 'lin', //linear or log
+	  : 'lin',
+	 
+	 title_font_size : 20,// in px (24)
+
+
+	  : "",
+	 title_spacing : 2, // extra space from the top, in px.
+	 tick_labels_font_size : 10,//10
+	 tick_lables_font_padding : 2, // px extra space up from the ticks
+	 axis_labels_font_size: 10,//12
+	 lable_spacing : 8,//pixels away from the tick lables
+	  : 'x axis (units)',
+
+
+	  : 1,//scales up everything together...
+	 mouse_mode : mouse_mode, //changes the function of the mouse. between 'zoom' and 'drag' and 'measure'
+	 fits : 'none', //what fitting is applied
+	 extrapolate : false, //if the fit should extrapolate beyond the data
+	 color_fits : false, //if the fit lines should be black or with the color of the series
+	 x_scale_auto_max : true,
+	 x_scale_auto_min : true,
+	 y_scale_auto_max : true,
+	 y_scale_auto_min : true,
+	 x_manual_min : 0.0,
+	 x_manual_max : 1.0,
+	 y_manual_min : 0.0,
+	 y_manual_max : 1.0,
+
+	 x_scale_tight : false, //data goes right to the edges. 
+	 y_scale_tight : false, // otherwise there will be a nice 1 section space on all sides.
+	 show_captions : true, 
+	 captions_display : "none",//xmin xmax ymin ymax yfirst ylast xfirst xlast or non
+	 color_fg : '#111111', //foreground color
+	 color_bg : '#eeeeee', //background color
+	 color_mg : '#555555', //midground color, for the grid.
+	 show_grid: false,
+	 v : MJS_PLOT_VERSION, //version of mjsplot
+	 caption_colors : false, // generate colors from the captions
+	 hidden_lines : [], // array of booleans if each line should be hidden.
+	 data_transforms : [], //a list of the transform functions
+	 data_transforms_args : [], // the arguments for each transform
+	 i : 0, //state of the infomation button
+	 o : 0, //state of the options button
+	 modified : false,  //changes to true as soon as the user does anything to customise the style
+	 x_precision :2, //the number of sf to use when printing numbers on the x axis
+	 y_precision :2, //as above for y
+	 fit_text_position:{x:0.1,y:0.2}, //fraction accross and fraction down.
+	 caption_position:{x:-10,y:10}, //raw pixels down and accross (is then scaled by scaling_factor)
+	 function_lines :[] // userdefined lines that are drawn over the graph. each item in the array is a string of the function
+
+
+-->
+<br>
+<br>
+<p> MJS 2014-2015</p>
+</body>
+
+
+
+</html>

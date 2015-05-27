@@ -1,0 +1,58 @@
+<head>
+<style>
+body {margin:10px;padding:10px;border:1px solid;}
+h1 {text-align:center;}
+    </style>
+  <script>
+
+function updateTime(){
+
+  date_string = document.getElementById('dateinput').value;
+
+  try {
+    d = new Date(date_string);
+    document.getElementById("testdate").innerHTML = d.toString();
+  } catch(err) {
+      document.getElementById("testdate").innerHTML = 'Unknown date';
+  }
+
+}
+
+  </script>
+</head>
+<body>
+<h1>Javascript Time Tester</h1>
+<p>
+Not all time strings work. But here are a few that should.
+The actual implementation will depend on your browser.
+</p>
+<p>Should work:</p>
+<ul>
+	<li>ISO-8601  yyyy-mm-ddThh:mm:ss.sssZ (prefered)
+	<li>March 2 2015
+	<li>March 2 2015 12:45
+	<li>2014/11/02 12:54
+	<li>12:53 2014/11/02
+	<li>2014
+	<li>2/3/2014 ( MM/DD/YYYY)
+	<li>Mon, 25 Dec 1995 13:30:00 GMT
+	<li>2011-11-12
+</ul>	
+<p>This does not include:</p>
+<ul>
+<li>	dd/mm/yyyy hh:mm:ss
+<li>	yyyy-mm-dd hh:mm:ss
+</ul>
+
+<p>Test what you plan to use.</p>
+  <p>Enter a datetime</p>
+ <textarea id='dateinput' rows ='1' cols='40'>2015-02-01 12:00:00</textarea>
+ <p id='testdate'>Unknown</p>
+
+</body>
+<script>
+//updateTime();
+var d = new Date();
+document.getElementById('dateinput').value = d.toString();;
+  setInterval(updateTime,1000);
+</script>

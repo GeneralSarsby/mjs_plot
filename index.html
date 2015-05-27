@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<meta name="viewport" content="initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="mjsplot.css">
+	<script src="mjs_plot_0_3_n.js"></script>
+	<script src="pressure2.js"></script>
+</head>
+ <body onresize="draw_graphs()" onload="draw_graphs()">
+ <nav><a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
+
+<h1><a href="index.html">MJSplot</a></h1>
+<h3>A javascript library for highly interactive graphs for analysis and data exploration.</h3>
+ <canvas id="democanvas" width="600" height="400" ></canvas><br>
+ <div id='boxes'>
+ 
+ <div class='featurebox'>
+<h2>Simple to use, and free.</h2>
+One file, no dependencies. Few <a href="./implementation.html">boilerplate lines</a>. Open source licence.
+ </div>
+
+     <div class='featurebox'>
+<h2>Interactive </h2>
+Zoom, Pan, fit lines, transformations, symbol type, hide/show lines and more. 
+ </div>
+ 
+   <div class='featurebox'>
+<h2>Persistence</h2>
+User made changes stay put. Page reloads won't reset the view.
+ </div>
+ 
+    <div class='featurebox'>
+<h2>Mobile Touch</h2>
+Data analysis on your phone or tablet. Pinch to zoom and under-finger views.
+ </div>
+ 
+  <div class='featurebox'>
+<h2>HTML5</h2>
+Uses the HTML5 canvas element. It's supported in all modern browsers on desktop and mobile
+ </div>
+ 
+   <div class='featurebox'>
+<h2>Responsive</h2>
+Plot on nearly any size canvas.
+As well as figuring out a new scale that always is sensible.
+ </div>
+ 
+      <div class='featurebox'>
+<h2>Time-series data</h2>
+Real time axies for graphs. From milliseconds to years there is a scale that works. <a href='./demos/timedemo.html'>[demo]</a>
+ </div>
+ 
+       <div class='featurebox'>
+<h2>Out-of-the-box OK</h2>
+Auto-detect axes scales, colours separated in HSL. Clean simple style.
+ </div>
+ 
+        <div class='featurebox'>
+<h2>No data traps</h2>
+Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and as 300dpi PNG for print.
+ </div>
+ 
+ 
+ </div>
+<br>
+<br>
+<p> MJS 2014-2015</p>
+</body>
+
+<script>
+	var pressure_graph = mjs_plot.new_graph("pressure_graph","democanvas");
+	time = mjs_plot.convert_time_strings(pressureTimes);
+	pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
+	pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
+	pressure_graph.default_graphics_style.title = "Example Graph";
+	pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
+	pressure_graph.default_graphics_style.x_axis_title =  "Hours";
+	pressure_graph.default_graphics_style.font_name =  "helvetica";
+	pressure_graph.default_graphics_style.axis_labels_font_size = 12;
+	pressure_graph.default_graphics_style.tick_labels_font_size= 12;
+	pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
+	pressure_graph.default_graphics_style.hidden_lines = [ false, true, true, false, true, true, false ];
+	pressure_graph.default_graphics_style.color_fg =  "#eeeeee";
+	pressure_graph.default_graphics_style.color_bg =  "#111111";
+	pressure_graph.default_graphics_style.show_grid = true;
+	pressure_graph.default_graphics_style.y_scale_mode = "log";
+	pressure_graph.default_graphics_style.x_scale_mode =  "time";
+	pressure_graph.mjs_plot();
+	
+	
+	
+	function draw_graphs(){
+	//resize to page
+	pressure_graph.canvas.width = document.body.clientWidth-20;
+	pressure_graph.canvas.height = Math.min(0.628*pressure_graph.canvas.width,0.6*window.innerHeight) ;
+	pressure_graph.mjs_plot();
+	}
+</script>
+</html>

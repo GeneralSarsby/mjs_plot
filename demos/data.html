@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+ <meta name="viewport" content="initial-scale=1.0">
+<style>
+body, canvas, html{
+margin: 0px;
+padding: 0px;
+overflow: hidden
+}
+html, body {
+width:  100%;
+height: 100%;
+line-height: 0px;
+}
+</style>
+<script src="../mjs_plot_0_3_n.js"></script>
+<script src="data_files/pressures.js"></script>
+<script src="data_files/botTF_temps.js"></script>
+<script src="data_files/mcta_temps.js"></script>
+</head>
+<body onresize="draw_graphs()" onload="draw_graphs()">
+<canvas id="canvas1" width="600" height="420"></canvas><canvas id="canvas2" width="300" height="420"></canvas><canvas id="canvas3" width="300" height="420"></canvas>
+
+<script>
+//make new graph object and tell it it's name and the canvas to use. 
+var pressure_graph = mjs_plot.new_graph("pressure_graph","canvas1");
+//give graph x and y
+pressure_graph.set_data([[time,still],[time,bigroots],[time,littleroots],[time,acp40],[time,acp40out],[time,pretraps],[time,cond],[time,pot]]);
+pressure_graph.set_captions(['Still','Bigroots','LittleRoots','ACP40in','ACP40out','PreTraps','Cond','Pot']);
+pressure_graph.default_graphics_style.title = "Pressures";
+pressure_graph.default_graphics_style.x_axis_title =  "Hours";
+pressure_graph.default_graphics_style.y_axis_title =  "Pressure mBar";
+//pressure_graph.graphics_style.caption_colors = true;
+pressure_graph.default_graphics_style.y_scale_mode = 'log';
+
+//make new graph object and tell it it's name and the canvas to use. 
+var botTF_temp_graph = mjs_plot.new_graph("botTF_temp_graph","canvas3");
+//give graph x and y
+botTF_temp_graph.set_data([[tf_times,tf_widths],[tf_times,tf_Temperatures]]);
+botTF_temp_graph.set_captions(['Width','Temp']);
+botTF_temp_graph.default_graphics_style.title = "Bot TF";
+botTF_temp_graph.default_graphics_style.x_axis_title =  "Hours";
+botTF_temp_graph.default_graphics_style.y_axis_title =  "mK";
+botTF_temp_graph.default_graphics_style.y_scale_mode = 'log';
+//make new graph object and tell it it's name and the canvas to use. 
+var mcta_temp_graph = mjs_plot.new_graph("mcta_temp_graph","canvas2");
+//give graph x and y
+mcta_temp_graph.default_graphics_style.title = "MCTA";
+mcta_temp_graph.default_graphics_style.x_axis_title =  "Hours";
+mcta_temp_graph.default_graphics_style.y_axis_title =  "mK";
+mcta_temp_graph.default_graphics_style.y_scale_mode = 'log';
+//mcta_temp_graph.mjs_plot();
+mcta_temp_graph.set_data([[mcta_times,mcta_widths],[mcta_times,mcta_Temperatures]]);
+mcta_temp_graph.set_captions(['Widths','Temperatures']);
+
+function draw_graphs(){
+	//resize to page 
+	pressure_graph.canvas.width = window.innerWidth-1;
+	pressure_graph.canvas.height = window.innerHeight*0.5-1;
+	botTF_temp_graph.canvas.width = window.innerWidth*0.5-1;
+	botTF_temp_graph.canvas.height = window.innerHeight*.5-1;
+	mcta_temp_graph.canvas.width = window.innerWidth*0.5-1;
+	mcta_temp_graph.canvas.height = window.innerHeight*0.5-1;
+	
+	//tell the graph to plot
+	pressure_graph.mjs_plot();
+	botTF_temp_graph.mjs_plot();
+	mcta_temp_graph.mjs_plot();
+}
+
+</script>
+</body></html>

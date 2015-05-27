@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<style>
+body {margin:10px;padding:10px;border:1px solid;}
+h1 {text-align:center;}
+    </style>
+  </head>
+  <bodt>
+<h1>Matlab - MJSplot integration</h1>
+<p>This is a quick and easy way to use MJSplot.js from Matlab. I find that Matlab's graph don't look that good, so I sometimes use MJSplots's high resolution .png export option for printing graphs.</p>
+<p>A <a href="./MJSplot.m"><tt>MJSplot.m</tt> Matlab function</a>.</p>
+<p>
+This works like: <tt>MJSplot( data, captions, titlestr, xaxis,yaxis )</tt>. Where <tt>data</tt> is a cell array like <tt>{x y}</tt> or <tt>{x1 y1 x2 y2 ...}</tt>; <tt>captions</tt> is a cell array of strings (<tt>{'r8' 'r1'}</tt>);
+<tt>titlestr, xaxis, yaxis</tt> are just strings. It will write a file called <tt>matlabplot.html</tt> into the working directory that is a full screen plot (scales to the size of the browser window).
+You'll need a version of MJSplot.js in the working directory too.
+The matlab internal web browser doesn't work with HTML5, so the best way is to right-click and pick 'Open Outside MATLAB'.</p>
+
+
+</body>

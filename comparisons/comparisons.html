@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<style>
+body {margin:10px;padding:10px;border:1px solid;}
+h1 {text-align:center;}
+    </style>
+  </head>
+  <bodt>
+<h1>Graphing Comparisons</h1>
+<p>I plot the same data using a few different programs to see how they compare. I've tried to keep the plotting size about equal each time.</p>
+<h2> Example 1</h2>
+<a href='./better_than_2.png'><img src="./better_than_2.png" alt="graph example" width='100%'></a>
+<p>Here I use some programs I have to hand. All the graphs use the auto scales or equivalent.</p>
+<p>padding:</p>
+<ul>
+<li> MJSplot: No external padding around MJSplots's graph.
+<li> Origin8:Large external padding around Origin8's graph means the plotted area is quite small.
+<li> Matlab: Matlab uses less padding and has a reasonable plot size.
+<li> Calc: makes good use of space.
+</ul>
+<p>Scale choice:</p>
+<ul>
+<li> MJSplot:Start below the data and finish above the data. Data has good spacing around the edges. Starts and ends on nice numbers
+<li> Origin8: Starts and ends on obscure numbers. Causes data to be pushed right to the top.
+<li> Matlab, Calc: Picks the nearest order of magnitude. Lots of wasted space.
+</ul>
+<p>Labeling:</p>
+<ul>
+<li> MJSplot: Labels go up in sensible amounts.
+<li> Origin8: Gives only the orders of magnitude. Good use of minor ticks but not above 1 (in this example).
+<li> Matlab, Calc: Only 10^xs
+</ul>
+
+<h2> Example 2</h2>
+<a href='./better_than_1.png'><img src="./better_than_1.png" alt="graph example" width='100%'></a>
+<p> Note how MJSplot automatically picks a scale the increases in 1s, then 2s, then 5s, then 10s as the y axis increases. Others just don't even try.</p> 
+
+<h2> Example 3</h2>
+<a href='./better_than_3.png'><img src="./better_than_3.png" alt="graph example" width='100%'></a>
+<p>This is a logarithmic graph zoomed into a region spanning much less than a decade.</p> 
+<p>I don't find Matlabs use of scale very helpful: 10<sup>-0.94</sup>,10<sup>-0.93</sup>,10<sup>-0.92</sup>, etc.</p> 
+<p> Origin forgets about keeping constant significant figures on the numbers, 0.11 and 0.12 should be 0.110 and 0.120 to match with the rest of the scale. The scale
+starts and ends on obscure points again leaving a large gap above 0.125 that looks odd.</p>
+<p>MJSplot doesn't have any of these issues</p>.
+</body>

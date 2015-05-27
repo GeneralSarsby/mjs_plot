@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<style>
+body {margin:10px;padding:10px;border:1px solid;}
+h1 {text-align:center;}
+    </style>
+  </head>
+  <bodt>
+<h1>Labview - MJSplot integration</h1>
+
+<p>Nav:<a href="#XYgraph">[XY Graphs]</a> <a href="#2Darray">[2D Arrays]</a> <a href="#timeseries">[Time Series]</a> </p>
+
+<p>
+Seeing data as it's recorded while at home was a big motivation for MJSplot.
+</p>
+
+
+<p>
+With these example integration methods I hope you will read the source code and make modifications as you need them.
+</p>
+<h2  id="XYgraph"> XY graph </h2>
+<p><a href='XYGraph_to_Javascript3.vi'><tt>XYGraph_to_Javascript3.vi</tt></a></p>
+<p>The easiest way. If you can get your data to plot on labview's xy graph front panel object, you can route the
+graph line (think pink) to <tt>XYGraph_to_Javascript3.vi</tt>. This box does the formatting and will write a <tt>.js</tt>
+with each line of the xy graph in variables <tt>x0=[...]; y0=[...]; x1=[...];y1=[...]; </tt> etc.
+You will write a page that uses this. 
+</p>
+<p>Implementation Idea:</p>
+
+<img src="./xy_graph_example.PNG" alt="xy graph example">
+<p>
+In this example I use a reference to an xy graph rather than the graph itself, but the direct connection would work too.'Web folder' is a
+folder select front panel object that can point to the webserver.
+This example is in a stacked frame sequence in the main loop and runs with a 'next web update' time, this means the the data written to the web
+only every 60s ('Update web every') so the server isn't hit to often. All optional of course.
+</p>
+<h2 id="2Darray"> 2D Array </h2>
+<p><a href='2d_array_to_Javascript_2.vi'><tt>2d_array_to_Javascript_2.vi</tt></a> and it's sub-vi: <a href='array_to_Javascript_variable.vi'><tt>array_to_Javascript_variable.vi</tt></a>.</p>
+<p>The better way. 
+In this example I have a time array and two data arrays that I want to see online as a XYY graph (sharing a common x).
+</p>
+
+<img src="./2d_array_example.PNG" alt="2d array example">
+<p>
+Time in converted to relative time in hours. The 'web folder' is the same as the above example.
+The time array and my two data arrays are fed into an array that goes to the 'save .js' box. The variable names you want are an array of strings, this means you can have
+different graph plotting to the same webpage without hitting namespacing problems.
+
+</p>
+<h2 id="timeseries"> XYY Time Series Graph </h2>
+<p>With version 2_2_14 MJSplot can use time data nativly. One way to use this is to write out the times from labview in an importable way.
+The new labview box is called 
+<a href='time_series_to_js.vi'><tt>time_series_to_js.vi</tt></a> and it uses 
+<a href='TimeArrayToStrings.vi'><tt>TimeArrayToStrings.vi</tt></a> and
+<a href='stringarray_to_Javascript_variable.vi'><tt>stringarray_to_Javascript_variable.vi</tt></a> to work.
+</p>
+<p>
+The implementation is very similar to before:
+</p>
+
+<img src="./old_vs_new.PNG" alt="comparason of the old and new ways to get time-series data from labview">
+<p>
+The big difference is the the labview timestamps are feed in and converted internally. The time variable needs naming so one additional imput is needed.
+</p>
+
+<img src="./time_series_usage.PNG" alt="time series usage">
+
+<p>Once the data is loaded into the browser you will need two lines like</p>
+<p><tt>times = convert_time_strings(mcta4_times);</tt></p>
+<p>and</p>
+<p><tt>your_graph.default_graphics_style.x_scale_mode = "time";</tt></p>
+
+</body>

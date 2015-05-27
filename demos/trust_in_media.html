@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+  <meta http-equiv="refresh" content="6000">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+body, canvas, html{
+margin: 0px;
+padding: 0px;
+overflow: hidden
+}
+html, body {
+width:  100%;
+height: 100%;
+}
+    </style>
+
+	<script src="../mjs_plot_0_3_n.js"></script>
+  </head>
+  <body onresize="draw_graphs()" onload="draw_graphs()">
+  <center>
+ <canvas id="canvas4" width="600" height="400"></canvas><br>
+   </center>
+</body>
+	<script>
+
+	//make new graph object and tell it it's name and the canvas to use. 
+	var media_graph_confidence = mjs_plot.new_graph("media_graph_confidence","canvas4");
+
+	dates = ['2014 sept 4','2013 sept 5','2012 sept 6','2011 Sept 8','2010 Sept 13'	,'2009 Aug 31'	,'2008 Sept 8'	,'2007 Sept 14'	,'2005 Sept 12'	,'2004 Sept 13'	,'2003 Sept 8'	,'2002 sept 8'	,'2001 sept 7'	,'2000 july 6'	,'1999 feb 4'	,'1998 dec 28'	,'1997 may 30'	,'1976 june 1'	,'1974 April 1','1972 may 1'];
+	great = [10,11,8,11,12,10,9,9,13,9,14,10,12,12,11,11,10,18,21,18];
+	fair = [30,33,32,33,31,35,34,38,37,35,40,44,41,39,44,44,43,54,48,50];
+	not_very = [36,33,39,36,36,37,35,35,37,39,35,35,33,37,34,35,31,22,21,24];
+	none = [24,22,21,19,21,18,21,17,12,16,11,11,14,12,11,9,15,4,8,6];
+	no_opionion = [0,1,1,1,0,1,1,0,1,1,0,0,0,0,0,1,1,2,2,2];
+	
+	//convert the time strings to milliseconds
+	times = mjs_plot.convert_time_strings(dates);
+
+	media_graph_confidence.set_data([[times,great],[times,fair],[times,not_very],[times,none],[times,no_opionion]]);
+
+	media_graph_confidence.set_captions(['great','fair','not_very','none','no opionion']);
+	
+	media_graph_confidence.default_graphics_style.title = "Trust and Confidence in Media";
+	media_graph_confidence.default_graphics_style.subtitle = 'full, accurate, and fair';
+	media_graph_confidence.default_graphics_style.x_axis_title =  "Time";
+	media_graph_confidence.default_graphics_style.y_axis_title =  "% people";
+	
+	//this is the new important change
+	media_graph_confidence.default_graphics_style.x_scale_mode =  "time";
+	
+	function draw_graphs(){
+		//resize
+		media_graph_confidence.canvas.width = window.innerWidth;
+		media_graph_confidence.canvas.height = window.innerHeight;
+		
+		//tell the graph to plot
+		media_graph_confidence.mjs_plot();
+	}
+
+    </script>
+</html>

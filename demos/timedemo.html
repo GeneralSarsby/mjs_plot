@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+  <meta http-equiv="refresh" content="6000">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+body, canvas, html{
+margin: 0px;
+padding: 0px;
+overflow: hidden
+}
+html, body {
+width:  100%;
+height: 100%;
+}
+    </style>
+	<script src="time_data.js"></script>
+	<script src="../mjs_plot_0_3_n.js"></script>
+  </head>
+  <body onresize="draw_graphs()" onload="draw_graphs()">
+  <center>
+ <canvas id="canvas4" width="600" height="400"></canvas><br>
+   </center>
+  <!-- <button onclick="data_out(some_graph)">Get data</button> -->
+</body>
+	<script>
+
+	// log(y)
+	//make new graph object and tell it it's name and the canvas to use. 
+	var some_graph = mjs_plot.new_graph("some_graph","canvas4");
+
+	//convrt the time strings to milliseconds
+	//times and widths are arrays imported from time_data.js
+	xdata = mjs_plot.convert_time_strings(times)
+	ydata = widths;
+
+	some_graph.set_data([[xdata,ydata]]);
+
+	some_graph.set_captions(['xy']);
+	
+	some_graph.default_graphics_style.title = "MCTA";
+	some_graph.default_graphics_style.subtitle = 'Historical Data';
+	some_graph.default_graphics_style.x_axis_title =  "Time";
+	some_graph.default_graphics_style.y_axis_title =  "pressure mbar";
+	
+	//this is the new important change
+	some_graph.default_graphics_style.y_scale_mode =  "log";
+	some_graph.default_graphics_style.x_scale_mode =  "time";
+	
+	function draw_graphs(){
+		//resize
+		some_graph.canvas.width = window.innerWidth;
+		some_graph.canvas.height = window.innerHeight;
+		
+		//tell the graph to plot
+		some_graph.mjs_plot();
+	}
+
+    </script>
+</html>
