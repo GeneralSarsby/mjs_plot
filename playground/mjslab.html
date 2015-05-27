@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+body, canvas, html{
+background-color: #272822;
+	color: #F8F8F2
+}
+html, body {
+font: 12px "Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace;
+}
+h1{
+text-align: center;
+font-size: 20px ;
+}
+textarea {
+background-color: #272822;
+	color: #F8F8F2;
+}
+.example {
+    display: none;
+}
+   
+  #topdiv{
+  width = 100%;
+  }
+   
+
+	#graphdiv{
+	height:100%
+	}
+	
+	#inputholder, #moveable{
+	resize: both;
+	width:90%;
+	height:350px;
+overflow: auto;
+border: 1px solid;
+padding: 5px;
+margin: 5px;
+overflow:hidden;
+
+	}
+	
+#input{
+	width:100%;
+	height:100%;
+}
+ #errors{
+ width:50%;
+	height:100px;
+ }
+	
+
+	 
+</style>
+	<script src="../mjs_plot_0_3_n.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js" type="text/javascript" charset="utf-8"></script>
+  </head>
+  <body onresize="__resize()">
+  
+  
+  <h1>mjs_plot playground</h1>
+  
+  <div id="topdiv">
+  
+  <button id='updatebutton' onclick="__update()">run</button>
+  <button id='updatebutton' onclick="__import()">import</button>
+  Load Example:
+<select id="examples" onchange="__load_example()">
+  <option value="basic_intro">Introduction</option>
+  <option value="functions_example">Functions</option>
+  <option value="time_example">Timeseries</option>
+  <option value="errors_example">Errors</option>
+  <option value="about_text">About</option>
+</select>
+
+
+</div>
+ 
+ 
+
+ 
+ <div id='inputholder' onclick="window.dispatchEvent(new Event('resize'));">
+ <div id="input" >
+</div>
+</div>
+ 
+ <div id="moveable" onclick='__resize()'>
+
+<div id='graphdiv'>
+ <canvas id="canvas4" width="500" height="600"></canvas>
+ </div>
+  </div>
+
+  
+   <div id='basic_intro' class='example'>
+// Here you can provide data, do some manipultions, and plot the result.
+
+// the contents of this editor will be evaluated.
+// It is just simple javascript with a few helper functions.
+
+// When you are done editing, click the run button in the top left.
+// In this example I've used some IV data to demonstate.
+currents = [70.8,71.1,71.3,71.2,71.3,71.2,71.0,69.2,65.9,59.7,56,54.8,52.9,51.8,48.4,47.4,46.6,44.8,43.3,42.6,40.0,38.1,36.5,35.5,33,27.1,25.6,21.6,6.3];
+voltages = [.109,.461,.8,1.016,1.204,1.333,1.483,1.657,1.783,1.874,1.91,1.915,1.929,1.937,1.958,1.92,1.966,1.976,1.983,1.986,1.994,2,2.01,2.01,2.02,2.04,2.04,2.06,2.09];
+
+//You can print messages to the box below
+println('There are ',voltages.length, ' measurments');
+
+//basic maths works times(x,y),add(x,y),sub(x,y),divide(x,y),log(x),sqrt(x),sqr(x),exp(x)
+//each work on arrays element-wise, or number on element.
+
+//convert current in mA to A
+currents = times(currents,0.001);
+
+resistances = divide(voltages ,currents);
+powers = times(voltages,currents);
+
+//plot in the form (x,y). Call plot() again to add new lines.
+plot(resistances ,powers)
+
+//setup a few things on the graph.
+captions('run 1');
+title('Load Graph for Solar Cell');
+subtitle('four cells of 2.5x5cm');
+x_axis('resistances / Ohms');
+y_axis('power / Watts');
+
+// To learn more, use the Load Example option above.
+
+// For hackers thinking that can break stuff as this is ran eval()-style
+// You can. Sure. Go for it. 
+
+ </div>
+  <div id='errors_example' class='example'>
+// as of version 0_3 MJSplot has basic support for plotting error bars.
+
+//This is an example of working with errors
+
+currents = [70.8,71.1,71.3,71.2,71.3,71.2,71.0,69.2,65.9,59.7,56,54.8,52.9,51.8,48.4,47.4,46.6,44.8,43.3,42.6,40.0,38.1,36.5,35.5,33,27.1,25.6,21.6,6.3];
+voltages = [.109,.461,.8,1.016,1.204,1.333,1.483,1.657,1.783,1.874,1.91,1.915,1.929,1.937,1.958,1.92,1.966,1.976,1.983,1.986,1.994,2,2.01,2.01,2.02,2.04,2.04,2.06,2.09];
+//convert current in mA to A
+currents = times(currents,0.001);
+
+//define some errors
+//repeat(a,b) make an array containg a repeated b times. e.g. repeat(1,5) = [1,1,1,1,1]
+current_errors =  repeat(0.001,currents.length);
+//a 10% error
+voltage_errors = times(0.01,voltages);
+
+//find resistance and power.
+resistances = divide(voltages ,currents);
+powers = times(voltages,currents);
+
+//qadd() returns the square root of the some of the item squared. element wise.
+//as we are are multiplying and dividing we use the fractional error.
+relitive_errors = qadd( divide(voltage_errors,voltages), divide(current_errors,currents) );
+resistance_errors = times(resistances,relitive_errors);
+power_errors = times(relitive_errors,powers)
+
+//plot in the form (x, y, yerror, xerror), or just (x,y), or (x,y,yerror)
+//as well as plot() we can pick loglog(), semilogx(), and semilogy().
+//these are all the same but change the axis modes.
+semilogx(resistances ,powers,power_errors,resistance_errors);
+
+//call things to set text on the graph.
+captions('run 1');
+title('Load Graph for Solar Cell');
+subtitle('four cells of 2.5x5cm');
+x_axis('resistances / Ohms');
+y_axis('power / Watts');
+ </div>
+ 
+ <div id='time_example' class='example'>
+// time data
+//you can use http://www.lancaster.ac.uk/pg/sarsby/MJSplot/tools/time.html
+//to find valid time strings
+datetimes_stings = ['Jan 2 2015','Feb 3 2015', 'May 13 2015'];
+counts  = [123,142,165];
+
+//like plot(x,y) just use timeseries(x,y)
+timeseries(datetimes_stings,counts);
+
+captions('counts')
+
+title('time example');
+subtitle(' ');
+x_axis('');
+y_axis('counts');
+
+ </div>
+  <div id='about_text' class='example'>
+  // About //
+  
+  /*
+  This is a two evening hack.
+  
+  Inspiration came from my students hating Origin for data analysis.
+  For the level of analysis they need, just importing, a few element
+  wise manipulations, and
+  simple plotting/printing is all that is needed.
+  
+  The text editor is ACE:
+     http://ace.c9.io
+  The plotting program is my own MJSplot:
+     http://www.lancaster.ac.uk/pg/sarsby/MJSplot/index
+  
+  I've written an interface to the usual plot commands and styling
+  commands to that it is more intuative.
+  You are welcome to look at the source to this page in horrow.
+  Everything is done client side, so you can see all
+  the glue code and hacky methods.
+  
+  MJS 2015
+
+  */
+  </div>
+ 
+ <div id='functions_example' class='example'>
+//There are a few built in that are avaliable.
+
+//we can use the range(start,stop,points) to generate data
+points = 100;
+x_points = range(50,100,points);
+y_points = range(1,10,points);
+
+plot(x_points,y_points);
+captions('raw');
+
+// we can log some data
+logged_y = log(y_points);
+plot(x_points,logged_y);
+captions('logged y');
+//other avaliable functions are divide(x,y), times(x,y), add(x,y), and sub(x,y).
+//log(x), sqrt(x), sqr(x), 
+
+
+//we can apply generic funcitons using evaluate(function,xarray,yarray)
+//where function is a string of a expression using log,ln,sin,cos,tan,pi,e,sqrt
+
+shifted_y = evaluate('sin(x)/(1+y)',x_points ,y_points);
+plot(x_points,shifted_y);
+captions('squiggly y');
+
+//this means you can do:
+//resistances = evaluate('x/y',voltages ,currents);
+
+//evaluate() also works on single arrays
+//the first array has points called x still, so:
+half_y = evaluate('x/2',y_points);
+//is the same as
+other_half_y = divide(y_points,2);
+
+plot(x_points,half_y);
+captions('half y');
+
+title('Functions');
+subtitle('example');
+x_axis('x');
+y_axis('y');
+ </div>
+
+  
+   <textarea id="errors">
+   asdf
+   </textarea>
+   
+
+
+
+	
+</body>
+
+
+<script>
+(function(){
+
+var attachEvent = document.attachEvent;
+
+if (!attachEvent) {
+    var requestFrame = (function(){
+      var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
+                function(fn){ return window.setTimeout(fn, 20); };
+      return function(fn){ return raf(fn); };
+    })();
+
+    var cancelFrame = (function(){
+      var cancel = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame ||
+                   window.clearTimeout;
+      return function(id){ return cancel(id); };
+    })();
+
+    function resetTriggers(element){
+        var triggers = element.__resizeTriggers__,
+            expand = triggers.firstElementChild,
+            contract = triggers.lastElementChild,
+            expandChild = expand.firstElementChild;
+        contract.scrollLeft = contract.scrollWidth;
+        contract.scrollTop = contract.scrollHeight;
+        expandChild.style.width = expand.offsetWidth + 1 + 'px';
+        expandChild.style.height = expand.offsetHeight + 1 + 'px';
+        expand.scrollLeft = expand.scrollWidth;
+        expand.scrollTop = expand.scrollHeight;
+    };
+
+    function checkTriggers(element){
+      return element.offsetWidth != element.__resizeLast__.width ||
+             element.offsetHeight != element.__resizeLast__.height;
+    }
+
+    function scrollListener(e){
+        var element = this;
+        resetTriggers(this);
+        if (this.__resizeRAF__) cancelFrame(this.__resizeRAF__);
+        this.__resizeRAF__ = requestFrame(function(){
+            if (checkTriggers(element)) {
+                element.__resizeLast__.width = element.offsetWidth;
+                element.__resizeLast__.height = element.offsetHeight;
+                element.__resizeListeners__.forEach(function(fn){
+                    fn.call(element, e);
+                });
+            }
+        });
+    };
+}
+
+window.addResizeListener = function(element, fn){
+    if (attachEvent) element.attachEvent('resize', fn);
+    else {
+        if (!element.__resizeTriggers__) {
+            if (getComputedStyle(element).position == 'static') element.style.position = 'relative';
+            element.__resizeLast__ = {};
+            element.__resizeListeners__ = [];
+            (element.__resizeTriggers__ = document.createElement('div')).className = 'resize-triggers';
+            element.__resizeTriggers__.innerHTML = '<div class="expand-trigger"><div></div></div>' +
+                                                   '<div class="contract-trigger"></div>';
+            element.appendChild(element.__resizeTriggers__);
+            resetTriggers(element);
+            element.addEventListener('scroll', scrollListener, true);
+        }
+        element.__resizeListeners__.push(fn);
+    }
+};
+
+window.removeResizeListener = function(element, fn){
+    if (attachEvent) element.detachEvent('resize', fn);
+    else {
+        element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1);
+        if (!element.__resizeListeners__.length) {
+            element.removeEventListener('scroll', scrollListener);
+            element.__resizeTriggers__ = !element.removeChild(element.__resizeTriggers__);
+        }
+    }
+}
+
+})();
+</script>
+
+<script>
+
+
+//basically load up some stuff into the global name space.
+
+//if you are here. Everything on this page was/is a hack. It's ugly
+//I've tried to hide the things users will interfeer with by using to underscores.
+//so the graph is __graph
+//the editor is __editor
+//then I cross my fingers and hope. It's still new and untested.
+
+	function divide(x,y){
+	
+		var r = [];
+		if (typeof y ==='object' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]/y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]/y);
+			}
+		}
+		if (typeof y ==='object' && typeof x ==='number' ){
+			for (var i =0;i<y.length;i++){
+				r.push(x/y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='number' ){
+			return x/y;
+		}
+		return r;
+	}
+	function times(x,y){
+	
+		var r = [];
+		if (typeof y ==='object' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]*y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]*y);
+			}
+		}
+		if (typeof y ==='object' && typeof x ==='number' ){
+			for (var i =0;i<y.length;i++){
+				r.push(x*y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='number' ){
+			return x*y;
+		}
+		return r;
+	}
+	function add(x,y){
+	
+		var r = [];
+		if (typeof y ==='object' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]+y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]+y);
+			}
+		}
+		if (typeof y ==='object' && typeof x ==='number' ){
+			for (var i =0;i<y.length;i++){
+				r.push(x+y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='number' ){
+			return x+y;
+		}
+		return r;
+	}
+	function sub(x,y){
+	
+		var r = [];
+		if (typeof y ==='object' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]-y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='object' ){
+			for (var i =0;i<x.length;i++){
+				r.push(x[i]-y);
+			}
+		}
+		if (typeof y ==='object' && typeof x ==='number' ){
+			for (var i =0;i<y.length;i++){
+				r.push(x-y[i]);
+			}
+		}
+		if (typeof y ==='number' && typeof x ==='number' ){
+			return x-y;
+		}
+		return r;
+	}
+	
+	function log(a){
+		return a.map(Math.log);
+	}
+	function sqrt(a){
+		return a.map(Math.sqrt);
+	}
+	function exp(a){
+		return a.map(Math.exp);
+	}
+	function sqr(a){
+		return a.map(function(num) {
+			return Math.pow(num,2);
+		});
+		
+	}
+	function qadd(){
+		var totals = times(0,arguments[0]);
+		for (var i = 0;i<arguments.length;i++){
+			totals = add(totals,sqr(arguments[i]));
+		}
+		return sqrt(totals);
+	}
+	
+	
+	
+	var __graph = mjs_plot.new_graph("__graph","canvas4");
+	__graph.default_graphics_style.color_bg='#272822';
+	__graph.default_graphics_style.color_fg='#F8F8F2';
+	__graph.default_graphics_style.scaling_factor=1.2;
+	//"Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace
+	__graph.default_graphics_style.font_name = '"Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace';
+	
+  
+	var __editor = ace.edit("input");
+    __editor.setTheme("ace/theme/monokai");
+    __editor.getSession().setMode("ace/mode/javascript");
+	__editor.$blockScrolling = Infinity;
+	__items_plotted = [];
+	__plot_captions = [];
+	topbarheight = 30;
+	bottomBarHeight = 60;	
+	splitRatio = 0.6;
+	//localStorage.removeItem("MJSplot");
+	var t = localStorage.getItem("textbackup");
+	if (t){
+		__editor.setValue(t);
+		console.log('restoring from backup');
+	} else {
+		__editor.setValue(document.getElementById('basic_intro').innerHTML);
+		console.log('putting in the intro');
+	}
+	delete t; 
+function title(t){
+	__graph.graphics_style.title = t;
+}
+function x_axis(t){
+	__graph.graphics_style.x_axis_title = t;
+}
+function y_axis(t){
+	__graph.graphics_style.y_axis_title = t;
+}
+function subtitle(a,b){
+	__graph.graphics_style.subtitle = a;
+	if (b){	__graph.graphics_style.subtitle2 = b;
+	}
+}
+	
+	
+function __plot(x, y, ye,xe){
+//adds a new line to the plot.
+  var r = [x,y];
+  if(typeof ye !== "undefined") {r.push(ye);}
+  if(typeof xe !== "undefined") {r.push(xe);}
+  __items_plotted.push(r);
+};
+function plot(x, y, ye,xe){
+__graph.graphics_style.x_scale_mode = 'lin';
+__graph.graphics_style.y_scale_mode = 'lin';
+__plot(x, y, ye,xe);
+};
+function timeseries(x, y){
+__graph.graphics_style.x_scale_mode = 'time';
+__graph.graphics_style.y_scale_mode = 'lin';
+__plot(mjs_plot.convert_time_strings(x), y);
+};
+function loglog(x, y, ye,xe){
+__graph.graphics_style.x_scale_mode = 'log';
+__graph.graphics_style.y_scale_mode = 'log';
+__plot(x, y, ye,xe);
+}
+function semilogx(x, y, ye,xe){
+__graph.graphics_style.x_scale_mode = 'log';
+__graph.graphics_style.y_scale_mode = 'lin';
+__plot(x, y, ye,xe);
+}
+function semilogy(x, y, ye,xe){
+__graph.graphics_style.x_scale_mode = 'lin';
+__graph.graphics_style.y_scale_mode = 'log';
+__plot(x, y, ye,xe);
+}
+
+
+
+
+function println(){
+	var s = "";
+	for (var i = 0;i<arguments.length;i++){
+			s += arguments[i].toString();
+	}
+	document.getElementById('errors').value = document.getElementById('errors').value + s +'\n';
+}
+
+function captions(){
+//adds a new line to the plot. so hacky :/
+  var caps = [];
+  for (var i = 0;i<arguments.length;i++){
+	caps.push(arguments[i].toString());
+  }
+  
+  __plot_captions = __plot_captions.concat(caps);
+};
+
+
+	function __finish_plot(){
+		__graph.set_data(__items_plotted);
+		__graph.set_captions(__plot_captions);
+		
+		__graph.mjs_plot();
+	}
+	
+	window.onerror = function(message, url, lineNumber) {  
+	  //save error and send to server for example.
+	  document.getElementById('errors').value = document.getElementById('errors').value + 'error['+lineNumber+']: ' + message+'\n';
+	  
+	  __editor.gotoLine(lineNumber);
+	  //topbarheight
+	  
+	  //document.getElementById('errorbox').style.top = topbarheight*lineNumber
+	  
+	  return true;
+	}; 
+	
+	function __update(){
+		__items_plotted = [];
+		__plot_captions = [];
+		document.getElementById('errors').value = '';
+		var text = __editor.getValue();
+		localStorage.setItem('textbackup', text);
+		
+		//var text =  document.getElementById('input').value;
+		eval(text); //oh yeah. trust the user. ha ha ha ha ha. aww...
+		__finish_plot();
+	}
+	function __resize(){
+		
+		 __graph.canvas.style.width ='100%';
+		//__graph.canvas.style.height='100%';
+  // ...then set the internal size to match
+  __graph.canvas.width  = __graph.canvas.offsetWidth;
+  //__graph.canvas.height = canvas.offsetHeight;
+  __graph.canvas.height = __graph.canvas.parentElement.clientHeight;
+		
+		
+		
+		__graph.mjs_plot();
+	}
+	function __import(){
+		window.open("./tabbed_importer.html");
+	}
+
+	
+ function range(start,stop,points){
+		points = Math.max(2,points);
+		var step = (stop - start)/(points-1);
+		var r = [];
+		var up = stop>start;
+		p = start
+		for (var i = 0;i<points;i++){
+			r.push(p);
+			p +=step;
+		}
+		return r;
+	}
+	
+	function evaluate(text,ax,ay){
+		//move some functions around from the math namespace to local so
+		//they can be used inside eval.
+		//ax and ay are arrays
+		var sin = Math.sin;
+		var cos = Math.cos;
+		var tan = Math.tan;
+		var ln = Math.log;
+		var pi = Math.PI;
+		var e = Math.E;
+		var pow = Math.pow;
+		var sqrt = Math.sqrt;
+		var log = function(x){
+			return Math.log(x)/Math.log(10);
+		}
+		var now = (new Date()).getTime();
+		var returny = [];
+		if (ax && ay){
+			for (var i = 0;i<ax.length;i++){
+				var x = ax[i];
+				var y = ay[i];
+				returny.push(eval(text));
+			}
+		}
+		else if (ax){
+			for (var i = 0;i<ax.length;i++){
+				var x = ax[i];
+				returny.push(eval(text));
+			}
+		}
+		return returny;
+	
+}
+	
+	function repeat(n,t){
+		r =[];
+		for (var i = 0;i<t;i++){
+			r.push(n);
+		}
+		return r;
+	
+	}
+	function __load_example(){
+		var item = document.getElementById('examples').value;
+		
+		switch (item){
+			case "basic_intro":
+				//load text
+				__editor.setValue(document.getElementById('basic_intro').innerHTML);
+				break;
+			case "errors_example":
+				//load text
+				__editor.setValue(document.getElementById('errors_example').innerHTML);
+				break;
+			case "functions_example":
+				//load text
+				__editor.setValue(document.getElementById('functions_example').innerHTML);
+				break;
+			case "about_text":
+				//load text
+				__editor.setValue(document.getElementById('about_text').innerHTML);
+				break;
+			case "time_example":
+				//load text
+				__editor.setValue(document.getElementById('time_example').innerHTML);
+				break;
+			//default:
+				//load the default text
+		}
+		__update();
+		__resize();
+	}
+	__finish_plot();
+	__resize();
+	__update();
+	
+	var myElement = document.getElementById('moveable');
+    
+	addResizeListener(myElement, __resize);
+	removeResizeListener(myElement, __resize);
+	
+</script>
+
+
+
+
+</html>

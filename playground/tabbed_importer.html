@@ -1,0 +1,214 @@
+<head>
+  <style>
+body {margin:10px;padding:10px;min-width: 320px;max-width:800px;margin-left:auto;margin-right:auto;}
+canvas, html{
+margin: 0px;
+padding: 0px;
+background-color: #272822;
+	color: #F8F8F2;
+	font: 12px "Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace;
+}
+html, body {
+width:  100%;
+height: 100%;
+}
+h1{
+margin: 0px;
+text-align: center;
+padding: 1px;
+
+}
+textarea {
+background-color: #272822;
+	color: #F8F8F2;
+	width: 100%;
+}
+  </style>
+  <script>
+
+  function convert_time_strings(array_of_strings){
+	//converts an array of time strings to milliseconds from epoc
+	//example time strings:
+	/*
+	ISO-8601 and other strings (browser dependent)
+	March 2 2015
+	March 2 2015 12:45
+	2014/11/02 12:54
+	12:53 2014/11/02
+	2014
+	2/3/2014 ( MM/DD/YYYY)
+	Mon, 25 Dec 1995 13:30:00 GMT
+	2011-11-12
+	
+	This does not include
+	dd/mm/yyyy hh:mm:ss
+	or
+	yyy-mm-dd hh:mm:ss
+	
+	as that is some crazy non-standard old time brittish thing and you will end up with a mess. 
+	
+	*/
+	r = [];
+	for (var i = 0 ; i < array_of_strings.length;i++){
+		r.push( Date.parse( array_of_strings[i] ) );
+	}
+	return r;
+}
+  
+  function IsDate(input) {
+	if (typeof input === "string"){
+	  var d = new Date(input);
+	  return !isNaN(d.getTime());
+	 } else {return false}
+}
+  
+  function IsNumeric(input)
+	{
+		return (input - 0) == input && (''+input).trim().length > 0;
+	}
+  
+function makeCountdownGoNow(){
+ 
+    var input = document.getElementById('input').value;
+	
+	
+	
+   var lines = input.split("\n");
+   var results = [];
+   
+    var transposed = document.getElementById('transpose').checked;
+	  var datetimes = document.getElementById('datetimes').checked;
+
+   
+   var headderlines = parseInt(document.getElementById('headderlines').value) || 0;
+   var headdercols = parseInt(document.getElementById('headdercols').value) || 0;
+   
+
+   i_running = 0;
+   
+   for (var i =headderlines,l=lines.length;i<l;i++){
+	
+		if (lines[i].length > 0 && lines[i][0] !== '#' && lines[i][0] !== '%' ){
+		
+	   var line = lines[i].split('\t');
+	   
+	   
+		for (var j = headdercols ;j<line.length;j++){
+			if (!results[j-headdercols]){results[j-headdercols] = [];}
+			
+			if (IsNumeric(line[j])){
+				results[j-headdercols][i_running] = parseFloat(line[j]);
+				//console.log('was number');
+			}  else if (datetimes && IsDate(line[j])) {
+				results[j-headdercols][i_running] = Date.parse( line[j]); ; //'"' + line[j] + '"';
+				//console.log('was date');
+			} else {
+				results[j-headdercols][i_running] = '"' + line[j] + '"';
+				//console.log('was str');
+			}
+			
+		}
+		i_running++;
+	  }
+	  }
+	 
+	 if (transposed){
+				results = results[0].map(function(col, i) { 
+		  return results.map(function(row) { 
+			return row[i] 
+		  })
+		});
+	 }
+	
+	
+	 var t = "";
+	 for (var i =0,l=results.length;i<l;i++){
+		t += '\n[' + results[i].toString()+'];';
+	 }
+	document.getElementById('result').value = t;//results.toString();
+
+}
+
+function startRead() {  
+  // obtain input element through DOM 
+  
+  var file = document.getElementById('file').files[0];
+  if(file){
+    getAsText(file);
+  }
+}
+
+function getAsText(readFile) {
+
+  var reader = new FileReader();
+  
+  // Read file into memory as UTF-16      
+  reader.readAsText(readFile, "UTF-8");
+  
+  // Handle progress, success, and errors
+  reader.onprogress = updateProgress;
+  reader.onload = loaded;
+  reader.onerror = errorHandler;
+}
+
+function updateProgress(evt) {
+  if (evt.lengthComputable) {
+    // evt.loaded and evt.total are ProgressEvent properties
+    var loaded = (evt.loaded / evt.total);
+    if (loaded < 1) {
+      // Increase the prog bar length
+      // style.width = (loaded * 200) + "px";
+	  document.getElementById('input').value = loaded.toString();
+    }
+  }
+}
+
+function loaded(evt) {  
+  // Obtain the read file data    
+  var fileString = evt.target.result;
+  
+  document.getElementById('input').value = fileString;
+  // Handle UTF-16 file dump
+  if(utils.regexp.isChinese(fileString)) {
+    //Chinese Characters + Name validation
+  }
+  else {
+    // run other charset test
+  }
+  // xhr.send(fileString)     
+}
+
+function errorHandler(evt) {
+  if(evt.target.error.name == "NotReadableError") {
+    // The file could not be read
+	 document.getElementById('input').value = "unable to read file";
+  }
+}
+
+
+  </script>
+</head>
+<body>
+<h1>Importer</h1>
+<p>
+Lines starting with a # or a % are comment lines and are ignored.
+Empty lines are also ignored.
+The data is assumed in column format (each column is a series).
+Tabs seperate columns and rows are seperated by a new line.
+This is what you usually get if you copy/paste from Origin/Matlab/Excell
+</p>
+
+Paste here <em> or </em> load a local file:<input type="file" id="file" ><br>
+ <textarea id='input' rows ='15'>paste you data here from Origin/Matlab/Excell</textarea>
+
+  <textarea id='result' rows ='15' ></textarea>
+  
+<br><button type='button' onClick='makeCountdownGoNow()'>Make</button><br>
+  <input type="checkbox" id="transpose" > Transpose<br>
+  <input type="checkbox" id="datetimes" > Find Datetimes (will replace dates with milliseconds from epoch (unix)<br>
+  <input type="number" id="headderlines" value="0" > Number of headder lines<br>
+  <input type="number" id="headdercols" value="0"> Number of headder columns<br>
+  
+ <p>When your happy, copy/paste the arrays back into the script window of mjslab</p>
+  </div>
+</body>
