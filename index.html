@@ -3,15 +3,138 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252">
 <meta name="viewport" content="initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="mjsplot.css">
+<!-- <link rel="stylesheet" type="text/css" href="mjsplot.css"> -->
 	<script src="mjs_plot_0_3_n.js"></script>
 	<script src="pressure2.js"></script>
+<style>
+
+
+
+
+#topmatter {
+background:#262C42;
+color:#ECF0F1;
+padding:1em;
+margin-right: auto;
+margin-left: auto;
+}
+
+h1{
+text-align: center;
+font-weight: 600;
+line-height: 1.1;
+color: inherit;
+font-size: 4em;
+margin-bottom: 0px;
+}
+
+body {color: #333;background-color: #eee;
+	margin:0px;
+	padding:0px;
+	min-width: 320px;
+	line-height: 1.42857;
+padding-top:0px;
+font-family: "helvetica"}
+
+h3{font-weight: normal;margin:10px;text-align:center;}
+
+h2{margin: 5px;
+font-size: x-large;
+color: #262C42;
+}
+hr {
+color: #262C42;
+}
+
+h4{
+font-weight: 500;
+text-align: center;
+color: #ECF0F1;
+font-size: 14px;
+margin-top: 0px;
+}
+
+p{
+font-size: 0.9em;
+}
+
+code{
+font-size: small;
+}
+
+.featurebox a:visited{color:#333}
+
+nav a{color:#777; font-size: x-small}
+
+strong {
+font-weight: 600;
+
+}
+
+.featurebox {
+width: 251px;
+	margin:5px;
+	border: solid 1px #ccc;
+	 border-radius: 5px;
+	display: inline-block;
+	vertical-align: middle;
+	background-color: #fff;
+	}
+	
+#boxes{
+	min-width: 320px;max-width:800px;
+	text-align: center;
+}
+#boxes h2{margin: 5px; font-size:medium}
+
+#startmatter{
+min-width: 320px;
+max-width:800px;
+margin-left:auto;
+margin-right:auto;
+padding:10px
+}
+
+#demos{
+	min-width: 320px;max-width:1200px;
+	margin-left:auto;
+	margin-right:auto;
+	padding:10px;
+	text-align: center;
+}
+.demobox {
+	margin:5px;
+	
+	display: inline-block;
+	text-align: left;
+	width: 45%;
+	min-width: 320px;
+	vertical-align: top;
+}
+
+
+</style>
 </head>
  <body onresize="draw_graphs()" onload="draw_graphs()">
+ 
+ <div id="topmatter">
  <nav><a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
 
-<h1><a href="index.html">mjs_plot.js</a></h1>
-<h3>A javascript library for highly interactive graphs for analysis and data exploration.</h3>
+<h1>MJS Plot</h1>
+<h4>A javascript library for highly interactive graphs for analysis and data exploration.</h4>
+
+</div>
+
+
+ <div id="startmatter">
+<p>
+<strong>MJS plot</strong> is a plotting libaray written in javascript.
+It was written with data logging from scientific applicaitions in mind.
+</p>
+<p>
+The graph below is interactive. You can drag or pinch to zoom in.
+There are popup menus at the top and bottom that reveal more features.
+</p>
  <canvas id="democanvas" width="600" height="400" ></canvas><br>
  <div id='boxes'>
  
@@ -63,6 +186,100 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
  
  
  </div>
+ 
+ </div>
+ 
+ <div id='demos'>
+ 
+ <div class='demobox'>
+ <h2>Ploting Data</h2>
+ <hr>
+<p>The minimal code to get a graph.</p>
+<code>
+var demo1Graph = mjs_plot.new_graph("demo1Graph","demo1");<br>
+var x = [1,2,3,4];<br>
+var y = [8,6,2,6];<br>
+demo1Graph.set_data([[x,y]]);<br>
+demo1Graph.set_captions(["Basic Line"]);<br>
+demo1Graph.mjs_plot();<br>
+</code> 
+<p>The canvas has <code>id="demo1"</code>. </p>
+ </div>
+  
+ <div class='demobox'>
+<canvas id='demo1'></canvas>
+ </div>
+ 
+ 
+  <div class='demobox'>
+ <h2>Customisation</h2>
+ <hr>
+<p>Accessable via the graphics_style and default_graphics_style</p>
+<p>If you want to force the change, or just setup the first view</p>
+<code>
+var demo2Graph = mjs_plot.new_graph("demo2Graph","demo2");<br>
+demo2Graph.set_data([[x,y]]);<br>
+demo2Graph.set_captions(["Basic Line"]);<br>
+demo2Graph.default_graphics_style.title = "Example Graph";<br>
+demo2Graph.default_graphics_style.show_grid = true;<br>
+demo2Graph.default_graphics_style.y_scale_mode = "log";<br>
+demo2Graph.default_graphics_style.x_axis_title =  "x";
+demo2Graph.default_graphics_style.y_axis_title =  "y";
+demo2Graph.mjs_plot();<br>
+</code>
+<p>You can setup everything, colours, fonts, subtitles, axis labels and more.</p>
+ </div>
+  
+ <div class='demobox'>
+<canvas id='demo2'></canvas>
+ </div>
+ 
+ 
+ 
+   <div class='demobox'>
+ <h2>Multuple Lines</h2>
+ <hr>
+<p>As many lines as you want. Each line gets a colour that is seperated in HLS space.</p>
+<code>
+...<br>
+demo3Graph.set_data([[x,y],[x2,y2]]);<br>
+demo3Graph.set_captions(["First Line","Second Line"]);
+demo2Graph.mjs_plot();<br>
+</code>
+<p>You can setup everything, colours, fonts, subtitles, axis labels and more.</p>
+ </div>
+  
+ <div class='demobox'>
+<canvas id='demo3'></canvas>
+ </div>
+ 
+ 
+   <div class='demobox'>
+ <h2>Working with Time</h2>
+ <hr>
+<p>Time strings get processed into milliseconds from epoc. Many time strings work, but the
+prefered type is <a href='http://en.wikipedia.org/wiki/ISO_8601'>ISO 8601 </a>. </p>
+<code>
+var demo4Graph = mjs_plot.new_graph("demo4Graph","demo4");<br>
+var t = ['April 20 2015', 'May 3 2015', '2015-05-25T12:00:00Z'];<br>
+var h = [1.2e-15,6e6,8e16];<br>
+var t = mjs_plot.convert_time_strings(t);<br>
+demo4Graph.set_data([[t,h]]);<br>
+demo4Graph.set_captions(["Time Series"]);<br>
+demo4Graph.default_graphics_style.x_scale_mode =  "time";<br>
+demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
+...
+</code>
+<p>Here you can see data spaning many orders of magnitude beging plotted just fine.</p>
+ </div>
+  
+ <div class='demobox'>
+<canvas id='demo4'></canvas>
+ </div>
+ 
+ <div>
+ 
+ 
 <br>
 <br>
 <p> MJS 2014-2015</p>
@@ -71,6 +288,7 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 <script>
 	var pressure_graph = mjs_plot.new_graph("pressure_graph","democanvas");
 	time = mjs_plot.convert_time_strings(pressureTimes);
+	//this is how you set style things up:
 	pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
 	pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
 	pressure_graph.default_graphics_style.title = "Example Graph";
@@ -81,20 +299,81 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 	pressure_graph.default_graphics_style.tick_labels_font_size= 12;
 	pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
 	pressure_graph.default_graphics_style.hidden_lines = [ false, true, true, false, true, true, false ];
-	pressure_graph.default_graphics_style.color_fg =  "#eeeeee";
-	pressure_graph.default_graphics_style.color_bg =  "#111111";
+	pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
+	pressure_graph.default_graphics_style.color_fg =  "#111111";
 	pressure_graph.default_graphics_style.show_grid = true;
 	pressure_graph.default_graphics_style.y_scale_mode = "log";
 	pressure_graph.default_graphics_style.x_scale_mode =  "time";
 	pressure_graph.mjs_plot();
 	
 	
+	var demo1Graph = mjs_plot.new_graph("demo1Graph","demo1");
+	var x = [1,2,3,4];
+	var y = [8,6,2,6];
+	demo1Graph.set_data([[x,y]]);
+	demo1Graph.set_captions(["Basic Line"]);
+	demo1Graph.mjs_plot();
+	
+	var demo2Graph = mjs_plot.new_graph("demo2Graph","demo2");
+	demo2Graph.set_data([[x,y]]);
+	demo2Graph.set_captions(["Basic Line"]);
+	demo2Graph.default_graphics_style.title = "Example Graph";
+	demo2Graph.default_graphics_style.show_grid = true;
+	demo2Graph.default_graphics_style.y_scale_mode = "log";
+	demo2Graph.default_graphics_style.guideWidthy = 18;
+	demo2Graph.default_graphics_style.x_axis_title =  "x";
+	demo2Graph.default_graphics_style.y_axis_title =  "y";
+	demo2Graph.mjs_plot();
+	
+	var demo3Graph = mjs_plot.new_graph("demo3Graph","demo3");
+	var x2 = [1.6,2.1,3.5,6];
+	var y2 = [4.6,3.1,6.5,7];
+	
+	demo3Graph.set_data([[x,y],[x2,y2]]);
+	demo3Graph.set_captions(["First Line","Second Line"]);
+	demo3Graph.default_graphics_style.title = "More lines";
+	demo3Graph.default_graphics_style.show_grid = true;
+	demo3Graph.default_graphics_style.x_axis_title =  "x";
+	demo3Graph.default_graphics_style.y_axis_title =  "y";
+	demo3Graph.mjs_plot();
+	
+	var demo4Graph = mjs_plot.new_graph("demo4Graph","demo4");
+	var t = ['April 20 2015', 'May 3 2015', '2015-05-25T12:00:00Z'];
+	var h = [1.2e-15,6e6,8e16];
+	var t = mjs_plot.convert_time_strings(t);
+	demo4Graph.set_data([[t,h]]);
+	demo4Graph.set_captions(["Time Series"]);
+	demo4Graph.default_graphics_style.x_scale_mode =  "time";
+	demo4Graph.default_graphics_style.y_scale_mode =  "log";
+	demo4Graph.default_graphics_style.title = "Time axis";
+	demo4Graph.default_graphics_style.show_grid = true;
+	demo4Graph.default_graphics_style.x_axis_title =  "Time";
+	demo4Graph.default_graphics_style.y_axis_title =  "y";
+	
+	demo4Graph.mjs_plot();
 	
 	function draw_graphs(){
 	//resize to page
-	pressure_graph.canvas.width = document.body.clientWidth-20;
+	pressure_graph.canvas.width = pressure_graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
 	pressure_graph.canvas.height = Math.min(0.628*pressure_graph.canvas.width,0.6*window.innerHeight) ;
 	pressure_graph.mjs_plot();
+	
+	demo1Graph.canvas.width = demo1Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo1Graph.canvas.height = Math.min(0.628*demo1Graph.canvas.width,0.6*window.innerHeight) ;
+	demo1Graph.mjs_plot();
+	
+	demo2Graph.canvas.width = demo2Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo2Graph.canvas.height = Math.min(0.628*demo2Graph.canvas.width,0.6*window.innerHeight) ;
+	demo2Graph.mjs_plot();
+	
+	demo3Graph.canvas.width = demo3Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo3Graph.canvas.height = Math.min(0.628*demo3Graph.canvas.width,0.6*window.innerHeight) ;
+	demo3Graph.mjs_plot();
+	
+	demo4Graph.canvas.width = demo4Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo4Graph.canvas.height = Math.min(0.628*demo4Graph.canvas.width,0.6*window.innerHeight) ;
+	demo4Graph.mjs_plot();
+	
 	}
 </script>
 </html>
