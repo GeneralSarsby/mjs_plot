@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <style>
+body, canvas, html{
+margin: 0px;
+padding: 0px;
+overflow: hidden
+}
+html, body {
+width:  100%;
+height: 100%;
+}
+    </style>
+	<script src="ExampleData/widths01.js"></script>
+	<script src="../mjs_plot_0_3_n.js"></script>
+  </head>
+  <body onresize="draw_graphs()" onload="draw_graphs()">
+  <center>
+ <canvas id="canvas4" width="600" height="400"></canvas><br>
+   </center>
+</body>
+	<script>
+
+
+	var timeTestGraph = mjs_plot.new_graph("timeTestGraph","canvas4");
+	
+	timeTestGraph.set_data([[times,widths]]);
+	
+	timeTestGraph.set_captions(['VWR']);
+	
+	timeTestGraph.default_graphics_style.title = "Width";
+	timeTestGraph.default_graphics_style.subtitle = 'Historical Data';
+	timeTestGraph.default_graphics_style.x_axis_title =  "Time";
+	timeTestGraph.default_graphics_style.y_axis_title =  "Width /Hz";
+	timeTestGraph.default_graphics_style.x_scale_mode =  "time";
+	
+	function draw_graphs(){
+
+		timeTestGraph.canvas.width = window.innerWidth;
+		timeTestGraph.canvas.height = window.innerHeight;
+		
+		timeTestGraph.mjs_plot();
+	}
+
+    </script>
+</html>

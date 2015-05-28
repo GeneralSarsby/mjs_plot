@@ -216,6 +216,7 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - large and small figure sizes
 	   - drawing improvements (things spotted when drawing svgs
 0_3_4  - changed website to github.io
+       - improved right-click zoom out method. Now uses the guidewidth method.
 			
 *********************************************** */
 
@@ -4258,7 +4259,6 @@ function mouse_up_event(event,graph){
 		ctx.rect(start_x-no_drag_size*0.5,start_y-no_drag_size*0.5,no_drag_size,no_drag_size);
 		ctx.stroke();
 		 if( event.button=== 0){
-			//console.log('was left click');
 			gs.x_scale_auto_min = true;
 			gs.y_scale_auto_min = true;
 			gs.x_scale_auto_max = true;
@@ -4274,25 +4274,11 @@ function mouse_up_event(event,graph){
 			gs.y_scale_auto_max = false;
 			gs.y_scale_tight = false;
 			gs.x_scale_tight = false;
-			var m = 0;
-			if (gs.x_scale_mode === 'lin' || gs.x_scale_mode === 'time'){
-				m = (gs.x_manual_min + gs.x_manual_max)/2;
-				gs.x_manual_min = m - 1.2*(m - gs.x_manual_min);
-				gs.x_manual_max = m - 1.2*(m - gs.x_manual_max);
-			}
-			if (gs.y_scale_mode === 'lin' || gs.y_scale_mode === 'time'){
-				m = (gs.y_manual_min + gs.y_manual_max)/2;
-				gs.y_manual_min = m - 1.2*(m - gs.y_manual_min);
-				gs.y_manual_max = m - 1.2*(m - gs.y_manual_max);
-			}
-			if (gs.x_scale_mode === 'log'){
-				gs.x_manual_min *=0.7 ;
-				gs.x_manual_max *=1.4 ;
-			}
-			if (gs.y_scale_mode === 'log' ){
-				gs.y_manual_min *=0.7 ;
-				gs.y_manual_max *=1.4 ;
-			}
+			var f = 1.2;
+			gs.x_manual_min = graph.pixels_to_units(-f*gs.guideWidthx,'x');
+			gs.x_manual_max = graph.pixels_to_units(canvas.width+f*gs.guideWidthx,'x');
+			gs.y_manual_min = graph.pixels_to_units(canvas.height+f*gs.guideWidthy,'y');
+			gs.y_manual_max = graph.pixels_to_units(-f*gs.guideWidthy,'y');
 			
 			
 		}
