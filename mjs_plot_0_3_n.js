@@ -4274,7 +4274,7 @@ function mouse_up_event(event,graph){
 			gs.y_scale_auto_max = false;
 			gs.y_scale_tight = false;
 			gs.x_scale_tight = false;
-			var f = 1.2;
+			var f = 0.8;
 			gs.x_manual_min = graph.pixels_to_units(-f*gs.guideWidthx,'x');
 			gs.x_manual_max = graph.pixels_to_units(canvas.width+f*gs.guideWidthx,'x');
 			gs.y_manual_min = graph.pixels_to_units(canvas.height+f*gs.guideWidthy,'y');
@@ -6055,17 +6055,15 @@ new_graph : function (graphname,canvasname){
 		}
 		if (log_vals_i == 0 && sections > 2*required_secions){
 		//do the far zoomed out log scale.
-		console.log('super far out');
+		
 		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
-		console.log(the_scale);
+		
 		lowpoint = the_scale.lowpoint; //308 is the javascript float maxamum and minimum
 		highpoint = the_scale.highpoint;
 		scale = the_scale.scale;
 		scalemode = 'log';
 		width = the_scale.width;
 		log_vals_i = -1; // ! this is the flag to use the zoomed out view.
-		console.log(lowpoint);
-		console.log(highpoint);
 		}
 		
 		return the_scale = {
@@ -6113,23 +6111,16 @@ new_graph : function (graphname,canvasname){
 			if (allowed_intervals[i]>=2592000000  && allowed_intervals[i]< 31536000000){
 				//using months
 				var d = new Date(start_time);
-				console.log(d.toString());
 				d = new Date(d.getFullYear(),d.getMonth(),1);
-				console.log(d.toString());
 				start_time = d.getTime();
-				
 				var d = new Date(high_time);
-				console.log(d.toString());
 				if (d.getDate() < 15){
-				d = new Date(d.getFullYear(),d.getMonth(),1);
+					d = new Date(d.getFullYear(),d.getMonth(),1);
 				} else {
-				d = new Date(d.getFullYear(),d.getMonth()+1,1);
+					d = new Date(d.getFullYear(),d.getMonth()+1,1);
 				}
-				console.log(d.toString());
 				high_time = d.getTime()+allowed_intervals[i];
 			}
-			
-			
 			
 			if (allowed_intervals[i]>=43200000  && allowed_intervals[i]< 2592000000){
 				//using days
@@ -6155,7 +6146,6 @@ new_graph : function (graphname,canvasname){
 			
 			if (allowed_intervals[i]==7200000 ){
 				//every two hours
-				console.log('every two horus');
 				var d = new Date(start_time);
 				var c = new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(d.getHours()/2)*2,0,0,0);
 				start_time = c.getTime();
@@ -6190,12 +6180,6 @@ new_graph : function (graphname,canvasname){
 			if (allowed_intervals[i]<1800000 ){
 				high_time += allowed_intervals[i];
 			}
-			
-			
-			
-			
-			
-			
 			
 			var number_of_sections = Math.floor((high_time-start_time)/allowed_intervals[i]);
 			scale = size/number_of_sections;
