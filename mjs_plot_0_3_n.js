@@ -217,6 +217,7 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - drawing improvements (things spotted when drawing svgs
 0_3_4  - changed website to github.io
        - improved right-click zoom out method. Now uses the guidewidth method.
+	   - removed the "there is no x/y data to plot" error from popping up, as users draw funciton lines without any data on screen.
 			
 *********************************************** */
 
@@ -6225,7 +6226,7 @@ new_graph : function (graphname,canvasname){
 					automin = true;
 					automax = true;
 				}
-				this.errors.push("There is no "+name+" data to plot");
+				
 				this.no_data = true;
 				return {low:low, high:high, automax:automax,automin:automin,scale:scale};
 			}
