@@ -215,15 +215,16 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 0_3_3svg  - added svg output!
 	   - large and small figure sizes
 	   - drawing improvements (things spotted when drawing svgs
+0_3_4  - changed website to github.io
 			
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_3svg';
+var MJS_PLOT_VERSION = '0_3_4';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
-var MJS_PLOT_WEBSITE = 'lancs.ac.uk/pg/sarsby/MJSplot/index.html';
+var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
 
 var DEBUGG_FORCE_TOUCH = false;
 var DEBUGG_FPS = false;
