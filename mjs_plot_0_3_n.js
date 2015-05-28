@@ -1126,6 +1126,30 @@ var fits = {
 }
 fits.fit_strings = ['exp','exp_c','linear','quad', 'cubic','poly4','poly5','poly6','poly7','const','log','power','power_c','gauss'];
 fits.fit_funs = [fits.exponential,fits.exponential_plus_c,fits.linear,fits.poly2,fits.poly3,fits.poly4,fits.poly5,fits.poly6,fits.poly7,fits.constant,fits.log,fits.power,fits.power_plus_c,fits.gauss];
+
+
+
+//helper function will make annotations. e.g. boxannotaion(x,y,w,h) textarrow(x,y,x,y,lable) that return an Annotation object
+
+//put each annontation into the graphics style object. gs.annotaitons = [];
+
+function Annotation(){
+	//the controle points, a list of points [x,y];
+	this.cpts = [];
+	//the type of the annotation
+	this.type = "none"; //line, box, arrow, arrowntext,text
+	//any text with the annonation
+	this.text = "empty"; //the user defined text
+}
+
+function drawAnnotation(annotation,graph,ctx){
+	//draw the annotation to the ctx, using graph.
+	//use switch on the type to figure out how to draw it.
+}
+
+
+
+
 			
 function mjs_precision(number,precision){
 	precision = Math.max(1,precision);
