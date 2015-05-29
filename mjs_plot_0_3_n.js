@@ -6741,8 +6741,8 @@ new_graph : function (graphname,canvasname){
 	fit_points_drawn : 0,
 	drawSimpleLine : function(ctx,x,y){
 		
-				var xi = graph.units_to_pixels(x[0],'x');
-				var yi = graph.units_to_pixels(y[0],'y');
+				var xi = this.units_to_pixels(x[0],'x');
+				var yi = this.units_to_pixels(y[0],'y');
 				var oxi = xi;
 				var oyi = yi;
 				ctx.beginPath();
@@ -6751,8 +6751,8 @@ new_graph : function (graphname,canvasname){
 				var wasOngraph = true;
 				for (var k = 0;k<x.length;k++){
 					this.fit_points_drawn++;
-					var yi = graph.units_to_pixels(y[k],'y');
-					var xi =  graph.units_to_pixels(x[k],'x');
+					var yi = this.units_to_pixels(y[k],'y');
+					var xi =  this.units_to_pixels(x[k],'x');
 					ongraph = (yi > 0 && yi < canvas.height);
 					if (ongraph && wasOngraph){
 						ctx.lineTo(xi,yi);
@@ -7009,7 +7009,7 @@ new_graph : function (graphname,canvasname){
 	var fit_y = [];
 	for (var i = 0; i<gs.function_lines.length;i++){
 		try {
-			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x)
+			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x);
 			this.drawSimpleLine(ctx,fit_x,fit_y);
 		} catch(e){
 			this.errors.push('function line:y=' + gs.function_lines[i] + ' fails');
