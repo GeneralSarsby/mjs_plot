@@ -44,6 +44,7 @@ None
  
  Known Bugs:
  - time in 10s of years doesn't align correctlly to decade boundaries.
+ - on mobile devices if the viewport has a zoom != 1 the position infomaition is wrong.
  
  
  Done:
@@ -215,15 +216,29 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 0_3_3svg  - added svg output!
 	   - large and small figure sizes
 	   - drawing improvements (things spotted when drawing svgs
+0_3_4  - changed website to github.io
+       - improved right-click zoom out method. Now uses the guidewidth method.
+	   - removed the "there is no x/y data to plot" error from popping up, as users draw funciton lines without any data on screen.
+	   - fixed svg opacity.
+	   - added svg font handling in fillText
+	   - fixed bug in find_limits where there are is no data and the user picks a negative low point for a log scale. 
+	   - removed the + and - buttons from the top row, this was confusing new users.
+	   - replaced it with a 'graph' menu. from which users can set the title and other strings.
+	   - added new options to hide the transform text.
+	       this means users can clean up the axis titles to what they want before printing.
+	   - improved HTML embedding export.
+	   - improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
+	      and a button to go back.
+	   
 			
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_3svg';
+var MJS_PLOT_VERSION = '0_3_4';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
-var MJS_PLOT_WEBSITE = 'lancs.ac.uk/pg/sarsby/MJSplot/index.html';
+var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
 
 var DEBUGG_FORCE_TOUCH = false;
 var DEBUGG_FPS = false;
@@ -436,6 +451,30 @@ function download_text(text,filename,type){
 	pom.click();
 	document.body.removeChild(pom);
 }
+
+function show_text_to_screen(text,graph){
+
+	var pom = document.createElement('button');
+	var textDiv = document.createElement('div');
+	
+	pom.setAttribute('onclick', 'location.reload()');
+	pom.innerHTML  = "back";
+	pom.style.display = 'block';
+	
+	var export_textarea = document.createElement('textarea');
+	export_textarea.style.width = 0.8*graph.canvas.width+'px';
+	export_textarea.style.height = 0.8*graph.canvas.height+'px';
+	
+	textDiv.appendChild(pom);
+	textDiv.appendChild(export_textarea);
+	
+	export_textarea.value = text;
+	graph.canvas.parentNode.appendChild(textDiv);
+	graph.canvas.parentNode.removeChild(graph.canvas);
+	
+}
+
+
 	
 function save_gs(name, gs){
 	//bake_cookie(name, gs);
@@ -1534,38 +1573,18 @@ function mouse_move_event_actual(event,graph){
 			
 			ctx.beginPath();
 			ctx.rect(0,0,edge*4,edge);
+			
+			ctx.rect(4*edge,0,edge*4,edge);
 			ctx.fill();
 			ctx.stroke();
 			
 			ctx.fillStyle = gs.color_fg;
 			ctx.beginPath();
 			ctx.fillText("symbol/line",0.2*edge,0.8*edge);
+			ctx.fillText("Graph",4.2*edge,0.8*edge);
 			
 			ctx.fillStyle = gs.color_bg;
 			
-			
-			//scailing factor up button
-			ctx.rect(edge*6,0,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*6.2,edge*0.5);
-			ctx.lineTo(edge*6.8,edge*0.5);
-			ctx.stroke();
-			
-			//scailing factor down button
-			ctx.rect(edge*7,0,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*7.2,edge*0.5);
-			ctx.lineTo(edge*7.8,edge*0.5);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*7.5,edge*0.2);
-			ctx.lineTo(edge*7.5,edge*0.8);
-			ctx.stroke();
-
 			
 			//mouse mode to drag button
 			ctx.rect(edge*9,0,edge,edge);
@@ -2069,6 +2088,34 @@ function mouse_move_event_actual(event,graph){
 				graph.drawmodemenu = false;
 			}
 		}
+		
+		if (graph.drawgraphmenu){
+			if (x < 12*edge && x > 4*edge && y < edge*10){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(4*edge,0,edge*8,edge*10);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = edge*0.8;
+				var dy = -edge;
+				var lx = 4.2*edge;
+				ctx.fillText('Graph',lx, ly);ly-=dy;
+				ctx.fillText('Set title',lx,  ly);ly-=dy;
+				ctx.fillText('Set subtitle',lx,  ly);ly-=dy;
+				ctx.fillText('Set subtitle2',lx,  ly);ly-=dy;
+				ctx.fillText('Toggle show transforms',lx,  ly);ly-=dy;
+				ctx.fillText('set x-axis title',lx,  ly);ly-=dy;
+				ctx.fillText('set y-axis title',lx, ly);ly-=dy;
+				ctx.fillText('Scaling Factor down',lx,  ly);ly-=dy;
+				ctx.fillText('Scaling Factor up',lx,  ly);ly-=dy;
+				ctx.fillText('Reset Graph',lx,  ly);ly-=dy;
+				
+			} else {
+				graph.drawgraphmenu = false;
+			}
+		}
+		
 		
 		if (graph.drawexportmenu){
 			if (x > canvas.width - 8*edge && y > canvas.height-edge*14){
@@ -3078,21 +3125,60 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
+	if(graph.drawgraphmenu){
+	var ly = Math.floor(end_y/edge);
+	switch(ly){
+		case 0:
+			graph.drawgraphmenu=false;
+			break;
+		case 1:
+			gs.title = prompt("new title",gs.title ) || gs.title;
+			break;
+		case 2:
+			gs.subtitle = prompt("new subtitle",gs.subtitle ) || gs.subtitle;
+			break;
+		case 3:
+			gs.subtitle2 = prompt("new subtitle",gs.subtitle2 ) || gs.subtitle2;
+			break;
+		case 4:
+			gs.showTransformTexts = !gs.showTransformTexts;
+			break;
+		case 5:
+			gs.x_axis_title = prompt("new x axis title",gs.x_axis_title ) || gs.x_axis_title;
+			graph.transform_index--;
+			break;
+		case 6:
+			gs.y_axis_title = prompt("new y axis title",gs.y_axis_title ) || gs.y_axis_title;
+			graph.transform_index--;
+			break;
+		case 7:
+			gs.scaling_factor/=1.1;
+			break;
+		case 8:
+			gs.scaling_factor*=1.1;
+			break;
+		case 9:
+			graph.graphics_style = JSON.parse(JSON.stringify(graph.default_graphics_style));
+			graph.graphics_style.modified = false;
+			graph.transform_index= -1;
+			break;
+		}
+		graph.mjs_plot();
+		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+		return;
+	}
+	
 	//top buttons
 	if (end_y < edge){
 		if ( end_x < 4*edge){
 		//dot button
 		graph.drawmodemenu = true;
 		}
-
-		if ( end_x < 7*edge && end_x > 6*edge){
-		//scailing factor up button
-		gs.scaling_factor *= 0.9;
+		if ( end_x  >4*edge && end_x  <8 *edge){
+		//dot button
+		graph.drawgraphmenu = true;
 		}
-		if ( end_x < 8*edge && end_x > 7*edge){
-		//scailing factor up button
-		gs.scaling_factor *= 1.1;
-		}
+	
 		
 		if ( end_x < 10*edge && end_x > 9*edge){
 		//drag button
@@ -3849,17 +3935,18 @@ function mouse_up_event(event,graph){
 				for (ii = 0;ii<graph.data[i][0].length-1;ii++){
 					text += graph.data[i][0][ii] + ','
 				}
-				text += graph.data[i][0][ii] + '];<br>';
+				text += graph.data[i][0][ii] + '];\n';
 				
 				text += graph.captions[i].replace( /\W/g, "")+'_y = [';
 				for (ii = 0;ii<graph.data[i][1].length-1;ii++){
 					text += graph.data[i][1][ii] + ','
 				}
-				text += graph.data[i][1][ii] + '];<br>';
+				text += graph.data[i][1][ii] + '];\n';
 				
 				
 			}
-			theBody.innerHTML = text;
+			show_text_to_screen(text,graph);
+			//theBody.innerHTML = text;
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -3871,17 +3958,17 @@ function mouse_up_event(event,graph){
 				for (ii = 0;ii<graph.data[i][0].length-1;ii++){
 					text += graph.data[i][0][ii] + ' '
 				}
-				text += graph.data[i][0][ii] + '];<br>';
+				text += graph.data[i][0][ii] + '];\n';
 				
 				text += graph.captions[i].replace( /\W/g, "")+'_y = [';
 				for (ii = 0;ii<graph.data[i][1].length-1;ii++){
 					text += graph.data[i][1][ii] + ' '
 				}
-				text += graph.data[i][1][ii] + '];<br>';
+				text += graph.data[i][1][ii] + '];\n';
 				
 				
 			}
-			theBody.innerHTML = text;
+			show_text_to_screen(text,graph);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -4046,6 +4133,7 @@ function mouse_up_event(event,graph){
 			graph.mjs_plot();
 			var svg = document.getElementById("_mjsplotSVG").outerHTML;
 			
+			
 			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
 			
 			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
@@ -4058,23 +4146,34 @@ function mouse_up_event(event,graph){
 		if ( end_y > my - dy && end_y < my){
 			console.log('html embedding');
 			var text = '';
-			var graph_name = 'asdf';
-			var canvas_name = 'asdf_canvas';
+			var nl= ' \n';
+			var graph_name = graph.graph_name;
+			var canvas_name = graph.canvas_name ;
 			var mjsplot_embed = '<script src="mjs_plot_0_3_3svg.js"></script>'
+			var canvas_embed = '<canvas id="'+ canvas_name+'" width="'+graph.canvas.width+'px" height="'+graph.canvas.height+'px"></canvas>';
 			var data_code = JSON.stringify(graph.data_backup);
 			var gs_code = JSON.stringify(graph.graphics_style);
 			var captions_code = JSON.stringify(graph.captions_backup);
 			
-			text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'");'
-			text+= graph_name+'.setData('+data_code+');\n';
-			text+= graph_name+'.setCaptions('+captions_code+');\n';
-			text+= graph_name+'.default_graphics_style = '+gs_code+';\n';
-			text+= graph_name+'.plot();\n';
+			text += "put this in <head>"+nl;
+			text+= mjsplot_embed+nl;
+			text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
+			text+="The plan is to get a CDN so you can skip this step." +nl;
 			
-			console.log(text);
-			var theBody = document.getElementsByTagName('body')[0];
-			theBody.innerHTML = text;
 			
+			text += nl +"put a canvas in the <body> where you want the graph:" + nl;
+			text += canvas_embed+nl;
+			
+			text += nl+"Put this after the <body>:" + nl;
+			text += '<script>' + nl;
+			text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'") ;'+nl;
+			text+= graph_name+'.setData( '+data_code+' );'+nl;
+			text+= graph_name+'.setCaptions( '+captions_code+' ); '+nl;
+			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
+			text+= graph_name+'.plot();\n'+nl;
+			text += '</script>' + nl;
+			
+			show_text_to_screen(text,graph);
 			
 		}my-=dy;
 		
@@ -4257,7 +4356,6 @@ function mouse_up_event(event,graph){
 		ctx.rect(start_x-no_drag_size*0.5,start_y-no_drag_size*0.5,no_drag_size,no_drag_size);
 		ctx.stroke();
 		 if( event.button=== 0){
-			//console.log('was left click');
 			gs.x_scale_auto_min = true;
 			gs.y_scale_auto_min = true;
 			gs.x_scale_auto_max = true;
@@ -4273,25 +4371,11 @@ function mouse_up_event(event,graph){
 			gs.y_scale_auto_max = false;
 			gs.y_scale_tight = false;
 			gs.x_scale_tight = false;
-			var m = 0;
-			if (gs.x_scale_mode === 'lin' || gs.x_scale_mode === 'time'){
-				m = (gs.x_manual_min + gs.x_manual_max)/2;
-				gs.x_manual_min = m - 1.2*(m - gs.x_manual_min);
-				gs.x_manual_max = m - 1.2*(m - gs.x_manual_max);
-			}
-			if (gs.y_scale_mode === 'lin' || gs.y_scale_mode === 'time'){
-				m = (gs.y_manual_min + gs.y_manual_max)/2;
-				gs.y_manual_min = m - 1.2*(m - gs.y_manual_min);
-				gs.y_manual_max = m - 1.2*(m - gs.y_manual_max);
-			}
-			if (gs.x_scale_mode === 'log'){
-				gs.x_manual_min *=0.7 ;
-				gs.x_manual_max *=1.4 ;
-			}
-			if (gs.y_scale_mode === 'log' ){
-				gs.y_manual_min *=0.7 ;
-				gs.y_manual_max *=1.4 ;
-			}
+			var f = 0.8;
+			gs.x_manual_min = graph.pixels_to_units(-f*gs.guideWidthx,'x');
+			gs.x_manual_max = graph.pixels_to_units(canvas.width+f*gs.guideWidthx,'x');
+			gs.y_manual_min = graph.pixels_to_units(canvas.height+f*gs.guideWidthy,'y');
+			gs.y_manual_max = graph.pixels_to_units(-f*gs.guideWidthy,'y');
 			
 			
 		}
@@ -4658,7 +4742,7 @@ function SVGContext(ctx){
 	//.getLineDash()
 	//.setLineDash()
 	//.lineDashOffset
-	this.font
+	this.font;
 	this.textAlign = 'left';// or center or right
 	this.textBaseline = 'alphabetic';//or top hanging middle ideographic bottom.
 	this.direction = 'inherit';//or ltr rtl
@@ -4728,6 +4812,9 @@ function SVGContext(ctx){
 		this._shape.setAttributeNS(null, "stroke", this.strokeStyle);
 		if (!this._isdrawn){
 			if (this._shape_type === 'path'){	this._shape.setAttributeNS(null, "d", this._path); }
+			if (this.globalAlpha <1 ){
+			this._shape.setAttributeNS(null, "opacity", this.globalAlpha.toFixed(2));
+			} 
 			this.target.appendChild(this._shape);
 			this._isdrawn = true;
 		}
@@ -4752,7 +4839,8 @@ function SVGContext(ctx){
 		t.setAttributeNS(null, "text-anchor", anchor);
 		t.setAttributeNS(null, "fill", this.fillStyle);
 		t.setAttributeNS(null, "x", x.toFixed(this._pixel_precision));
-		
+		t.setAttributeNS(null, "x", x.toFixed(this._pixel_precision));
+		t.setAttributeNS(null, "font-family", this.font_name );
 		t.setAttributeNS(null, "y", y.toFixed(this._pixel_precision));
 		t.setAttributeNS(null, "font-size", parseFloat(this.font.split(' ')[0].slice(0,-2)).toFixed(this._pixel_precision) );
 		
@@ -5471,6 +5559,7 @@ new_graph : function (graphname,canvasname){
 	drawmodemenu:false,
 	drawfitsmenu : false,
 	drawtimemenu : false,
+	drawgraphmenu : false,
 	drawcaptionmenu:false,
 	timemenuoptions : [0,0], //which button is selected, [top row,bottom row] left to right.
 	plot_failed : false,
@@ -6068,17 +6157,15 @@ new_graph : function (graphname,canvasname){
 		}
 		if (log_vals_i == 0 && sections > 2*required_secions){
 		//do the far zoomed out log scale.
-		console.log('super far out');
+		
 		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
-		console.log(the_scale);
+		
 		lowpoint = the_scale.lowpoint; //308 is the javascript float maxamum and minimum
 		highpoint = the_scale.highpoint;
 		scale = the_scale.scale;
 		scalemode = 'log';
 		width = the_scale.width;
 		log_vals_i = -1; // ! this is the flag to use the zoomed out view.
-		console.log(lowpoint);
-		console.log(highpoint);
 		}
 		
 		return the_scale = {
@@ -6126,23 +6213,16 @@ new_graph : function (graphname,canvasname){
 			if (allowed_intervals[i]>=2592000000  && allowed_intervals[i]< 31536000000){
 				//using months
 				var d = new Date(start_time);
-				console.log(d.toString());
 				d = new Date(d.getFullYear(),d.getMonth(),1);
-				console.log(d.toString());
 				start_time = d.getTime();
-				
 				var d = new Date(high_time);
-				console.log(d.toString());
 				if (d.getDate() < 15){
-				d = new Date(d.getFullYear(),d.getMonth(),1);
+					d = new Date(d.getFullYear(),d.getMonth(),1);
 				} else {
-				d = new Date(d.getFullYear(),d.getMonth()+1,1);
+					d = new Date(d.getFullYear(),d.getMonth()+1,1);
 				}
-				console.log(d.toString());
 				high_time = d.getTime()+allowed_intervals[i];
 			}
-			
-			
 			
 			if (allowed_intervals[i]>=43200000  && allowed_intervals[i]< 2592000000){
 				//using days
@@ -6168,7 +6248,6 @@ new_graph : function (graphname,canvasname){
 			
 			if (allowed_intervals[i]==7200000 ){
 				//every two hours
-				console.log('every two horus');
 				var d = new Date(start_time);
 				var c = new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(d.getHours()/2)*2,0,0,0);
 				start_time = c.getTime();
@@ -6203,12 +6282,6 @@ new_graph : function (graphname,canvasname){
 			if (allowed_intervals[i]<1800000 ){
 				high_time += allowed_intervals[i];
 			}
-			
-			
-			
-			
-			
-			
 			
 			var number_of_sections = Math.floor((high_time-start_time)/allowed_intervals[i]);
 			scale = size/number_of_sections;
@@ -6254,9 +6327,14 @@ new_graph : function (graphname,canvasname){
 					automin = true;
 					automax = true;
 				}
-				this.errors.push("There is no "+name+" data to plot");
+				if (scale === 'log'){
+					if (low<=0){low = 1;}
+					if (high<=0 || low > high){high = 10;}
+				}
+				
 				this.no_data = true;
 				return {low:low, high:high, automax:automax,automin:automin,scale:scale};
+				
 			}
 			//catch negatives for the log scale
 			if (scale === 'log'){
@@ -6663,8 +6741,8 @@ new_graph : function (graphname,canvasname){
 	fit_points_drawn : 0,
 	drawSimpleLine : function(ctx,x,y){
 		
-				var xi = graph.units_to_pixels(x[0],'x');
-				var yi = graph.units_to_pixels(y[0],'y');
+				var xi = this.units_to_pixels(x[0],'x');
+				var yi = this.units_to_pixels(y[0],'y');
 				var oxi = xi;
 				var oyi = yi;
 				ctx.beginPath();
@@ -6673,8 +6751,8 @@ new_graph : function (graphname,canvasname){
 				var wasOngraph = true;
 				for (var k = 0;k<x.length;k++){
 					this.fit_points_drawn++;
-					var yi = graph.units_to_pixels(y[k],'y');
-					var xi =  graph.units_to_pixels(x[k],'x');
+					var yi = this.units_to_pixels(y[k],'y');
+					var xi =  this.units_to_pixels(x[k],'x');
 					ongraph = (yi > 0 && yi < canvas.height);
 					if (ongraph && wasOngraph){
 						ctx.lineTo(xi,yi);
@@ -6797,6 +6875,7 @@ new_graph : function (graphname,canvasname){
 	}
 	if (this.isSVG){
 		ctx.clearAll();
+		ctx.font_name = font_name;
 	}
 	
 	//run data transforms
@@ -6855,6 +6934,11 @@ new_graph : function (graphname,canvasname){
 	//log scale
 	
 	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight);
+	
+	//this is an experiament to use the fontsize to set the guidewidth
+	//var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,tick_labels_font_size*2,gs.y_scale_mode,gs.y_scale_tight);
+	//it works! but it's not ready to implement yet. as this would be a breaking api change.
+	
 	var lowpointy = the_scaley.lowpoint;
 	var highpointy = the_scaley.highpoint;
 	var scaley = the_scaley.scale;
@@ -6925,7 +7009,7 @@ new_graph : function (graphname,canvasname){
 	var fit_y = [];
 	for (var i = 0; i<gs.function_lines.length;i++){
 		try {
-			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x)
+			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x);
 			this.drawSimpleLine(ctx,fit_x,fit_y);
 		} catch(e){
 			this.errors.push('function line:y=' + gs.function_lines[i] + ' fails');
@@ -7075,7 +7159,7 @@ new_graph : function (graphname,canvasname){
 	ctx.strokeStyle = gs.color_fg;//'#000000';
 	ctx.fillStyle = gs.color_fg;;//'#000000';
 	
-	if (!drawn_something && this.no_data == false){
+	if (!drawn_something && this.no_data == false && gs.function_lines.length ==0){
 		this.errors.push("there might be data around, just not where you're looking");
 	}
 	
@@ -7243,7 +7327,7 @@ new_graph : function (graphname,canvasname){
 	ctx.strokeStyle = graph.graphics_style.color_fg;
 	ctx.fillStyle = graph.graphics_style.color_fg;
 	
-	if (this.transform_text_x.length > 1 || this.transform_text_y.length > 1){
+	if (  (this.transform_text_x.length > 1 || this.transform_text_y.length > 1)&& gs.showTransformTexts   )   {
 		var x_label = this.transform_text_x;
 		var y_label = this.transform_text_y;
 	} else {
@@ -7472,7 +7556,7 @@ new_graph : function (graphname,canvasname){
 	ctx.fillText(gs.subtitle,canvas.width/2,tick_len+title_spacing+axis_labels_font_size+title_font_size);
 	ctx.fillText(gs.subtitle2,canvas.width/2,tick_len+title_spacing+2*axis_labels_font_size+title_font_size);
 	
-	if (gs.data_transforms.length > 0){
+	if (gs.data_transforms.length > 0 && gs.showTransformTexts){
 		
 		ctx.font=axis_labels_font_size + 'px ' + font_name;//"24px Courier New";
 		var label = '['+gs.data_transforms.join('|')+']';
@@ -7751,7 +7835,8 @@ get_graph_style : function (){
 	 y_scale_mode : 'lin',
 	 x_scale_tight : false, //data goes right to the edges. 
 	 y_scale_tight : false, // otherwise there will be a nice 1 section space on all sides.
-	 show_captions : true, 
+	 show_captions : true,
+	 showTransformTexts : true, //show the stack of transforms and modify the axis titles.
 	 captions_display : "none",//xmin xmax ymin ymax yfirst ylast xfirst xlast or non
 	 color_fg : '#111111', //foreground color
 	 color_bg : '#eeeeee', //background color
