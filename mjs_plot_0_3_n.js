@@ -218,6 +218,10 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 0_3_4  - changed website to github.io
        - improved right-click zoom out method. Now uses the guidewidth method.
 	   - removed the "there is no x/y data to plot" error from popping up, as users draw funciton lines without any data on screen.
+	   - fixed svg opacity.
+	   - added svg font handling in fillText
+	   - fixed bug in find_limits where there are is no data and the user picks a negative low point for a log scale. 
+	   
 			
 *********************************************** */
 
@@ -4049,6 +4053,7 @@ function mouse_up_event(event,graph){
 			graph.mjs_plot();
 			var svg = document.getElementById("_mjsplotSVG").outerHTML;
 			
+			
 			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
 			
 			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
@@ -4646,7 +4651,7 @@ function SVGContext(ctx){
 	//.getLineDash()
 	//.setLineDash()
 	//.lineDashOffset
-	this.font
+	this.font;
 	this.textAlign = 'left';// or center or right
 	this.textBaseline = 'alphabetic';//or top hanging middle ideographic bottom.
 	this.direction = 'inherit';//or ltr rtl
@@ -4716,6 +4721,9 @@ function SVGContext(ctx){
 		this._shape.setAttributeNS(null, "stroke", this.strokeStyle);
 		if (!this._isdrawn){
 			if (this._shape_type === 'path'){	this._shape.setAttributeNS(null, "d", this._path); }
+			if (this.globalAlpha <1 ){
+			this._shape.setAttributeNS(null, "opacity", this.globalAlpha.toFixed(2));
+			} 
 			this.target.appendChild(this._shape);
 			this._isdrawn = true;
 		}
@@ -4740,7 +4748,8 @@ function SVGContext(ctx){
 		t.setAttributeNS(null, "text-anchor", anchor);
 		t.setAttributeNS(null, "fill", this.fillStyle);
 		t.setAttributeNS(null, "x", x.toFixed(this._pixel_precision));
-		
+		t.setAttributeNS(null, "x", x.toFixed(this._pixel_precision));
+		t.setAttributeNS(null, "font-family", this.font_name );
 		t.setAttributeNS(null, "y", y.toFixed(this._pixel_precision));
 		t.setAttributeNS(null, "font-size", parseFloat(this.font.split(' ')[0].slice(0,-2)).toFixed(this._pixel_precision) );
 		
@@ -6226,9 +6235,14 @@ new_graph : function (graphname,canvasname){
 					automin = true;
 					automax = true;
 				}
+				if (scale === 'log'){
+					if (low<=0){low = 1;}
+					if (high<=0 || low > high){high = 10;}
+				}
 				
 				this.no_data = true;
 				return {low:low, high:high, automax:automax,automin:automin,scale:scale};
+				
 			}
 			//catch negatives for the log scale
 			if (scale === 'log'){
@@ -6769,6 +6783,7 @@ new_graph : function (graphname,canvasname){
 	}
 	if (this.isSVG){
 		ctx.clearAll();
+		ctx.font_name = font_name;
 	}
 	
 	//run data transforms
@@ -6827,6 +6842,11 @@ new_graph : function (graphname,canvasname){
 	//log scale
 	
 	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight);
+	
+	//this is an experiament to use the fontsize to set the guidewidth
+	//var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,tick_labels_font_size*2,gs.y_scale_mode,gs.y_scale_tight);
+	//it works! but it's not ready to implement yet. as this would be a breaking api change.
+	
 	var lowpointy = the_scaley.lowpoint;
 	var highpointy = the_scaley.highpoint;
 	var scaley = the_scaley.scale;
@@ -7047,7 +7067,7 @@ new_graph : function (graphname,canvasname){
 	ctx.strokeStyle = gs.color_fg;//'#000000';
 	ctx.fillStyle = gs.color_fg;;//'#000000';
 	
-	if (!drawn_something && this.no_data == false){
+	if (!drawn_something && this.no_data == false && gs.function_lines.length ==0){
 		this.errors.push("there might be data around, just not where you're looking");
 	}
 	
