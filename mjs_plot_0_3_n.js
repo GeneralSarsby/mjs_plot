@@ -44,6 +44,7 @@ None
  
  Known Bugs:
  - time in 10s of years doesn't align correctlly to decade boundaries.
+ - on mobile devices if the viewport has a zoom != 1 the position infomaition is wrong.
  
  
  Done:
@@ -221,6 +222,13 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - fixed svg opacity.
 	   - added svg font handling in fillText
 	   - fixed bug in find_limits where there are is no data and the user picks a negative low point for a log scale. 
+	   - removed the + and - buttons from the top row, this was confusing new users.
+	   - replaced it with a 'graph' menu. from which users can set the title and other strings.
+	   - added new options to hide the transform text.
+	       this means users can clean up the axis titles to what they want before printing.
+	   - improved HTML embedding export.
+	   - improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
+	      and a button to go back.
 	   
 			
 *********************************************** */
@@ -443,6 +451,30 @@ function download_text(text,filename,type){
 	pom.click();
 	document.body.removeChild(pom);
 }
+
+function show_text_to_screen(text,graph){
+
+	var pom = document.createElement('button');
+	var textDiv = document.createElement('div');
+	
+	pom.setAttribute('onclick', 'location.reload()');
+	pom.innerHTML  = "back";
+	pom.style.display = 'block';
+	
+	var export_textarea = document.createElement('textarea');
+	export_textarea.style.width = 0.8*graph.canvas.width+'px';
+	export_textarea.style.height = 0.8*graph.canvas.height+'px';
+	
+	textDiv.appendChild(pom);
+	textDiv.appendChild(export_textarea);
+	
+	export_textarea.value = text;
+	graph.canvas.parentNode.appendChild(textDiv);
+	graph.canvas.parentNode.removeChild(graph.canvas);
+	
+}
+
+
 	
 function save_gs(name, gs){
 	//bake_cookie(name, gs);
@@ -1541,38 +1573,18 @@ function mouse_move_event_actual(event,graph){
 			
 			ctx.beginPath();
 			ctx.rect(0,0,edge*4,edge);
+			
+			ctx.rect(4*edge,0,edge*4,edge);
 			ctx.fill();
 			ctx.stroke();
 			
 			ctx.fillStyle = gs.color_fg;
 			ctx.beginPath();
 			ctx.fillText("symbol/line",0.2*edge,0.8*edge);
+			ctx.fillText("Graph",4.2*edge,0.8*edge);
 			
 			ctx.fillStyle = gs.color_bg;
 			
-			
-			//scailing factor up button
-			ctx.rect(edge*6,0,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*6.2,edge*0.5);
-			ctx.lineTo(edge*6.8,edge*0.5);
-			ctx.stroke();
-			
-			//scailing factor down button
-			ctx.rect(edge*7,0,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*7.2,edge*0.5);
-			ctx.lineTo(edge*7.8,edge*0.5);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(edge*7.5,edge*0.2);
-			ctx.lineTo(edge*7.5,edge*0.8);
-			ctx.stroke();
-
 			
 			//mouse mode to drag button
 			ctx.rect(edge*9,0,edge,edge);
@@ -2076,6 +2088,34 @@ function mouse_move_event_actual(event,graph){
 				graph.drawmodemenu = false;
 			}
 		}
+		
+		if (graph.drawgraphmenu){
+			if (x < 12*edge && x > 4*edge && y < edge*10){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(4*edge,0,edge*8,edge*10);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = edge*0.8;
+				var dy = -edge;
+				var lx = 4.2*edge;
+				ctx.fillText('Graph',lx, ly);ly-=dy;
+				ctx.fillText('Set title',lx,  ly);ly-=dy;
+				ctx.fillText('Set subtitle',lx,  ly);ly-=dy;
+				ctx.fillText('Set subtitle2',lx,  ly);ly-=dy;
+				ctx.fillText('Toggle show transforms',lx,  ly);ly-=dy;
+				ctx.fillText('set x-axis title',lx,  ly);ly-=dy;
+				ctx.fillText('set y-axis title',lx, ly);ly-=dy;
+				ctx.fillText('Scaling Factor down',lx,  ly);ly-=dy;
+				ctx.fillText('Scaling Factor up',lx,  ly);ly-=dy;
+				ctx.fillText('Reset Graph',lx,  ly);ly-=dy;
+				
+			} else {
+				graph.drawgraphmenu = false;
+			}
+		}
+		
 		
 		if (graph.drawexportmenu){
 			if (x > canvas.width - 8*edge && y > canvas.height-edge*14){
@@ -3085,21 +3125,60 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
+	if(graph.drawgraphmenu){
+	var ly = Math.floor(end_y/edge);
+	switch(ly){
+		case 0:
+			graph.drawgraphmenu=false;
+			break;
+		case 1:
+			gs.title = prompt("new title",gs.title ) || gs.title;
+			break;
+		case 2:
+			gs.subtitle = prompt("new subtitle",gs.subtitle ) || gs.subtitle;
+			break;
+		case 3:
+			gs.subtitle2 = prompt("new subtitle",gs.subtitle2 ) || gs.subtitle2;
+			break;
+		case 4:
+			gs.showTransformTexts = !gs.showTransformTexts;
+			break;
+		case 5:
+			gs.x_axis_title = prompt("new x axis title",gs.x_axis_title ) || gs.x_axis_title;
+			graph.transform_index--;
+			break;
+		case 6:
+			gs.y_axis_title = prompt("new y axis title",gs.y_axis_title ) || gs.y_axis_title;
+			graph.transform_index--;
+			break;
+		case 7:
+			gs.scaling_factor/=1.1;
+			break;
+		case 8:
+			gs.scaling_factor*=1.1;
+			break;
+		case 9:
+			graph.graphics_style = JSON.parse(JSON.stringify(graph.default_graphics_style));
+			graph.graphics_style.modified = false;
+			graph.transform_index= -1;
+			break;
+		}
+		graph.mjs_plot();
+		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+		return;
+	}
+	
 	//top buttons
 	if (end_y < edge){
 		if ( end_x < 4*edge){
 		//dot button
 		graph.drawmodemenu = true;
 		}
-
-		if ( end_x < 7*edge && end_x > 6*edge){
-		//scailing factor up button
-		gs.scaling_factor *= 0.9;
+		if ( end_x  >4*edge && end_x  <8 *edge){
+		//dot button
+		graph.drawgraphmenu = true;
 		}
-		if ( end_x < 8*edge && end_x > 7*edge){
-		//scailing factor up button
-		gs.scaling_factor *= 1.1;
-		}
+	
 		
 		if ( end_x < 10*edge && end_x > 9*edge){
 		//drag button
@@ -3856,17 +3935,18 @@ function mouse_up_event(event,graph){
 				for (ii = 0;ii<graph.data[i][0].length-1;ii++){
 					text += graph.data[i][0][ii] + ','
 				}
-				text += graph.data[i][0][ii] + '];<br>';
+				text += graph.data[i][0][ii] + '];\n';
 				
 				text += graph.captions[i].replace( /\W/g, "")+'_y = [';
 				for (ii = 0;ii<graph.data[i][1].length-1;ii++){
 					text += graph.data[i][1][ii] + ','
 				}
-				text += graph.data[i][1][ii] + '];<br>';
+				text += graph.data[i][1][ii] + '];\n';
 				
 				
 			}
-			theBody.innerHTML = text;
+			show_text_to_screen(text,graph);
+			//theBody.innerHTML = text;
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -3878,17 +3958,17 @@ function mouse_up_event(event,graph){
 				for (ii = 0;ii<graph.data[i][0].length-1;ii++){
 					text += graph.data[i][0][ii] + ' '
 				}
-				text += graph.data[i][0][ii] + '];<br>';
+				text += graph.data[i][0][ii] + '];\n';
 				
 				text += graph.captions[i].replace( /\W/g, "")+'_y = [';
 				for (ii = 0;ii<graph.data[i][1].length-1;ii++){
 					text += graph.data[i][1][ii] + ' '
 				}
-				text += graph.data[i][1][ii] + '];<br>';
+				text += graph.data[i][1][ii] + '];\n';
 				
 				
 			}
-			theBody.innerHTML = text;
+			show_text_to_screen(text,graph);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -4066,23 +4146,34 @@ function mouse_up_event(event,graph){
 		if ( end_y > my - dy && end_y < my){
 			console.log('html embedding');
 			var text = '';
-			var graph_name = 'asdf';
-			var canvas_name = 'asdf_canvas';
+			var nl= ' \n';
+			var graph_name = graph.graph_name;
+			var canvas_name = graph.canvas_name ;
 			var mjsplot_embed = '<script src="mjs_plot_0_3_3svg.js"></script>'
+			var canvas_embed = '<canvas id="'+ canvas_name+'" width="'+graph.canvas.width+'px" height="'+graph.canvas.height+'px"></canvas>';
 			var data_code = JSON.stringify(graph.data_backup);
 			var gs_code = JSON.stringify(graph.graphics_style);
 			var captions_code = JSON.stringify(graph.captions_backup);
 			
-			text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'");'
-			text+= graph_name+'.setData('+data_code+');\n';
-			text+= graph_name+'.setCaptions('+captions_code+');\n';
-			text+= graph_name+'.default_graphics_style = '+gs_code+';\n';
-			text+= graph_name+'.plot();\n';
+			text += "put this in <head>"+nl;
+			text+= mjsplot_embed+nl;
+			text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
+			text+="The plan is to get a CDN so you can skip this step." +nl;
 			
-			console.log(text);
-			var theBody = document.getElementsByTagName('body')[0];
-			theBody.innerHTML = text;
 			
+			text += nl +"put a canvas in the <body> where you want the graph:" + nl;
+			text += canvas_embed+nl;
+			
+			text += nl+"Put this after the <body>:" + nl;
+			text += '<script>' + nl;
+			text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'") ;'+nl;
+			text+= graph_name+'.setData( '+data_code+' );'+nl;
+			text+= graph_name+'.setCaptions( '+captions_code+' ); '+nl;
+			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
+			text+= graph_name+'.plot();\n'+nl;
+			text += '</script>' + nl;
+			
+			show_text_to_screen(text,graph);
 			
 		}my-=dy;
 		
@@ -5468,6 +5559,7 @@ new_graph : function (graphname,canvasname){
 	drawmodemenu:false,
 	drawfitsmenu : false,
 	drawtimemenu : false,
+	drawgraphmenu : false,
 	drawcaptionmenu:false,
 	timemenuoptions : [0,0], //which button is selected, [top row,bottom row] left to right.
 	plot_failed : false,
@@ -7235,7 +7327,7 @@ new_graph : function (graphname,canvasname){
 	ctx.strokeStyle = graph.graphics_style.color_fg;
 	ctx.fillStyle = graph.graphics_style.color_fg;
 	
-	if (this.transform_text_x.length > 1 || this.transform_text_y.length > 1){
+	if (  (this.transform_text_x.length > 1 || this.transform_text_y.length > 1)&& gs.showTransformTexts   )   {
 		var x_label = this.transform_text_x;
 		var y_label = this.transform_text_y;
 	} else {
@@ -7464,7 +7556,7 @@ new_graph : function (graphname,canvasname){
 	ctx.fillText(gs.subtitle,canvas.width/2,tick_len+title_spacing+axis_labels_font_size+title_font_size);
 	ctx.fillText(gs.subtitle2,canvas.width/2,tick_len+title_spacing+2*axis_labels_font_size+title_font_size);
 	
-	if (gs.data_transforms.length > 0){
+	if (gs.data_transforms.length > 0 && gs.showTransformTexts){
 		
 		ctx.font=axis_labels_font_size + 'px ' + font_name;//"24px Courier New";
 		var label = '['+gs.data_transforms.join('|')+']';
@@ -7743,7 +7835,8 @@ get_graph_style : function (){
 	 y_scale_mode : 'lin',
 	 x_scale_tight : false, //data goes right to the edges. 
 	 y_scale_tight : false, // otherwise there will be a nice 1 section space on all sides.
-	 show_captions : true, 
+	 show_captions : true,
+	 showTransformTexts : true, //show the stack of transforms and modify the axis titles.
 	 captions_display : "none",//xmin xmax ymin ymax yfirst ylast xfirst xlast or non
 	 color_fg : '#111111', //foreground color
 	 color_bg : '#eeeeee', //background color
