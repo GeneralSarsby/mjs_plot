@@ -166,7 +166,7 @@ Uses the HTML5 canvas element. It's supported in all modern browsers on desktop 
    <div class='featurebox'>
 <h2>Responsive</h2>
 Plot on nearly any size canvas.
-As well as figuring out a new scale that always is sensible.
+As well as figuring out a new scale that always is sensible. Try resizing this page.
  </div>
  
       <div class='featurebox'>
@@ -246,7 +246,7 @@ demo3Graph.set_data([[x,y],[x2,y2]]);<br>
 demo3Graph.set_captions(["First Line","Second Line"]);
 demo2Graph.mjs_plot();<br>
 </code>
-<p>You can setup everything, colours, fonts, subtitles, axis labels and more.</p>
+<p></p>
  </div>
   
  <div class='demobox'>
@@ -258,7 +258,7 @@ demo2Graph.mjs_plot();<br>
  <h2>Working with Time</h2>
  <hr>
 <p>Time strings get processed into milliseconds from epoc. Many time strings work, but the
-prefered type is <a href='http://en.wikipedia.org/wiki/ISO_8601'>ISO 8601 </a>. </p>
+prefered type is <a href='http://en.wikipedia.org/wiki/ISO_8601'>ISO 8601</a>. </p>
 <code>
 var demo4Graph = mjs_plot.new_graph("demo4Graph","demo4");<br>
 var t = ['April 20 2015', 'May 3 2015', '2015-05-25T12:00:00Z'];<br>
@@ -270,7 +270,10 @@ demo4Graph.default_graphics_style.x_scale_mode =  "time";<br>
 demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 ...
 </code>
-<p>Here you can see data spaning many orders of magnitude beging plotted just fine.</p>
+<p>Test the time string you want to use with the <a href="tools/time.html"> time tester</a></p>
+
+<p>Here you can also see the y-axis data spaning many orders of magnitude beging plotted just fine.</p>
+
  </div>
   
  <div class='demobox'>
