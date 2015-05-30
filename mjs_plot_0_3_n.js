@@ -487,9 +487,9 @@ function save_gs(name, gs){
 }
 
 function load_gs(graphname){
-	gs  = mjs_plot.get_graph_style();
+	var gs  = mjs_plot.get_graph_style();
 	if (hasLocalStorage()){
-		result = localStorage.getItem(graphname);
+		var result = localStorage.getItem(graphname);
 		result && (result = JSON.parse(result));
 		result && (gs = result);
 	} else {
@@ -726,7 +726,7 @@ var fits = {
 	//returning strings - an array length 3 of string to describe to the user the results (ofern printed)
 	//returning fun - a function that will realise this fit.
 	exponential_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i=0;i<x.length;i++){
 			y.push(params[0] * Math.pow(Math.E, params[1] * x[i]));
 		}
@@ -760,7 +760,7 @@ var fits = {
 		return { parameters:[A,B], strings : [string,'',''], fun : fits.exponential_fun}
 	},
 	exponential_plus_c_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i=0;i<x.length;i++){
 			y.push(  params[0] + params[1]*Math.exp(params[2]*x[i]) );
 		}
@@ -802,7 +802,7 @@ var fits = {
 	},
 	gauss_fun : function(x,params){
 		//asdf
-		y = [];
+		var y = [];
 		var mu = params[0];
 		var sig = params[1];
 		var root_two_pi = Math.sqrt(Math.PI * 2);
@@ -854,7 +854,7 @@ var fits = {
 	},
 	
 	linear_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i=0;i<x.length;i++){
 			y.push( x[i]*params[0]+params[1] );
 		}
@@ -899,7 +899,7 @@ var fits = {
 		return {parameters: [b,a], strings: [string1,string2,string3],fun:fits.linear_fun};
 	},
 	constant_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i=0;i<x.length;i++){
 			y.push( params[0] );
 		}
@@ -943,7 +943,7 @@ var fits = {
 	//polynomial function break the normal api internally
 	//as they forward to the generic poly n method with different order
 	polyn_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i = 0; i < x.length; i++) {
 			y[i] = 0;
 			for (var w = 0; w < params.length; w++) {
@@ -1055,7 +1055,7 @@ var fits = {
 		return {parameters: coeffs, strings: [string1,string2,string3],fun:fits.polyn_fun};
 	},
 	log_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i = 0; i < x.length; i++) {
 			y.push( params[0] + params[1]*Math.log(x[i] ));
 		}
@@ -1091,15 +1091,15 @@ var fits = {
 		return {parameters: [A, B], strings: [string,'',''], fun:fits.log_fun};
 	},
 	power_plus_c_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i=0;i<x.length;i++){
 			y.push(  params[0] + params[1]*Math.pow(x[i],params[2]) );
 		}
 		return y;
 	},
 	power_plus_c : function(x,y){
-		nx = [];
-		ny = [];
+		var nx = [];
+		var ny = [];
 		for (var i=0; i<x.length;i++){
 			xi = Math.log(x[i]);
 			if (isFinite(xi)){
@@ -1115,7 +1115,7 @@ var fits = {
 		
 	},
 	power_fun : function(x,params){
-		y = [];
+		var y = [];
 		for (var i = 0; i < x.length; i++) {
 			y.push( params[0] *Math.pow(x[i] , params[1] )   );
 		}
@@ -1148,7 +1148,7 @@ var fits = {
 	},
 	pre_fit_normalizing : function(x){
 		var s = series_stats(x,x);
-		x_primed = clone(x);
+		var x_primed = clone(x);
 		for (var i = 0;i<x.length;i++){
 			x_primed[i] = (x[i] - s.x_mean)/s.sigma_x;
 		}
@@ -1156,7 +1156,7 @@ var fits = {
 		return {x:x_primed,s:string1,x_mean:s.x_mean,sigma_x:s.sigma_x}
 	},
 	post_fit_normalizing : function(x,normalised){
-		x_primed = clone(x);
+		var x_primed = clone(x);
 		for (var i = 0;i<x.length;i++){
 			x_primed[i] = (x[i] - normalised.x_mean)/normalised.sigma_x;
 		}
@@ -1167,7 +1167,7 @@ fits.fit_strings = ['exp','exp_c','linear','quad', 'cubic','poly4','poly5','poly
 fits.fit_funs = [fits.exponential,fits.exponential_plus_c,fits.linear,fits.poly2,fits.poly3,fits.poly4,fits.poly5,fits.poly6,fits.poly7,fits.constant,fits.log,fits.power,fits.power_plus_c,fits.gauss];
 			
 function mjs_precision(number,precision){
-	precision = Math.max(1,precision);
+	var precision = Math.max(1,precision);
 	
 	if (precision<1){precision =1;}
 	if (precision>21){precision =21;}
@@ -1180,7 +1180,7 @@ function mjs_precision(number,precision){
 	if (Math.abs(number) < 1e-3){
 		return label = number.toExponential(precision); 
 	}
-	label = number.toPrecision(precision);
+	var label = number.toPrecision(precision);
 	//this bit of mess fixes the strings that say 3.1e+2 rather than 310.
 	//as '3.1e+2' is longer (6) than '310' (3).
 	if (label.length > number.toPrecision(precision+2).length){
@@ -1210,7 +1210,7 @@ function number_quote(number,error){
 function drawEllipse(ctx, centerX, centerY, radiusX, radiusY) {
 	ctx.beginPath();
 	
-	rotationAngle = 0.5;
+	var rotationAngle = 0.5;
 	
 	for (var i = 0 * Math.PI; i < 2 * Math.PI; i += 0.01 ) {
 		var xPos = centerX - (radiusX * Math.sin(i)) * Math.sin(rotationAngle * Math.PI) + (radiusY * Math.cos(i)) * Math.cos(rotationAngle * Math.PI);
@@ -2853,9 +2853,9 @@ function mouse_move_event_actual(event,graph){
 
 function mouse_down_event(event,graph){
 		mouse_down = true;
-		canvas = graph.canvas;
-		ctx = canvas.getContext('2d');
-		rect = canvas.getBoundingClientRect();
+		var canvas = graph.canvas;
+		var ctx = canvas.getContext('2d');
+		var rect = canvas.getBoundingClientRect();
 		start_x = event.clientX - rect.left;
 		start_y = event.clientY - rect.top;
 		//freeze the scaling stuff in place for the duration of the drag
@@ -2869,8 +2869,8 @@ function mouse_down_event(event,graph){
 var dotcount = 0;
 
 function mouse_out_event(event,graph){
-	canvas = graph.canvas;
-	ctx = canvas.getContext('2d');
+	var canvas = graph.canvas;
+	var ctx = canvas.getContext('2d');
 	ctx.putImageData(graph.graph_image,0,0);
 }
 
@@ -5540,16 +5540,16 @@ var transforms = {
 mjs_plot = {
 
 new_graph : function (graphname,canvasname){
-	canvas = document.getElementById(canvasname);
+	var canvas = document.getElementById(canvasname);
 	"use strict";
-	gs = load_gs(graphname);
+	var gs = load_gs(graphname);
 	if (gs.v === MJS_PLOT_VERSION){
 		console.log('version is same');
 	} else {
 		gs  = mjs_plot.get_graph_style();
 		console.log('version changed, get new style');
 	}
-	graph = {
+	var graph = {
 	graphics_style : gs,
 	default_graphics_style : mjs_plot.get_graph_style(),
 	graph_name : graphname,
@@ -6741,8 +6741,8 @@ new_graph : function (graphname,canvasname){
 	fit_points_drawn : 0,
 	drawSimpleLine : function(ctx,x,y){
 		
-				var xi = graph.units_to_pixels(x[0],'x');
-				var yi = graph.units_to_pixels(y[0],'y');
+				var xi = this.units_to_pixels(x[0],'x');
+				var yi = this.units_to_pixels(y[0],'y');
 				var oxi = xi;
 				var oyi = yi;
 				ctx.beginPath();
@@ -6751,9 +6751,9 @@ new_graph : function (graphname,canvasname){
 				var wasOngraph = true;
 				for (var k = 0;k<x.length;k++){
 					this.fit_points_drawn++;
-					var yi = graph.units_to_pixels(y[k],'y');
-					var xi =  graph.units_to_pixels(x[k],'x');
-					ongraph = (yi > 0 && yi < canvas.height);
+					var yi = this.units_to_pixels(y[k],'y');
+					var xi =  this.units_to_pixels(x[k],'x');
+					ongraph = (yi > 0 && yi < this.canvas.height);
 					if (ongraph && wasOngraph){
 						ctx.lineTo(xi,yi);
 					}
@@ -7009,7 +7009,7 @@ new_graph : function (graphname,canvasname){
 	var fit_y = [];
 	for (var i = 0; i<gs.function_lines.length;i++){
 		try {
-			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x)
+			fit_y = parseExpression(gs.function_lines[i],fit_x,fit_x);
 			this.drawSimpleLine(ctx,fit_x,fit_y);
 		} catch(e){
 			this.errors.push('function line:y=' + gs.function_lines[i] + ' fails');
@@ -7795,7 +7795,7 @@ get_graph_style : function (){
 	} else {
 		var mouse_mode = 'zoom'
 	}
-	return graph_style = {
+	return  {
 	 graph_line_thickness : 1, // for the graph generally.
 	 symbol_size : 5,
 	 line_thickness: 2, // for plotted lines
@@ -7881,7 +7881,7 @@ convert_time_strings : function (array_of_strings){
 	as that is some crazy non-standard old time brittish thing and you will end up with a mess. 
 	
 	*/
-	r = [];
+	var r = [];
 	for (var i = 0 ; i < array_of_strings.length;i++){
 		r.push( Date.parse( array_of_strings[i] ) );
 	}
