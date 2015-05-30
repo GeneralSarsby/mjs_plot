@@ -229,6 +229,8 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - improved HTML embedding export.
 	   - improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
 	      and a button to go back.
+	- added robustness to users zooming way out trying to break things. caps at +-1e250 and 1e-250 on log mode.
+	- time now can have a scale in 1000s of years. 
 	   
 			
 *********************************************** */
@@ -430,11 +432,11 @@ var log_vals_ticks = [[1,3],
 		
 		//There is no ruleset to generate the allowed time intervals. so I've just written them out. all in milliseconds.
  //                      all the miliseeconds up to   the seconds - a base 60 system   minuilts - a base 60 system               hours -  a base 12/24system                      days
-//                       500 ms                     1s   2s   5s   10s   20s   30s   1m    2m     5m     10m    15m    20m     30m     1h      2h      3h       6h       12h      1d       2d        5d        7d        14d        30d        60d        180d        1y          2y          5y           10y          20y          50y           100y          200y          500y
-var allowed_intervals = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,30000,60000,120000,300000,600000,900000,1200000,1800000,3600000,7200000,10800000,21600000,43200000,86400000,172800000,432000000,604800000,1209600000,2592000000,5184000000,15552000000,31536000000,63072000000,157680000000,315360000000,630720000000,1576800000000,3153600000000,6307200000000,15768000000000 ];
-         var time_ticks=[0.2,0.5,1,2 ,5 ,10,20 ,50 ,100,200 ,500 ,1000,2000 ,5000 ,10000,20000,30000 ,60000 ,120000,300000,300000 ,600000 ,1200000,1800000,3600000 ,7200000 ,10800000,21600000,43200000 ,86400000 , 86400000 ,172800000 ,864000000 ,1728000000,2592000000 ,7884000000 ,31536000000,31536000000 ,63072000000 ,157680000000,315360000000 ,630720000000 ,1576800000000,3153600000000 ];
+//                       500 ms                     1s   2s   5s   10s   20s   30s   1m    2m     5m     10m    15m    20m     30m     1h      2h      3h       6h       12h      1d       2d        5d        7d        14d        30d        60d        180d        1y          2y          5y           10y          20y          50y           100y          200y          500y           1000y
+var allowed_intervals = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,30000,60000,120000,300000,600000,900000,1200000,1800000,3600000,7200000,10800000,21600000,43200000,86400000,172800000,432000000,604800000,1209600000,2592000000,5184000000,15552000000,31536000000,63072000000,157680000000,315360000000,630720000000,1576800000000,3153600000000,6307200000000,15768000000000,31536000000000 ];
+         var time_ticks=[0.2,0.5,1,2 ,5 ,10,20 ,50 ,100,200 ,500 ,1000,2000 ,5000 ,10000,20000,30000 ,60000 ,120000,300000,300000 ,600000 ,1200000,1800000,3600000 ,7200000 ,10800000,21600000,43200000 ,86400000 , 86400000 ,172800000 ,864000000 ,1728000000,2592000000 ,7884000000 ,31536000000,31536000000 ,63072000000 ,157680000000,315360000000 ,630720000000 ,1576800000000,3153600000000,6307200000000 ];
 //                                                                                                                                                                                                                        2d         10d        20d        30d         1/4y        1/y
-	var string_precisions = [8,8,8,7, 7 ,7 ,6  ,6  ,6  ,5   ,5   ,5   ,5    ,5    ,5    ,4    ,4     ,4     ,4     ,4      ,4      ,4      ,3      ,3      ,3      ,3       ,3       ,2       ,2        ,2        ,2         ,2         ,1         ,1          , 0         ,0        ,0          ,0           ,0            ,0          ,0            ,0            ,0            ,0];
+	var string_precisions = [8,8,8,7, 7 ,7 ,6  ,6  ,6  ,5   ,5   ,5   ,5    ,5    ,5    ,4    ,4     ,4     ,4     ,4      ,4      ,4      ,3      ,3      ,3      ,3       ,3       ,2       ,2        ,2        ,2         ,2         ,1         ,1          , 0         ,0        ,0          ,0           ,0            ,0          ,0            ,0            ,0            ,0              , 0];
 	
 
 function download_text(text,filename,type){
@@ -6184,15 +6186,19 @@ new_graph : function (graphname,canvasname){
 		if (scalemode ==='time'){
 		//min_point,max_point,size,guide_width,scalemode,tight
 			if (tight){
-			extra_sections = 0;
+			var extra_sections = 0;
 			} else {
-			extra_sections = 2;
+			var extra_sections = 2;
 			}
 			var required_sections = Math.floor( size / guide_width  ) +extra_sections;
 			var target_time_diff = (max_point-min_point)/required_sections;
 			var i = 0;
 			while (allowed_intervals[i] < target_time_diff){i++;}
 			//i++;
+			//can only go up to intervals of 500years.
+			//so cap i at 43 :allowed_intervals.length-1;
+			i = Math.min(i,allowed_intervals.length-1);
+			
 			extra_sections/=2;
 			
 			var start_time = min_point-(min_point%allowed_intervals[i]) - extra_sections*allowed_intervals[i];
@@ -6284,8 +6290,7 @@ new_graph : function (graphname,canvasname){
 			}
 			
 			var number_of_sections = Math.floor((high_time-start_time)/allowed_intervals[i]);
-			scale = size/number_of_sections;
-			
+			var scale = size/number_of_sections;
 			var number_of_minor_ticks = Math.floor((high_time-start_time)/time_ticks[i]);
 			var tick_scale = size/number_of_minor_ticks;
 			var the_scale;
@@ -6315,6 +6320,21 @@ new_graph : function (graphname,canvasname){
 		//limits.automax
 		//limits.automin //can change if a scale uses the autos or not. 
 		//name is a string so that errors are more useful to the user.
+		//protect agains +- infinity.
+		manualmax = Math.min(manualmax,1e250);
+		manualmin = Math.max(manualmin,-1e250);
+		//protect against numbers smaller than 1e-250
+		if (scale === 'log'){
+			manualmax = Math.max(manualmax,2e-250);
+			manualmin = Math.max(manualmin,2e-250);
+		}
+		//protect against times really far away. this could be improved.
+		if (scale === 'time'){
+			manualmax = Math.min(manualmax,+100000000000000);
+			manualmin = Math.max(manualmin,-100000000000000);
+		}
+		
+		
 			//protect against empty data series
 			this.no_data = false;
 			if (data.length == 0){
