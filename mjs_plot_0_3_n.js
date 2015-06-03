@@ -448,9 +448,14 @@ var allowed_intervals = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,3
 //                                                                                                                                                                                                                        2d         10d        20d        30d         1/4y        1/y
 	var string_precisions = [8,8,8,7, 7 ,7 ,6  ,6  ,6  ,5   ,5   ,5   ,5    ,5    ,5    ,4    ,4     ,4     ,4     ,4      ,4      ,4      ,3      ,3      ,3      ,3       ,3       ,2       ,2        ,2        ,2         ,2         ,1         ,1          , 0         ,0        ,0          ,0           ,0            ,0          ,0            ,0            ,0            ,0              , 0];
 	
-
-si_prefixes = ['y','z','a','f','p','n','u','m','.','k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+//181 is the character code for the micro - mu symbol.
+si_prefixes = ['y','z','a','f','p','n',String.fromCharCode( 181 ),'m','.','k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
 function eng_form_infix(number,precision){
+
+	if (!isFinite(precision)){precision = 5;}
+	if (precision<1){precision =1;}
+	if (precision>21){precision =21;}
+	
 	if (Math.abs(number) < 1e-24 || Math.abs(number) >= 1e27){
 		return mjs_precision(number,precision);
 	}
@@ -461,7 +466,7 @@ function eng_form_infix(number,precision){
 	var degree = Math.floor(Math.log10(number) / 3);
     var scaled = number * Math.pow(1000, -degree);
 	var first_parts = ( scaled.toFixed(Math.max((precision-3),0)) +'.').split('.');
-	var last_parts =  ( scaled.toFixed(precision - first_parts[0].length) +'.').split('.');
+	var last_parts =  ( scaled.toFixed(Math.max(0,precision - first_parts[0].length)) +'.').split('.');
 	var infix_form = last_parts[0] + si_prefixes[degree+8] + last_parts[1];
 	if (last_parts[1].length==0 && degree ==0){
 		infix_form = last_parts[0]
@@ -471,6 +476,10 @@ function eng_form_infix(number,precision){
 
 function eng_form_postfix(number,precision){
 	//return an postfix engeneering form number with at least precision significant figures.
+	if (!isFinite(precision)){precision = 5;}
+	if (precision<1){precision =1;}
+	if (precision>21){precision =21;}
+	
 	if (Math.abs(number) < 1e-24 || Math.abs(number) >= 1e27){
 		return mjs_precision(number,precision);
 	}
@@ -480,7 +489,7 @@ function eng_form_postfix(number,precision){
 	var degree = Math.floor(Math.log10(number) / 3);
     var scaled = number * Math.pow(1000, -degree);
 	var first_parts = ( scaled.toFixed(Math.max((precision-3),0)) +'.').split('.');
-	var last_parts =  ( scaled.toFixed(precision - first_parts[0].length) +'.').split('.');
+	var last_parts =  ( scaled.toFixed(Math.max(0,precision - first_parts[0].length)) +'.').split('.');
 	var postfix_form = last_parts[0]+'.'+last_parts[1] + si_prefixes[degree+8];
 	if (last_parts[1].length!=0 && degree ==0){
 		postfix_form = last_parts[0]+'.'+last_parts[1];
@@ -1932,8 +1941,8 @@ function mouse_move_event_actual(event,graph){
 				var lx = 0.2*edge;
 				ctx.textAlign="left";
 				ctx.fillText('x:',lx, ly);ly-=dy;
-				ctx.fillText('Min:',lx, ly);ly-=dy;
-				ctx.fillText('Max:',lx, ly);ly-=dy;
+				ctx.fillText('Min:' + graph.get_axis_string(gs.x_manual_min,'x'),lx, ly);ly-=dy;
+				ctx.fillText('Max:' + graph.get_axis_string(gs.x_manual_max,'x'),lx, ly);ly-=dy;
 				ctx.fillText('Mode:',lx, ly);ly-=dy;
 				ctx.fillText('Spacing: ' + mjs_precision(gs.guideWidthx,2) ,lx, ly);ly-=dy;
 				ctx.fillText('Style:',lx, ly);ly-=dy;
@@ -1942,10 +1951,10 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('Set Label:',lx, ly);ly-=dy;
 				ly = canvas.height - edge*1.2;
 				ctx.textAlign="center";
-				ctx.fillText('[auto]',4.5*edge, ly);
-				ctx.fillText('[manual]',9.5*edge, ly);ly-=dy;
-				ctx.fillText('[auto]',4.5*edge, ly);
-				ctx.fillText('[manual]',9.5*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',6*edge, ly);
+				ctx.fillText('[manual]',10*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',6*edge, ly);
+				ctx.fillText('[manual]',10*edge, ly);ly-=dy;
 				ctx.fillText('[lin]',4.5*edge, ly);
 				ctx.fillText('[log]',7.5*edge, ly);
 				ctx.fillText('[time]',10.5*edge, ly);ly-=dy;
@@ -1965,7 +1974,7 @@ function mouse_move_event_actual(event,graph){
 			}
 		}
 		if (graph.drawymenu){
-			if (x < 14*edge && y > canvas.height - 9*edge){
+			if (x < 14*edge && x>2*edge && y > canvas.height - 9*edge){
 				ctx.fillStyle = gs.color_bg;
 				ctx.rect(2*edge,canvas.height-edge*9,edge*12,edge*9);
 				ctx.fill();
@@ -1977,8 +1986,8 @@ function mouse_move_event_actual(event,graph){
 				var lx = 2.2*edge;
 				ctx.textAlign="left";
 				ctx.fillText('y:',lx, ly);ly-=dy;
-				ctx.fillText('Min:',lx, ly);ly-=dy;
-				ctx.fillText('Max:',lx, ly);ly-=dy;
+				ctx.fillText('Min:' + graph.get_axis_string(gs.y_manual_min,'y'),lx, ly);ly-=dy;
+				ctx.fillText('Max:' + graph.get_axis_string(gs.y_manual_max,'y'),lx, ly);ly-=dy;
 				ctx.fillText('Mode:',lx, ly);ly-=dy;
 				ctx.fillText('Spacing: ' + mjs_precision(gs.guideWidthy,2) ,lx, ly);ly-=dy;
 				ctx.fillText('Style:',lx, ly);ly-=dy;
@@ -1988,10 +1997,10 @@ function mouse_move_event_actual(event,graph){
 				ly = canvas.height - edge*1.2;
 				ctx.textAlign="center";
 				var lx = 2*edge;
-				ctx.fillText('[auto]',lx+4.5*edge, ly);
-				ctx.fillText('[manual]',lx+9.5*edge, ly);ly-=dy;
-				ctx.fillText('[auto]',lx+4.5*edge, ly);
-				ctx.fillText('[manual]',lx+9.5*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',lx+6*edge, ly);
+				ctx.fillText('[manual]',lx+10*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',lx+6*edge, ly);
+				ctx.fillText('[manual]',lx+10*edge, ly);ly-=dy;
 				ctx.fillText('[lin]',lx+4.5*edge, ly);
 				ctx.fillText('[log]',lx+7.5*edge, ly);
 				ctx.fillText('[time]',lx+10.5*edge, ly);ly-=dy;
@@ -3153,30 +3162,32 @@ function mouse_up_event(event,graph){
 				graph.drawxmenu = false
 				break;
 			case 1:
-				if (lx < 7){
+				if (lx < 8){
 					gs.x_scale_auto_min=true;
+					gs.x_scale_tight=false;
 				} else {
 					gs.x_scale_auto_min=false;
 					if (gs.x_scale_mode ==='time'){
 						var d  =  new Date(gs.x_manual_min);
-						var r = Date.parse( prompt("new lowlimit",d.toString() ) );
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
 						gs.x_manual_min = r || gs.x_manual_min;
 					} else {
-						gs.x_manual_min = prompt("new lowlimit",gs.x_manual_min ) || gs.x_manual_min;
+						gs.x_manual_min = parseFloat(prompt("new lowlimit",gs.x_manual_min )) || gs.x_manual_min;
 					}
 				}
 				break;
 			case 2:
-				if (lx < 7){
+				if (lx < 8){
 					gs.x_scale_auto_max=true;
+					gs.x_scale_tight=false;
 				} else {
 					gs.x_scale_auto_max=false;
 					if (gs.x_scale_mode ==='time'){
 						var d  =  new Date(gs.x_manual_max);
-						var r = Date.parse( prompt("new lowlimit",d.toString() ) );
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
 						gs.x_manual_max = r || gs.x_manual_max;
 					} else {
-						gs.x_manual_max = prompt("new lowlimit",gs.x_manual_max ) || gs.x_manual_max;
+						gs.x_manual_max = parseFloat(prompt("new lowlimit",gs.x_manual_max )) || gs.x_manual_max;
 					}
 				}
 				break;
@@ -3234,30 +3245,32 @@ function mouse_up_event(event,graph){
 				graph.drawymenu = false
 				break;
 			case 1:
-				if (lx < 7){
+				if (lx < 8){
 					gs.y_scale_auto_min=true;
+					gs.y_scale_tight=false;
 				} else {
 					gs.y_scale_auto_min=false;
 					if (gs.y_scale_mode ==='time'){
 						var d  =  new Date(gs.y_manual_min);
-						var r = Date.parse( prompt("new lowlimit",d.toString() ) );
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
 						gs.y_manual_min = r || gs.y_manual_min;
 					} else {
-						gs.y_manual_min = prompt("new lowlimit",gs.y_manual_min ) || gs.y_manual_min;
+						gs.y_manual_min = parseFloat(prompt("new lowlimit",gs.y_manual_min )) || gs.y_manual_min;
 					}
 				}
 				break;
 			case 2:
-				if (lx < 7){
+				if (lx < 8){
 					gs.y_scale_auto_max=true;
+					gs.y_scale_tight=false;
 				} else {
 					gs.y_scale_auto_max=false;
 					if (gs.y_scale_mode ==='time'){
 						var d  =  new Date(gs.y_manual_max);
-						var r = Date.parse( prompt("new lowlimit",d.toString() ) );
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
 						gs.y_manual_max = r || gs.y_manual_max;
 					} else {
-						gs.y_manual_max = prompt("new lowlimit",gs.y_manual_max ) || gs.y_manual_max;
+						gs.y_manual_max = parseFloat(prompt("new lowlimit",gs.y_manual_max )) || gs.y_manual_max;
 					}
 				}
 				break;
@@ -4872,7 +4885,7 @@ function touch_start_event(event,graph){
 //console.log('touch start');
 	event.preventDefault();
 	graph.ui.is_touching = true;
-	
+	var rect = graph.canvas.getBoundingClientRect();
 	touch_start_x[0] =  event.targetTouches[0].clientX-rect.left;
 	touch_start_y[0] =  event.targetTouches[0].clientY-rect.top;
 	if (event.targetTouches.length >= 2){
@@ -4891,7 +4904,7 @@ function touch_move_event(event,graph){
 	event.preventDefault();
 	graph.ui.is_touching = true;
 	mouse_down = my_touches.length >=2;
-	rect = graph.canvas.getBoundingClientRect();
+	var rect = graph.canvas.getBoundingClientRect();
 	
 	start_x =  event.targetTouches[0].clientX-rect.left;
 	start_y =  event.targetTouches[0].clientY-rect.top;
@@ -7498,7 +7511,7 @@ new_graph : function (graphname,canvasname){
 		var y = canvas.height - positionsy.pos[i];
 		var label = positionsy.strings[i];
 		//if it is near the top, don't put a label, as this is where the axis label is.
-		if (y > tick_len+lable_spacing+axis_labels_font_size/2){
+		if (y > tick_len+lable_spacing+axis_labels_font_size/2 && y < canvas.height - tick_labels_font_size - tick_lables_font_padding-tick_len){
 			ctx.fillText(label,tick_len*1.2+2,y+3);
 		}
 		
@@ -7957,6 +7970,7 @@ new_graph : function (graphname,canvasname){
 		
 	},
 	pixels_to_units : function (pixels,axis){ // convertis pixels over the graph to the corrisponding value on the graph
+		
 			if (axis === 'x'){
 				if (this.graphics_style.x_scale_mode ==='lin' || this.graphics_style.x_scale_mode ==='time'){
 					return  pixels / this.canvas.width * (this.graphics_style.x_auto_max - this.graphics_style.x_auto_min )+this.graphics_style.x_auto_min;
@@ -7970,13 +7984,14 @@ new_graph : function (graphname,canvasname){
 					return (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min) * (this.canvas.height-pixels) / this.canvas.height + this.graphics_style.y_auto_min;
 				}
 				if (this.graphics_style.y_scale_mode ==='log'){
-					return Math.pow(10,(this.canvas.height-pixels)  / this.canvas.height * (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min )+this.graphics_style.y_auto_min);
+					var r =  Math.pow(10,(this.canvas.height-pixels)  / this.canvas.height * (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min )+this.graphics_style.y_auto_min);
+					return r < 1e-200 ? 1e-200 : r;
 				}
 				
 			}
 		},
 	get_axis_string : function (n, axis,precision){
-		if ( ! precision){
+		if ( !isFinite(precision)){
 			if (axis == 'x'){
 				precision = this.graphics_style.x_precision+1;
 			}
@@ -8101,6 +8116,8 @@ new_graph : function (graphname,canvasname){
 		full_screen_graph.canvas.height = window.innerHeight;
 		full_screen_graph.mjs_plot();
 },
+
+
 
 };//end of graph object
 	graph.canvas = canvas;
