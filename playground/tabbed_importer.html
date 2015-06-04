@@ -1,4 +1,7 @@
+<!DOCTYPE html>
 <head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<meta name="viewport" content="initial-scale=1.0">
   <style>
 body {margin:10px;padding:10px;min-width: 320px;max-width:800px;margin-left:auto;margin-right:auto;}
 canvas, html{
@@ -24,6 +27,39 @@ background-color: #272822;
 	width: 100%;
 }
   </style>
+
+</head>
+<body>
+<h1>Importer</h1>
+<p>
+Lines starting with a # or a % are comment lines and are ignored.
+Empty lines are also ignored.
+The data is assumed in column format (each column is a series).
+Tabs seperate columns and rows are seperated by a new line.
+This is what you usually get if you copy/paste from Origin/Matlab/Excell
+</p>
+
+Paste here <em> or </em> load a local file:<input type="file" id="file" ><button type='button' onClick='startRead()'>Load</button>
+<button type='button' onClick="document.getElementById('input').value = ''">Clear</button><br>
+
+
+
+
+<div id='drop'>
+ <textarea id='input' rows ='15'>paste you data here from Origin/Matlab/Excell. Drag and drop a file</textarea>
+ </div>
+
+  <textarea id='result' rows ='15' ></textarea>
+  
+<br><button type='button' onClick='makeCountdownGoNow()'>Make</button><br>
+  <input type="checkbox" id="transpose" > Transpose<br>
+  <input type="checkbox" id="datetimes" > Find Datetimes (will replace dates with milliseconds from epoch (unix)<br>
+  <input type="number" id="headderlines" value="0" > Number of headder lines<br>
+  <input type="number" id="headdercols" value="0"> Number of headder columns<br>
+  
+ <p>When your happy, copy/paste the arrays back into the script window of mjslab</p>
+  </div>
+</body>
   <script>
 
   function convert_time_strings(array_of_strings){
@@ -62,10 +98,9 @@ background-color: #272822;
 	 } else {return false}
 }
   
-  function IsNumeric(input)
-	{
+function IsNumeric(input){
 		return (input - 0) == input && (''+input).trim().length > 0;
-	}
+}
   
 function makeCountdownGoNow(){
  
@@ -185,30 +220,35 @@ function errorHandler(evt) {
   }
 }
 
+var drop = document.getElementById('drop');
+
+drop.addEventListener('dragover',cancel, true);
+drop.addEventListener('dragenter',cancel, true);
+
+ function cancel(e) {
+      if (e.preventDefault) { e.preventDefault(); }
+      return false;
+    }
+
+function dragover(e){
+	document.getElementById('input').value = 'dragover' + e.toString();
+	return true;
+}
+function dragenter(e){
+	document.getElementById('input').value =  'dragenter' + e.toString();
+}
+
+drop.addEventListener('drop', function (e) {
+  e = e || window.event; // get window.event if e argument missing (in IE)   
+  if (e.preventDefault) { e.preventDefault(); } // stops the browser from redirecting off to the image.
+
+  var dt    = e.dataTransfer;
+  var files = dt.files;
+  
+  getAsText(files[0]);
+  
+  return false;
+},true);
+
 
   </script>
-</head>
-<body>
-<h1>Importer</h1>
-<p>
-Lines starting with a # or a % are comment lines and are ignored.
-Empty lines are also ignored.
-The data is assumed in column format (each column is a series).
-Tabs seperate columns and rows are seperated by a new line.
-This is what you usually get if you copy/paste from Origin/Matlab/Excell
-</p>
-
-Paste here <em> or </em> load a local file:<input type="file" id="file" ><br>
- <textarea id='input' rows ='15'>paste you data here from Origin/Matlab/Excell</textarea>
-
-  <textarea id='result' rows ='15' ></textarea>
-  
-<br><button type='button' onClick='makeCountdownGoNow()'>Make</button><br>
-  <input type="checkbox" id="transpose" > Transpose<br>
-  <input type="checkbox" id="datetimes" > Find Datetimes (will replace dates with milliseconds from epoch (unix)<br>
-  <input type="number" id="headderlines" value="0" > Number of headder lines<br>
-  <input type="number" id="headdercols" value="0"> Number of headder columns<br>
-  
- <p>When your happy, copy/paste the arrays back into the script window of mjslab</p>
-  </div>
-</body>

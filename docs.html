@@ -237,36 +237,52 @@ MJSplot is open source. You can grab a copy just by looking at the source code f
 If you jumped straight here, I suggest you look at <a href="#helpers">[Helpers]</a> for additional downloads.
 </p>
 <p>
-<a href='mjs_plot_0_3_n_min.js'>mjs_plot_0_3_n.js</a> is a link to the latest version in the 0_3 branch that will not have any breaking api changes. This is the one to use.
-I don't have a CDN so please don't hot-link it. Individual versions available below.</p>
+<a href='mjs_plot_0_3_n.min.js'>mjs_plot_0_3_n.min.js</a> is a link to the latest version in the 0_3 branch that will not have any breaking api changes. This is the one to use.
+I don't have a CDN so please don't hot-link it. It was minified with  <a href='http://jscompress.com/'>jscompress</a></p>
 
+<p>You can get the full sized file:<a href='mjs_plot_0_3_n.js'>mjs_plot_0_3_n.js</a></p>
 
+<p>New in 0_3_5: </p>
 <ul>
-<li><a href='mjs_plot_0_3_3svg.js'>mjs_plot_0_3_3svg.js</a> Current version. 2015-05-27
-<li><a href='mjs_plot_0_3_2.js'>mjs_plot_0_3_2.js</a> 2015-05-21
-<li><a href='mjs_plot_0_3_1.js'>mjs_plot_0_3_1.js</a> 2015-05-06
-<li><a href='mjs_plot_0_2_17n.js'>mjs_plot_0_2_17n.js</a> 2015-04-29
-<li><a href='mjs_plot_0_2_16.js'>mjs_plot_0_2_16.js</a> 2015-04-17
-<li><a href='mjs_plot_0_2_15.js'>mjs_plot_0_2_15.js</a> 2015-04-10
-<li><a href='mjs_plot_0_2_14.js'>mjs_plot_0_2_14.js</a> 2015-03-11
-<li><a href='mjs_plot_0_2_12.js'>mjs_plot_0_2_12.js</a> 2015-02-24
-<li><a href='mjs_plot_0_2_11b3.js'>mjs_plot_0_2_11b3.js</a> 2015-02-17
-<li><a href='mjs_plot_0_2_11b2.js'>mjs_plot_0_2_11b2.js</a> 2015-02-17
-<li><a href='mjs_plot_0_2_11.js'>mjs_plot_0_2_11.js</a> 2015-01-29
-<li><a href='mjs_plot_0_2_10c.js'>mjs_plot_0_2_10c.js</a> 2015-01-19
-<li><a href='mjs_plot_0_2_10b.js'>mjs_plot_0_2_10b.js</a> 2015-01-17
-<li><a href='mjs_plot_0_2_10.js'>mjs_plot_0_2_10.js</a> 2014-12-08
-<li><a href='mjs_plot_0_2_9c.js'>mjs_plot_0_2_9c.js</a>
+<li>  Improved the mouse_out functanalitty.
+<li>  Improved the options overlay mouse mode.
+<li> Added x_axis_title y_axis_title x_axis_prefix x_axis_postfix y_axis_prefix y_axis_postfix to graphics style
+<li>  Added  x_label_mode y_label_mode to graphics style
+<li>  Added x and y menues.
+<li>  Added functanality for pre and postfixes on axies numbers.
+<li>  Added functanality for different number writing methods, infix postfix and scientific form
+<li>  Fixed bug in drawEclips. This was introduced in the namespace cleanup.
+<li> Changed html embed to html sharing. Gives a single link to a full screen graph.
+	    this requires a know domain to hold a loader program.
+<li>  Embed LZstring.min.js for compression of the strings.
+<li>  Added splash screen to be draw when a new graph is made.
+<li>  Apperentally my "use strict" was in the wrong palce and wasn't checking globals. This is fixed and
+	    then a bunch of global fixes followed.
 </ul>
 
-<p>The file above are full-size. If you want faster page times then you should use a javascript minimizer like <a href='http://jscompress.com/'>jscompress</a>.</p>
+<p>New in 0_3_4: </p>
+<ul>
+<li> Changed website to github.io
+<li> Improved right-click zoom out method. Now uses the guidewidth method.
+<li> Removed the "there is no x/y data to plot" error from popping up, as users draw funciton lines without any data on screen.
+<li>  Fixed svg opacity.
+<li>  Added svg font handling in fillText
+<li>  Fixed bug in find_limits where there are is no data and the user picks a negative low point for a log scale. 
+<li>  Removed the + and - buttons from the top row, this was confusing new users.
+<li>  Replaced it with a 'graph' menu. from which users can set the title and other strings.
+<li>  Added new options to hide the transform text.
+	       this means users can clean up the axis titles to what they want before printing.
+<li>  Improved HTML embedding export.
+<li>  Improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
+	      and a button to go back.
+<li>  Added robustness to users zooming way out trying to break things. caps at +-1e250 and 1e-250 on log mode.
+<li>  Time now can have a scale in 1000s of years.
+</ul>
 
 <p>New in 0_3_3svg: </p>
 <ul>
 <li> SVG support!
 <li> fixed a bunch of time related inperfections. bugs.
-
-
 </ul>
 
 <p>New in 0_3_2: </p>
