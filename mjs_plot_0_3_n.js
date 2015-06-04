@@ -45,10 +45,7 @@ None
  Known Bugs:
  - time in 10s of years doesn't align correctlly to decade boundaries.
  - on mobile devices if the viewport has a zoom != 1 the position infomaition is wrong.
-<<<<<<< HEAD
-=======
  - the swap axis button changes the axis modes, but this isn't reset when the reset button is pushed.
->>>>>>> origin/master
  
  
  Done:
@@ -234,9 +231,6 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
 	      and a button to go back.
 	- added robustness to users zooming way out trying to break things. caps at +-1e250 and 1e-250 on log mode.
-<<<<<<< HEAD
-	- time now can have a scale in 1000s of years. 
-=======
 	- time now can have a scale in 1000s of years.
 0_3_5 - imporved the mouse_out functanalitty.
 	  - improved the options overlay mouse mode.
@@ -253,26 +247,18 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	 - apperentally my "use strict" was in the wrong palce and wasn't checking globals. This is fixed and
 	    then a bunch of global fixes followed.
 
->>>>>>> origin/master
 	   
 			
 *********************************************** */
 
 mjs_plot = (function () {
 
-<<<<<<< HEAD
-var MJS_PLOT_VERSION = '0_3_4';
-var MJS_PLOT_AUTOR = 'MJS';
-var MJS_PLOT_DATE = '2015';
-var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
-=======
 var MJS_PLOT_VERSION = '0_3_5';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
 
 var MJS_PLOT_LINK_LOADER = "http://generalsarsby.github.io/mjs_plot/load.html#";
->>>>>>> origin/master
 
 var DEBUGG_FORCE_TOUCH = false;
 var DEBUGG_FPS = false;
@@ -469,8 +455,6 @@ var allowed_intervals = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,3
          var time_ticks=[0.2,0.5,1,2 ,5 ,10,20 ,50 ,100,200 ,500 ,1000,2000 ,5000 ,10000,20000,30000 ,60000 ,120000,300000,300000 ,600000 ,1200000,1800000,3600000 ,7200000 ,10800000,21600000,43200000 ,86400000 , 86400000 ,172800000 ,864000000 ,1728000000,2592000000 ,7884000000 ,31536000000,31536000000 ,63072000000 ,157680000000,315360000000 ,630720000000 ,1576800000000,3153600000000,6307200000000 ];
 //                                                                                                                                                                                                                        2d         10d        20d        30d         1/4y        1/y
 	var string_precisions = [8,8,8,7, 7 ,7 ,6  ,6  ,6  ,5   ,5   ,5   ,5    ,5    ,5    ,4    ,4     ,4     ,4     ,4      ,4      ,4      ,3      ,3      ,3      ,3       ,3       ,2       ,2        ,2        ,2         ,2         ,1         ,1          , 0         ,0        ,0          ,0           ,0            ,0          ,0            ,0            ,0            ,0              , 0];
-<<<<<<< HEAD
-=======
 	
 //181 is the character code for the micro - mu symbol.
 si_prefixes = ['y','z','a','f','p','n',String.fromCharCode( 181 ),'m','.','k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
@@ -479,7 +463,6 @@ function eng_form_infix(number,precision){
 	if (!isFinite(precision)){precision = 5;}
 	if (precision<1){precision =1;}
 	if (precision>21){precision =21;}
->>>>>>> origin/master
 	
 	if (Math.abs(number) < 1e-24 || Math.abs(number) >= 1e27){
 		return mjs_precision(number,precision);
@@ -892,10 +875,6 @@ var fits = {
 		return {parameters: [a, b_2,B_1], strings: [string,'',''],fun:fits.exponential_plus_c_fun};
 	},
 	gauss_fun : function(x,params){
-<<<<<<< HEAD
-		//asdf
-=======
->>>>>>> origin/master
 		var y = [];
 		var mu = params[0];
 		var sig = params[1];
@@ -4461,13 +4440,9 @@ function mouse_up_event(event,graph){
 			console.log('html (link)');
 			var text = '';
 			var nl= ' \n';
-<<<<<<< HEAD
-			var graph_name = graph.graph_name;
-=======
 			var graph_name = "egraph";//graph.graph_name;
 			//get a random 4 character name.
 			var graph_name = window.btoa(Math.random().toString()).slice(6,10);
->>>>>>> origin/master
 			var canvas_name = graph.canvas_name ;
 			var mjsplot_embed = '<script src="mjs_plot_0_3_3svg.js"></script>'
 			var canvas_embed = '<canvas id="'+ canvas_name+'" width="'+graph.canvas.width+'px" height="'+graph.canvas.height+'px"></canvas>';
@@ -4475,27 +4450,6 @@ function mouse_up_event(event,graph){
 			var gs_code = JSON.stringify(graph.graphics_style);
 			var captions_code = JSON.stringify(graph.captions_backup);
 			
-<<<<<<< HEAD
-			text += "put this in <head>"+nl;
-			text+= mjsplot_embed+nl;
-			text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
-			text+="The plan is to get a CDN so you can skip this step." +nl;
-			
-			
-			text += nl +"put a canvas in the <body> where you want the graph:" + nl;
-			text += canvas_embed+nl;
-			
-			text += nl+"Put this after the <body>:" + nl;
-			text += '<script>' + nl;
-			text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'") ;'+nl;
-			text+= graph_name+'.setData( '+data_code+' );'+nl;
-			text+= graph_name+'.setCaptions( '+captions_code+' ); '+nl;
-			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
-			text+= graph_name+'.plot();\n'+nl;
-			text += '</script>' + nl;
-			
-			show_text_to_screen(text,graph);
-=======
 			//text += "put this in <head>"+nl;
 			//text+= mjsplot_embed+nl;
 			//text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
@@ -4515,7 +4469,6 @@ function mouse_up_event(event,graph){
 			//text += '</script>' + nl;
 			var shower = MJS_PLOT_LINK_LOADER;//"http://www.lancaster.ac.uk/pg/sarsby/compressions/page.html#"
 			show_text_to_screen(shower+graph_name+LZString.compressToEncodedURIComponent(text),graph);
->>>>>>> origin/master
 			
 		}my-=dy;
 		
@@ -5886,17 +5839,12 @@ var transforms = {
 mjs_plot = {
 
 new_graph : function (graphname,canvasname){
-<<<<<<< HEAD
-	var canvas = document.getElementById(canvasname);
-	"use strict";
-=======
 	"use strict";
 	var canvas = document.getElementById(canvasname);
 	//put up a simple splash screen.
 	var ctx = canvas.getContext('2d');
 	 drawSplash(canvas,ctx);
 	
->>>>>>> origin/master
 	var gs = load_gs(graphname);
 	if (gs.v === MJS_PLOT_VERSION){
 		console.log('version is same');
@@ -6514,18 +6462,12 @@ new_graph : function (graphname,canvasname){
 		}
 		if (log_vals_i == 0 && sections > 2*required_secions){
 		//do the far zoomed out log scale.
-<<<<<<< HEAD
-		
-		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
-		
-=======
 		//if using si numbers change the way liner scales are found.
 		var c = (axis === 'y' && ( this.graphics_style.y_label_mode === 'infix' || this.graphics_style.y_label_mode === 'postfix' ));
 		c = c || (axis === 'x' && ( this.graphics_style.x_label_mode === 'infix' || this.graphics_style.x_label_mode === 'postfix' ));
 		if (c){ vals = [1,3,6,9];}
 		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
 		if (c){ vals = [1,2,5];}
->>>>>>> origin/master
 		lowpoint = the_scale.lowpoint; //308 is the javascript float maxamum and minimum
 		highpoint = the_scale.highpoint;
 		scale = the_scale.scale;
@@ -6688,14 +6630,7 @@ new_graph : function (graphname,canvasname){
 		manualmax = Math.min(manualmax,1e250);
 		manualmin = Math.max(manualmin,-1e250);
 		//protect against numbers smaller than 1e-250
-<<<<<<< HEAD
-		if (scale === 'log'){
-			manualmax = Math.max(manualmax,2e-250);
-			manualmin = Math.max(manualmin,2e-250);
-		}
-=======
 		
->>>>>>> origin/master
 		//protect against times really far away. this could be improved.
 		if (scale === 'time'){
 			manualmax = Math.min(manualmax,+100000000000000);
@@ -7328,11 +7263,7 @@ new_graph : function (graphname,canvasname){
 	var power_highx = the_scalex.power_high;
 	//log scale
 	
-<<<<<<< HEAD
-	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight);
-=======
 	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight,'y');
->>>>>>> origin/master
 	
 	//this is an experiament to use the fontsize to set the guidewidth
 	//var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,tick_labels_font_size*2,gs.y_scale_mode,gs.y_scale_tight);
