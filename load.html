@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+   <meta name="viewport" content="initial-scale=1.0">
+
+	<script src="mjs_plot_0_3_n.js"></script>
+    <style>
+body, canvas, html{
+margin: 0px;
+padding: 0px;
+overflow: hidden
+}
+html, body {
+width:  100%;
+height: 100%;
+}
+    </style>
+  </head>
+  <body onresize="draw_graphs()">
+  <center>
+ <canvas id="ecanvas" width="600" height="400"></canvas><br>
+   </center>
+
+</body>
+	<script>
+
+	var d = LZString.decompressFromEncodedURIComponent(window.location.hash.slice(5))
+	//the first character is '#'. skip that.
+	//get the name from the location. it's the first four characters
+	var name = window.location.hash.slice(1,5)
+	
+	eval(name + ' = new mjs_plot.new_graph("'+name+'","ecanvas") ;');
+	//and get a copy for us to use without eval.
+	eval('egraph = ' + name);
+	
+	try{
+	eval(d);
+	} catch (e){
+	console.log('done goofed' + e);
+	
+	}
+	
+	//put the mouse_mode to what the default should be.
+	//this helps mobile users look a a graph generated on a desktop.
+	
+	var t = mjs_plot.get_graph_style();
+	egraph.default_graphics_style.mouse_mode = t.mouse_mode;
+	
+	
+	setTimeout(function(){draw_graphs();; }, 500);
+	
+function draw_graphs(){
+
+		egraph.canvas.width = window.innerWidth;
+		egraph.canvas.height = window.innerHeight;
+		//tell the graph to plot
+		egraph.mjs_plot();
+	}
+	
+    </script>
+</html>
