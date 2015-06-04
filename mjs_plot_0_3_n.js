@@ -45,6 +45,10 @@ None
  Known Bugs:
  - time in 10s of years doesn't align correctlly to decade boundaries.
  - on mobile devices if the viewport has a zoom != 1 the position infomaition is wrong.
+<<<<<<< HEAD
+=======
+ - the swap axis button changes the axis modes, but this isn't reset when the reset button is pushed.
+>>>>>>> origin/master
  
  
  Done:
@@ -230,17 +234,45 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	   - improved text to screen. Rather than dumping all over the <body> it now places a textarea with the contents
 	      and a button to go back.
 	- added robustness to users zooming way out trying to break things. caps at +-1e250 and 1e-250 on log mode.
+<<<<<<< HEAD
 	- time now can have a scale in 1000s of years. 
+=======
+	- time now can have a scale in 1000s of years.
+0_3_5 - imporved the mouse_out functanalitty.
+	  - improved the options overlay mouse mode.
+	  - added x_axis_title y_axis_title x_axis_prefix x_axis_postfix y_axis_prefix y_axis_postfix to graphics style
+	  - added  x_label_mode y_label_mode to graphics style
+	  - added x and y menues.
+	  - added functanality for pre and postfixes on axies numbers.
+	  - added functanality for different number writing methods, infix postfix and scientific form
+	  - fixed bug in drawEclips. This was introduced in the namespace cleanup.
+	  - changed html embed to html sharing. Gives a single link to a full screen graph.
+	    this requires a know domain to hold a loader program.
+	 - embed LZstring.min.js for compression of the strings.
+	 - added splash screen to be draw when a new graph is made.
+	 - apperentally my "use strict" was in the wrong palce and wasn't checking globals. This is fixed and
+	    then a bunch of global fixes followed.
+
+>>>>>>> origin/master
 	   
 			
 *********************************************** */
 
 mjs_plot = (function () {
 
+<<<<<<< HEAD
 var MJS_PLOT_VERSION = '0_3_4';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
+=======
+var MJS_PLOT_VERSION = '0_3_5';
+var MJS_PLOT_AUTOR = 'MJS';
+var MJS_PLOT_DATE = '2015';
+var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
+
+var MJS_PLOT_LINK_LOADER = "http://generalsarsby.github.io/mjs_plot/load.html#";
+>>>>>>> origin/master
 
 var DEBUGG_FORCE_TOUCH = false;
 var DEBUGG_FPS = false;
@@ -437,8 +469,65 @@ var allowed_intervals = [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,3
          var time_ticks=[0.2,0.5,1,2 ,5 ,10,20 ,50 ,100,200 ,500 ,1000,2000 ,5000 ,10000,20000,30000 ,60000 ,120000,300000,300000 ,600000 ,1200000,1800000,3600000 ,7200000 ,10800000,21600000,43200000 ,86400000 , 86400000 ,172800000 ,864000000 ,1728000000,2592000000 ,7884000000 ,31536000000,31536000000 ,63072000000 ,157680000000,315360000000 ,630720000000 ,1576800000000,3153600000000,6307200000000 ];
 //                                                                                                                                                                                                                        2d         10d        20d        30d         1/4y        1/y
 	var string_precisions = [8,8,8,7, 7 ,7 ,6  ,6  ,6  ,5   ,5   ,5   ,5    ,5    ,5    ,4    ,4     ,4     ,4     ,4      ,4      ,4      ,3      ,3      ,3      ,3       ,3       ,2       ,2        ,2        ,2         ,2         ,1         ,1          , 0         ,0        ,0          ,0           ,0            ,0          ,0            ,0            ,0            ,0              , 0];
+<<<<<<< HEAD
+=======
 	
+//181 is the character code for the micro - mu symbol.
+si_prefixes = ['y','z','a','f','p','n',String.fromCharCode( 181 ),'m','.','k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+function eng_form_infix(number,precision){
 
+	if (!isFinite(precision)){precision = 5;}
+	if (precision<1){precision =1;}
+	if (precision>21){precision =21;}
+>>>>>>> origin/master
+	
+	if (Math.abs(number) < 1e-24 || Math.abs(number) >= 1e27){
+		return mjs_precision(number,precision);
+	}
+	//return an infix engeneering form number with at least precision significant figures.
+	var neg_sign = '';
+	if (number<0){neg_sign = '-';}
+	number = Math.abs(number);
+	var degree = Math.floor(Math.log10(number) / 3);
+    var scaled = number * Math.pow(1000, -degree);
+	var first_parts = ( scaled.toFixed(Math.max((precision-3),0)) +'.').split('.');
+	var last_parts =  ( scaled.toFixed(Math.max(0,precision - first_parts[0].length)) +'.').split('.');
+	var infix_form = last_parts[0] + si_prefixes[degree+8] + last_parts[1];
+	if (last_parts[1].length==0 && degree ==0){
+		infix_form = last_parts[0]
+	}
+	return neg_sign+infix_form;
+}
+
+function eng_form_postfix(number,precision){
+	//return an postfix engeneering form number with at least precision significant figures.
+	if (!isFinite(precision)){precision = 5;}
+	if (precision<1){precision =1;}
+	if (precision>21){precision =21;}
+	
+	if (Math.abs(number) < 1e-24 || Math.abs(number) >= 1e27){
+		return mjs_precision(number,precision);
+	}
+	var neg_sign = '';
+	if (number<0){neg_sign = '-';}
+	number = Math.abs(number);
+	var degree = Math.floor(Math.log10(number) / 3);
+    var scaled = number * Math.pow(1000, -degree);
+	var first_parts = ( scaled.toFixed(Math.max((precision-3),0)) +'.').split('.');
+	var last_parts =  ( scaled.toFixed(Math.max(0,precision - first_parts[0].length)) +'.').split('.');
+	var postfix_form = last_parts[0]+'.'+last_parts[1] + si_prefixes[degree+8];
+	if (last_parts[1].length!=0 && degree ==0){
+		postfix_form = last_parts[0]+'.'+last_parts[1];
+	}
+	if (last_parts[1].length==0 && degree !=0){
+		postfix_form = last_parts[0] + si_prefixes[degree+8];
+	}
+	if (last_parts[1].length==0 && degree ==0){
+		postfix_form = last_parts[0];
+	}
+	return neg_sign+postfix_form;
+}
+	
 function download_text(text,filename,type){
 	var ftype = type || 'data:text/plain;charset=utf-8';
 	var pom = document.createElement('a');
@@ -803,7 +892,10 @@ var fits = {
 		return {parameters: [a, b_2,B_1], strings: [string,'',''],fun:fits.exponential_plus_c_fun};
 	},
 	gauss_fun : function(x,params){
+<<<<<<< HEAD
 		//asdf
+=======
+>>>>>>> origin/master
 		var y = [];
 		var mu = params[0];
 		var sig = params[1];
@@ -1209,7 +1301,7 @@ function number_quote(number,error){
 }
 
 
-function drawEllipse(ctx, centerX, centerY, radiusX, radiusY) {
+function drawEllipse(graph,ctx, centerX, centerY, radiusX, radiusY) {
 	ctx.beginPath();
 	
 	var rotationAngle = 0.5;
@@ -1700,79 +1792,16 @@ function mouse_move_event_actual(event,graph){
 		if (y>canvas.height-edge){
 			ctx.fillStyle = gs.color_bg;
 			ctx.beginPath();
-			ctx.rect(0,canvas.height-edge,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.rect(edge,canvas.height-edge,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.rect(2*edge,canvas.height-edge,edge,edge);
-			ctx.fill();
-			ctx.stroke();
-			ctx.rect(3*edge,canvas.height-edge,edge,edge);
+			ctx.rect(0,canvas.height-edge,edge*2,edge);
+			
+			ctx.rect(2*edge,canvas.height-edge,edge*2,edge);
 			ctx.fill();
 			ctx.stroke();
 			
 			ctx.fillStyle = gs.color_fg;
-			
 			ctx.beginPath();
-			//down
-			ctx.moveTo(0.5*edge,canvas.height-0.8*edge);
-			ctx.lineTo(0.5*edge,canvas.height-0.2*edge);
-			
-			ctx.moveTo(0.2*edge,canvas.height-0.5*edge);
-			ctx.lineTo(0.5*edge,canvas.height-0.2*edge);
-			
-			ctx.moveTo(0.8*edge,canvas.height-0.5*edge);
-			ctx.lineTo(0.5*edge,canvas.height-0.2*edge);
-			//up
-			ctx.moveTo(1.5*edge,canvas.height-0.8*edge);
-			ctx.lineTo(1.5*edge,canvas.height-0.2*edge);
-			
-			ctx.moveTo(1.2*edge,canvas.height-0.5*edge);
-			ctx.lineTo(1.5*edge,canvas.height-0.8*edge);
-			ctx.moveTo(1.8*edge,canvas.height-0.5*edge);
-			ctx.lineTo(1.5*edge,canvas.height-0.8*edge);
-			//left
-			ctx.moveTo(2.2*edge,canvas.height-0.5*edge);
-			ctx.lineTo(2.8*edge,canvas.height-0.5*edge);
-			
-			ctx.moveTo(2.5*edge,canvas.height-0.2*edge);
-			ctx.lineTo(2.2*edge,canvas.height-0.5*edge);
-			ctx.moveTo(2.5*edge,canvas.height-0.8*edge);
-			ctx.lineTo(2.2*edge,canvas.height-0.5*edge);
-			//right
-			ctx.moveTo(3.2*edge,canvas.height-0.5*edge);
-			ctx.lineTo(3.8*edge,canvas.height-0.5*edge);
-			
-			ctx.moveTo(3.5*edge,canvas.height-0.2*edge);
-			ctx.lineTo(3.8*edge,canvas.height-0.5*edge);
-			ctx.moveTo(3.5*edge,canvas.height-0.8*edge);
-			ctx.lineTo(3.8*edge,canvas.height-0.5*edge);
-			
-			
-			
-			if (gs.x_scale_auto_max == false){
-			//draw line at end of arrows
-				ctx.moveTo(3.8*edge,canvas.height-0.8*edge);
-				ctx.lineTo(3.8*edge,canvas.height-0.2*edge);
-			}
-			if (gs.x_scale_auto_min == false){
-			//draw line at end of arrows
-				ctx.moveTo(2.2*edge,canvas.height-0.8*edge);
-				ctx.lineTo(2.2*edge,canvas.height-0.2*edge);
-			}
-			if (gs.y_scale_auto_max == false){
-			//draw line at end of arrows
-				ctx.moveTo(1.2*edge,canvas.height-0.8*edge);
-				ctx.lineTo(1.8*edge,canvas.height-0.8*edge);
-			}
-			if (gs.y_scale_auto_min == false){
-			//draw line at end of arrows
-				ctx.moveTo(0.2*edge,canvas.height-0.2*edge);
-				ctx.lineTo(0.8*edge,canvas.height-0.2*edge);
-			}
-			ctx.stroke();
+			ctx.fillText('x',0.2*edge, canvas.height - edge*0.3);
+			ctx.fillText('y',2.2*edge, canvas.height - edge*0.3);
 			
 			//grid button
 			ctx.fillStyle = gs.color_bg;
@@ -1928,6 +1957,97 @@ function mouse_move_event_actual(event,graph){
 			ctx.stroke();
 		}
 		
+		if (graph.drawxmenu){
+			if (x < 12*edge && y > canvas.height - 9*edge){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(0,canvas.height-edge*9,edge*12,edge*9);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = canvas.height - edge*0.2;
+				var dy = edge;
+				var lx = 0.2*edge;
+				ctx.textAlign="left";
+				ctx.fillText('x:',lx, ly);ly-=dy;
+				ctx.fillText('Min:' + graph.get_axis_string(gs.x_manual_min,'x'),lx, ly);ly-=dy;
+				ctx.fillText('Max:' + graph.get_axis_string(gs.x_manual_max,'x'),lx, ly);ly-=dy;
+				ctx.fillText('Mode:',lx, ly);ly-=dy;
+				ctx.fillText('Spacing: ' + mjs_precision(gs.guideWidthx,2) ,lx, ly);ly-=dy;
+				ctx.fillText('Style:',lx, ly);ly-=dy;
+				ctx.fillText('Set Prefix:',lx, ly);ly-=dy;
+				ctx.fillText('Set Postfix:',lx, ly);ly-=dy;
+				ctx.fillText('Set Label:',lx, ly);ly-=dy;
+				ly = canvas.height - edge*1.2;
+				ctx.textAlign="center";
+				ctx.fillText('[auto]',6*edge, ly);
+				ctx.fillText('[manual]',10*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',6*edge, ly);
+				ctx.fillText('[manual]',10*edge, ly);ly-=dy;
+				ctx.fillText('[lin]',4.5*edge, ly);
+				ctx.fillText('[log]',7.5*edge, ly);
+				ctx.fillText('[time]',10.5*edge, ly);ly-=dy;
+				ctx.fillText('[-]',6*edge, ly);
+				ctx.fillText('[+]',10*edge, ly);ly-=dy;
+				ctx.fillText('[1200]',5*edge, ly);
+				ctx.fillText('[1k2]',7*edge, ly);
+				ctx.fillText('[1.2k]',9*edge, ly);
+				ctx.fillText('[1.2e3]',11*edge, ly);ly-=dy;
+				
+				ctx.fillText('"'+gs.x_axis_prefix+'"',8*edge, ly);ly-=dy;
+				ctx.fillText('"'+gs.x_axis_postfix+'"',8*edge, ly);ly-=dy;
+				ctx.fillText('"'+gs.x_axis_title+'"',8*edge, ly);
+				ctx.textAlign="left";
+			}else {
+				graph.drawxmenu = false;
+			}
+		}
+		if (graph.drawymenu){
+			if (x < 14*edge && x>2*edge && y > canvas.height - 9*edge){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(2*edge,canvas.height-edge*9,edge*12,edge*9);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = canvas.height - edge*0.2;
+				var dy = edge;
+				var lx = 2.2*edge;
+				ctx.textAlign="left";
+				ctx.fillText('y:',lx, ly);ly-=dy;
+				ctx.fillText('Min:' + graph.get_axis_string(gs.y_manual_min,'y'),lx, ly);ly-=dy;
+				ctx.fillText('Max:' + graph.get_axis_string(gs.y_manual_max,'y'),lx, ly);ly-=dy;
+				ctx.fillText('Mode:',lx, ly);ly-=dy;
+				ctx.fillText('Spacing: ' + mjs_precision(gs.guideWidthy,2) ,lx, ly);ly-=dy;
+				ctx.fillText('Style:',lx, ly);ly-=dy;
+				ctx.fillText('Set Prefix:',lx, ly);ly-=dy;
+				ctx.fillText('Set Postfix:',lx, ly);ly-=dy;
+				ctx.fillText('Set Label:',lx, ly);ly-=dy;
+				ly = canvas.height - edge*1.2;
+				ctx.textAlign="center";
+				var lx = 2*edge;
+				ctx.fillText('[auto]',lx+6*edge, ly);
+				ctx.fillText('[manual]',lx+10*edge, ly);ly-=dy;
+				ctx.fillText('[auto]',lx+6*edge, ly);
+				ctx.fillText('[manual]',lx+10*edge, ly);ly-=dy;
+				ctx.fillText('[lin]',lx+4.5*edge, ly);
+				ctx.fillText('[log]',lx+7.5*edge, ly);
+				ctx.fillText('[time]',lx+10.5*edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx+6*edge, ly);
+				ctx.fillText('[+]',lx+10*edge, ly);ly-=dy;
+				ctx.fillText('[1200]',lx+5*edge, ly);
+				ctx.fillText('[1k2]',lx+7*edge, ly);
+				ctx.fillText('[1.2k]',lx+9*edge, ly);
+				ctx.fillText('[1.2e3]',lx+11*edge, ly);ly-=dy;
+				
+				ctx.fillText('"'+gs.y_axis_prefix+'"',lx+8*edge, ly);ly-=dy;
+				ctx.fillText('"'+gs.y_axis_postfix+'"',lx+8*edge, ly);ly-=dy;
+				ctx.fillText('"'+gs.y_axis_title+'"',lx+8*edge, ly);
+				ctx.textAlign="left";
+			}else {
+				graph.drawymenu = false;
+			}
+		}
 		
 		if (graph.drawmodemenu){
 			if (x < 10*edge && y < edge*3){
@@ -2146,7 +2266,7 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('svg (small figure)',lx,  ly);ly-=dy;
 				ctx.fillText('svg (large figure)',lx,  ly);ly-=dy;
 				
-				ctx.fillText('HTML [Beta!]',lx,  ly);ly-=dy;
+				ctx.fillText('HTML [link]',lx,  ly);ly-=dy;
 			} else {
 				graph.drawexportmenu = false;
 			}
@@ -2436,8 +2556,8 @@ function mouse_move_event_actual(event,graph){
 				graph.drawfitsmenu = false;
 			}
 		}
-		
-		if (graph.ui.touch && graph.ui.is_touching && (gs.mouse_mode === 'zoom' || gs.mouse_mode === 'drag')){
+		//the x and y menu should not be under the button. Don't draw if the menus are open.
+		if (graph.ui.touch && graph.ui.is_touching && (gs.mouse_mode === 'zoom' || gs.mouse_mode === 'drag') && !( graph.drawxmenu || graph.drawymenu) ){
 			//big zoom out button 
 			ctx.fillStyle = gs.color_bg;
 			ctx.rect(0,canvas.height-2*edge,edge*4,edge);
@@ -2874,6 +2994,19 @@ function mouse_out_event(event,graph){
 	var canvas = graph.canvas;
 	var ctx = canvas.getContext('2d');
 	ctx.putImageData(graph.graph_image,0,0);
+	graph.drawfxmenu = false;
+	graph.drawlinemenu = false;
+	graph.drawmodemenu=false;
+	graph.drawfitsmenu = false;
+	graph.drawtimemenu = false;
+	graph.drawgraphmenu = false;
+	graph.drawcaptionmenu=false;
+	graph.drawxmenu=false;
+	graph.drawymenu=false;
+	if (graph.graphics_style.o == 1 ){
+		graph.graphics_style.mouse_mode = graph.pre_mouse_mode;
+		graph.graphics_style.o = 0;
+	}
 }
 
 function keypress_event(event,graph){
@@ -3042,6 +3175,172 @@ function mouse_up_event(event,graph){
 		}
 		if (ly >2 && ly<7){
 			gs.show_captions=true;
+		}
+		graph.mjs_plot();
+		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+		return;
+	}
+	
+	if (graph.drawxmenu){
+		var lx = Math.floor(end_x/edge);
+		var ly = Math.floor((canvas.height-end_y)/edge);
+		console.log(lx);
+		console.log(ly);
+		switch(ly){
+			case 0:
+				graph.drawxmenu = false
+				break;
+			case 1:
+				if (lx < 8){
+					gs.x_scale_auto_min=true;
+					gs.x_scale_tight=false;
+				} else {
+					gs.x_scale_auto_min=false;
+					if (gs.x_scale_mode ==='time'){
+						var d  =  new Date(gs.x_manual_min);
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						gs.x_manual_min = r || gs.x_manual_min;
+					} else {
+						gs.x_manual_min = parseFloat(prompt("new lowlimit",gs.x_manual_min )) || gs.x_manual_min;
+					}
+				}
+				break;
+			case 2:
+				if (lx < 8){
+					gs.x_scale_auto_max=true;
+					gs.x_scale_tight=false;
+				} else {
+					gs.x_scale_auto_max=false;
+					if (gs.x_scale_mode ==='time'){
+						var d  =  new Date(gs.x_manual_max);
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						gs.x_manual_max = r || gs.x_manual_max;
+					} else {
+						gs.x_manual_max = parseFloat(prompt("new lowlimit",gs.x_manual_max )) || gs.x_manual_max;
+					}
+				}
+				break;
+			case 3:
+				if (lx < 6){
+					gs.x_scale_mode='lin';
+				} else if ( lx > 9) {
+					gs.x_scale_mode='time';
+				} else {
+					gs.x_scale_mode='log';
+				}
+				break;
+			case 4:
+				if (lx < 8){
+					gs.guideWidthx /= 1.5;
+				} else {
+					gs.guideWidthx *= 1.5;
+				}
+				break;
+			case 5:
+				if (lx < 6){
+					gs.x_label_mode='norm';
+				} else if ( lx >= 10) {
+					gs.x_label_mode='sci';
+				} else if ( lx >= 8) {
+					gs.x_label_mode='postfix';
+				} else {
+					gs.x_label_mode='infix';
+				}
+				console.log(gs.x_label_mode);
+				break;
+			case 6:
+				gs.x_axis_prefix = prompt("new prefix",gs.x_axis_prefix ) || "";
+				break;
+			case 7:
+				gs.x_axis_postfix = prompt("new postfix",gs.x_axis_postfix ) || "";
+				break;
+			case 8:
+				gs.x_axis_title = prompt("new title",gs.x_axis_title ) || "";
+				graph.transform_index--;
+				break;
+		}
+		graph.mjs_plot();
+		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+		return;
+	}
+	
+	if (graph.drawymenu){
+		var lx = Math.floor(end_x/edge)-2;
+		var ly = Math.floor((canvas.height-end_y)/edge);
+		console.log(lx);
+		console.log(ly);
+		switch(ly){
+			case 0:
+				graph.drawymenu = false
+				break;
+			case 1:
+				if (lx < 8){
+					gs.y_scale_auto_min=true;
+					gs.y_scale_tight=false;
+				} else {
+					gs.y_scale_auto_min=false;
+					if (gs.y_scale_mode ==='time'){
+						var d  =  new Date(gs.y_manual_min);
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						gs.y_manual_min = r || gs.y_manual_min;
+					} else {
+						gs.y_manual_min = parseFloat(prompt("new lowlimit",gs.y_manual_min )) || gs.y_manual_min;
+					}
+				}
+				break;
+			case 2:
+				if (lx < 8){
+					gs.y_scale_auto_max=true;
+					gs.y_scale_tight=false;
+				} else {
+					gs.y_scale_auto_max=false;
+					if (gs.y_scale_mode ==='time'){
+						var d  =  new Date(gs.y_manual_max);
+						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						gs.y_manual_max = r || gs.y_manual_max;
+					} else {
+						gs.y_manual_max = parseFloat(prompt("new lowlimit",gs.y_manual_max )) || gs.y_manual_max;
+					}
+				}
+				break;
+			case 3:
+				if (lx < 6){
+					gs.y_scale_mode='lin';
+				} else if ( lx > 9) {
+					gs.y_scale_mode='time';
+				} else {
+					gs.y_scale_mode='log';
+				}
+				break;
+			case 4:
+				if (lx < 8){
+					gs.guideWidthy /= 1.5;
+				} else {
+					gs.guideWidthy *= 1.5;
+				}
+				break;
+			case 5:
+				if (lx < 6){
+					gs.y_label_mode='norm';
+				} else if ( lx >= 10) {
+					gs.y_label_mode='sci';
+				} else if ( lx >= 8) {
+					gs.y_label_mode='postfix';
+				} else {
+					gs.y_label_mode='infix';
+				}
+				console.log(gs.y_label_mode);
+				break;
+			case 6:
+				gs.y_axis_prefix = prompt("new prefix",gs.y_axis_prefix ) || "";
+				break;
+			case 7:
+				gs.y_axis_postfix = prompt("new postfix",gs.y_axis_postfix ) || "";
+				break;
+			case 8:
+				gs.y_axis_title = prompt("new title",gs.y_axis_title ) || "";
+				graph.transform_index--;
+				break;
 		}
 		graph.mjs_plot();
 		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
@@ -3225,7 +3524,8 @@ function mouse_up_event(event,graph){
 		}
 		if ( end_x < canvas.width - edge*2 && end_x > canvas.width - 3*edge){
 		//options button 
-			gs.o =  (gs.o + 1)%2;//a three state button.
+			gs.o =  (gs.o + 1)%2;//a two state button.
+			graph.pre_mouse_mode = gs.mouse_mode;
 			gs.mouse_mode = 'options';
 			gs.i = 0;
 		}
@@ -3526,6 +3826,18 @@ function mouse_up_event(event,graph){
 			gs.x_scale_mode = gs.y_scale_mode;
 			gs.y_scale_mode = temp;
 			
+			//swap the axis prefixs postfixes 
+			temp = gs.x_axis_prefix;
+			gs.x_axis_prefix = gs.y_axis_prefix;
+			gs.y_axis_prefix = temp;
+			
+			temp = gs.x_axis_postfix
+			gs.x_axis_postfix = gs.y_axis_postfix;
+			gs.y_axis_postfix = temp;
+			
+			temp = gs.x_label_mode;
+			gs.x_label_mode = gs.y_label_mode;
+			gs.y_label_mode = temp;
 			
 		}
 		if ( end_x < 16*edge && end_x > 12*edge && end_y > canvas.height - edge*3 && end_y < canvas.height - edge*2){
@@ -4146,10 +4458,16 @@ function mouse_up_event(event,graph){
 			graph.mjs_plot();
 		}my-=dy;
 		if ( end_y > my - dy && end_y < my){
-			console.log('html embedding');
+			console.log('html (link)');
 			var text = '';
 			var nl= ' \n';
+<<<<<<< HEAD
 			var graph_name = graph.graph_name;
+=======
+			var graph_name = "egraph";//graph.graph_name;
+			//get a random 4 character name.
+			var graph_name = window.btoa(Math.random().toString()).slice(6,10);
+>>>>>>> origin/master
 			var canvas_name = graph.canvas_name ;
 			var mjsplot_embed = '<script src="mjs_plot_0_3_3svg.js"></script>'
 			var canvas_embed = '<canvas id="'+ canvas_name+'" width="'+graph.canvas.width+'px" height="'+graph.canvas.height+'px"></canvas>';
@@ -4157,6 +4475,7 @@ function mouse_up_event(event,graph){
 			var gs_code = JSON.stringify(graph.graphics_style);
 			var captions_code = JSON.stringify(graph.captions_backup);
 			
+<<<<<<< HEAD
 			text += "put this in <head>"+nl;
 			text+= mjsplot_embed+nl;
 			text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
@@ -4176,6 +4495,27 @@ function mouse_up_event(event,graph){
 			text += '</script>' + nl;
 			
 			show_text_to_screen(text,graph);
+=======
+			//text += "put this in <head>"+nl;
+			//text+= mjsplot_embed+nl;
+			//text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
+			//text+="The plan is to get a CDN so you can skip this step." +nl;
+			
+			
+			//text += nl +"put a canvas in the <body> where you want the graph:" + nl;
+			//text += canvas_embed+nl;
+			
+			//text += nl+"Put this after the <body>:" + nl;
+			//text += '<script>' + nl;
+			//text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'") ;'+nl;
+			text+= graph_name+'.set_data( '+data_code+' );'+nl;
+			text+= graph_name+'.set_captions( '+captions_code+' ); '+nl;
+			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
+			//text+= graph_name+'.plot();\n'+nl;
+			//text += '</script>' + nl;
+			var shower = MJS_PLOT_LINK_LOADER;//"http://www.lancaster.ac.uk/pg/sarsby/compressions/page.html#"
+			show_text_to_screen(shower+graph_name+LZString.compressToEncodedURIComponent(text),graph);
+>>>>>>> origin/master
 			
 		}my-=dy;
 		
@@ -4260,23 +4600,16 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
+	
+	
+	
 	//bottom buttons
 	if (end_y>canvas.height-edge){
-		if ( end_x < 1*edge && end_x > 0*edge){
-			gs.y_scale_auto_min = true;
-			gs.y_scale_tight = false;
+		if ( end_x < 2*edge && end_x > 0*edge){
+			graph.drawxmenu = true;
 		}
-		if ( end_x < 2*edge && end_x > 1*edge){
-			gs.y_scale_auto_max = true;
-			gs.y_scale_tight = false;
-		}
-		if ( end_x < 3*edge && end_x > 2*edge){
-			gs.x_scale_auto_min = true;
-			gs.x_scale_tight = false;
-		}
-		if ( end_x < 4*edge && end_x > 3*edge){
-			gs.x_scale_auto_max = true;
-			gs.x_scale_tight = false;
+		if ( end_x < 4*edge && end_x > 2*edge){
+			graph.drawymenu = true;
 		}
 		if ( end_x < 5*edge && end_x > 4*edge){
 			gs.show_grid = !gs.show_grid;
@@ -4621,7 +4954,7 @@ function touch_start_event(event,graph){
 //console.log('touch start');
 	event.preventDefault();
 	graph.ui.is_touching = true;
-	
+	var rect = graph.canvas.getBoundingClientRect();
 	touch_start_x[0] =  event.targetTouches[0].clientX-rect.left;
 	touch_start_y[0] =  event.targetTouches[0].clientY-rect.top;
 	if (event.targetTouches.length >= 2){
@@ -4640,7 +4973,7 @@ function touch_move_event(event,graph){
 	event.preventDefault();
 	graph.ui.is_touching = true;
 	mouse_down = my_touches.length >=2;
-	rect = graph.canvas.getBoundingClientRect();
+	var rect = graph.canvas.getBoundingClientRect();
 	
 	start_x =  event.targetTouches[0].clientX-rect.left;
 	start_y =  event.targetTouches[0].clientY-rect.top;
@@ -4868,6 +5201,17 @@ function SVGContext(ctx){
 	
 }
 
+function drawSplash(canvas,ctx){
+ctx.textAlign="center";
+
+	ctx.beginPath();
+	ctx.font='20 px "Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace"';
+	ctx.fillText('MJS Plot',canvas.width/2,canvas.height/2-20);
+	ctx.font='10 px "Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace"';
+	ctx.fillText('Setting Up',canvas.width/2,canvas.height/2+20);
+	ctx.rect(10,10,canvas.width-20,canvas.height-20);
+	ctx.stroke();
+}
 
 var transforms = {
 	scale_x: function(data,args,graph){
@@ -5542,8 +5886,17 @@ var transforms = {
 mjs_plot = {
 
 new_graph : function (graphname,canvasname){
+<<<<<<< HEAD
 	var canvas = document.getElementById(canvasname);
 	"use strict";
+=======
+	"use strict";
+	var canvas = document.getElementById(canvasname);
+	//put up a simple splash screen.
+	var ctx = canvas.getContext('2d');
+	 drawSplash(canvas,ctx);
+	
+>>>>>>> origin/master
 	var gs = load_gs(graphname);
 	if (gs.v === MJS_PLOT_VERSION){
 		console.log('version is same');
@@ -5563,6 +5916,8 @@ new_graph : function (graphname,canvasname){
 	drawtimemenu : false,
 	drawgraphmenu : false,
 	drawcaptionmenu:false,
+	drawxmenu:false,
+	drawymenu:false,
 	timemenuoptions : [0,0], //which button is selected, [top row,bottom row] left to right.
 	plot_failed : false,
 	transparent : false,
@@ -5593,10 +5948,10 @@ new_graph : function (graphname,canvasname){
 			dot_size /=2;
 			graph.points_drawn+=end-start;
 			ctx.beginPath();
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				top_ei = graph.units_to_pixels(graph.data[series][1][j]+graph.data[series][2][j],'y');
-				bot_ei = graph.units_to_pixels(graph.data[series][1][j]-graph.data[series][2][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var top_ei = graph.units_to_pixels(graph.data[series][1][j]+graph.data[series][2][j],'y');
+				var bot_ei = graph.units_to_pixels(graph.data[series][1][j]-graph.data[series][2][j],'y');
 				ctx.moveTo(xi,bot_ei);
 				ctx.lineTo(xi,top_ei);
 				ctx.moveTo(xi-dot_size,bot_ei);
@@ -5611,10 +5966,10 @@ new_graph : function (graphname,canvasname){
 			dot_size /=2;
 			graph.points_drawn+=end-start;
 			ctx.beginPath();
-			for (j =start;j<end;j++){
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
-				right_ei = graph.units_to_pixels(graph.data[series][0][j]+graph.data[series][3][j],'x');
-				left_ei = graph.units_to_pixels(graph.data[series][0][j]-graph.data[series][3][j],'x');
+			for (var j =start;j<end;j++){
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+				var right_ei = graph.units_to_pixels(graph.data[series][0][j]+graph.data[series][3][j],'x');
+				var left_ei = graph.units_to_pixels(graph.data[series][0][j]-graph.data[series][3][j],'x');
 				ctx.moveTo(right_ei,yi);
 				ctx.lineTo(left_ei,yi);
 				ctx.moveTo(right_ei,yi+dot_size);
@@ -5625,36 +5980,36 @@ new_graph : function (graphname,canvasname){
 			ctx.stroke();
 		},
 		draw_line : function(graph,ctx,series,start,end){
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
 			ctx.beginPath();
 			ctx.moveTo(xi,yi);
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
+			for (var j =start;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.lineTo(xi,yi);
-				old_xi3 = xi;
-				old_yi3 = yi;
+				var old_xi3 = xi;
+				var old_yi3 = yi;
 			}
 			ctx.stroke();
 		},
 		draw_dot : function(graph,ctx,series,start,end,dot_size){
 			ctx.beginPath();
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.fillRect(xi-dot_size/2,yi-dot_size/2,dot_size,dot_size);
 			}
 		},
 		draw_cdot : function(graph,ctx,series,start,end,dot_size){
 			dot_size/=2;
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
+			for (var j =start;j<end;j++){
 				ctx.beginPath();
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.arc(xi, yi, dot_size, 0 ,Math.PI*2, true);
 				ctx.fill();
 			}
@@ -5663,9 +6018,9 @@ new_graph : function (graphname,canvasname){
 		circle_size/=2;
 			ctx.beginPath();
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.beginPath();
 				ctx.arc(xi, yi, circle_size, 0 ,Math.PI*2, true);
 				ctx.stroke();
@@ -5675,9 +6030,9 @@ new_graph : function (graphname,canvasname){
 			dot_size/=2;
 			ctx.beginPath();
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.moveTo(xi,yi-dot_size);
 				ctx.lineTo(xi,yi+dot_size);
 				ctx.moveTo(xi-dot_size,yi);
@@ -5689,9 +6044,9 @@ new_graph : function (graphname,canvasname){
 			dot_size/=2;
 			ctx.beginPath();
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.moveTo(xi-dot_size,yi-dot_size);
 				ctx.lineTo(xi+dot_size,yi+dot_size);
 				ctx.moveTo(xi-dot_size,yi+dot_size);
@@ -5702,23 +6057,23 @@ new_graph : function (graphname,canvasname){
 		draw_box : function(graph,ctx,series,start,end,circle_size){
 			ctx.beginPath();
 			graph.points_drawn+=end-start;
-			for (j =start;j<end;j++){
-				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+			for (var j =start;j<end;j++){
+				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.beginPath();
 				ctx.rect(xi-circle_size/2,yi-circle_size/2,circle_size,circle_size);
 				ctx.stroke();
 			}
 		},
 		draw_zig : function(graph,ctx,series,start,end){
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
-			old_xi3 = xi;
-			old_yi3 = yi;
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var old_xi3 = xi;
+			var old_yi3 = yi;
 			graph.points_drawn+=end-start;
 			ctx.beginPath();
 			ctx.moveTo(xi,yi);
-			for (j =start;j<end;j++){
+			for (var j =start;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.lineTo(old_xi3,yi);
@@ -5729,14 +6084,14 @@ new_graph : function (graphname,canvasname){
 			ctx.stroke();
 		},
 		draw_zag : function(graph,ctx,series,start,end){
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
-			old_xi3 = xi;
-			old_yi3 = yi;
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var old_xi3 = xi;
+			var old_yi3 = yi;
 			graph.points_drawn+=end-start;
 			ctx.beginPath();
 			ctx.moveTo(xi,yi);
-			for (j =start;j<end;j++){
+			for (var j =start;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.lineTo(xi,old_yi3);
@@ -5747,8 +6102,8 @@ new_graph : function (graphname,canvasname){
 			ctx.stroke();
 		},
 		draw_mid : function(graph,ctx,series,start,end){
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
 			var old_xi2 = xi;
 			var old_yi2 = yi;
 			var old_xi3 = xi;
@@ -5756,7 +6111,7 @@ new_graph : function (graphname,canvasname){
 			graph.points_drawn+=end-start;
 			ctx.beginPath();
 			ctx.moveTo(xi,yi);
-			for (j =start;j<end;j++){
+			for (var j =start;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.lineTo((old_xi3+xi)/2,old_yi3);
@@ -5773,8 +6128,8 @@ new_graph : function (graphname,canvasname){
 		},
 		draw_hist : function(graph,ctx,series,start,end){
 			var hist_zero = Math.min(graph.units_to_pixels(0,'y'),canvas.height);
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
 			var old_xi2 = xi;
 			var old_yi2 = yi;
 			var old_xi3 = xi;
@@ -5786,7 +6141,7 @@ new_graph : function (graphname,canvasname){
 			ctx.moveTo(old_xi3-(xi-old_xi3)/2,hist_zero);
 			ctx.lineTo(old_xi3-(xi-old_xi3)/2,old_yi3);
 			ctx.lineTo((xi+old_xi3)/2,old_yi3);
-			for (j =start+1;j<end;j++){
+			for (var j =start+1;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.lineTo((old_xi3+old_xi2)/2,old_yi3);
@@ -5807,18 +6162,18 @@ new_graph : function (graphname,canvasname){
 		},
 		draw_approx : function(graph,ctx,series,start,end){
 			graph.points_drawn+=end-start;
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
-			old_xi1 = xi;
-			old_yi1 = yi;
-			old_xi2 = xi;
-			old_yi2 = yi;
-			old_xi3 = xi;
-			old_yi3 = yi;
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var old_xi1 = xi;
+			var old_yi1 = yi;
+			var old_xi2 = xi;
+			var old_yi2 = yi;
+			var old_xi3 = xi;
+			var old_yi3 = yi;
 			ctx.beginPath();
 			ctx.moveTo(old_xi1,old_yi1);
 			ctx.lineTo((old_xi1+xi)/2,(old_yi1+yi)/2);
-			for (j =start+1;j<end;j++){
+			for (var j =start+1;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.quadraticCurveTo(old_xi3,old_yi3,(old_xi3+xi)/2,(old_yi3+yi)/2);
@@ -5839,16 +6194,16 @@ new_graph : function (graphname,canvasname){
 				this.draw_line(graph,ctx,series,start,end)
 			}
 			graph.points_drawn+=end-start;
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
-			old_xi1 = xi;
-			old_yi1 = yi;
-			old_xi2 = xi;
-			old_yi2 = yi;
-			old_xi3 = graph.units_to_pixels(graph.data[series][0][start+1],'x');
-			old_yi3 = graph.units_to_pixels(graph.data[series][1][start+1],'y');
-			xi = graph.units_to_pixels(graph.data[series][0][start+2],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start+2],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var old_xi1 = xi;
+			var old_yi1 = yi;
+			var old_xi2 = xi;
+			var old_yi2 = yi;
+			var old_xi3 = graph.units_to_pixels(graph.data[series][0][start+1],'x');
+			var old_yi3 = graph.units_to_pixels(graph.data[series][1][start+1],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start+2],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start+2],'y');
 			ctx.beginPath();
 			var smoothing = 5;
 			ctx.moveTo(old_xi1,old_yi1);
@@ -5860,7 +6215,7 @@ new_graph : function (graphname,canvasname){
 						old_yi3
 						);
 			ctx.moveTo(old_xi2,old_yi2);
-			for (j =start+2;j<end;j++){
+			for (var j =start+2;j<end;j++){
 				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				
@@ -5895,16 +6250,16 @@ new_graph : function (graphname,canvasname){
 				this.draw_line(graph,ctx,series,start,end)
 			}
 			graph.points_drawn+=end-start;
-			xi = graph.units_to_pixels(graph.data[series][0][start],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start],'y');
-			old_xi1 = xi;
-			old_yi1 = yi;
-			old_xi2 = xi;
-			old_yi2 = yi;
-			old_xi3 = graph.units_to_pixels(graph.data[series][0][start+1],'x');
-			old_yi3 = graph.units_to_pixels(graph.data[series][1][start+1],'y');
-			xi = graph.units_to_pixels(graph.data[series][0][start+2],'x');
-			yi = graph.units_to_pixels(graph.data[series][1][start+2],'y');
+			var xi = graph.units_to_pixels(graph.data[series][0][start],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start],'y');
+			var old_xi1 = xi;
+			var old_yi1 = yi;
+			var old_xi2 = xi;
+			var old_yi2 = yi;
+			var old_xi3 = graph.units_to_pixels(graph.data[series][0][start+1],'x');
+			var old_yi3 = graph.units_to_pixels(graph.data[series][1][start+1],'y');
+			var  xi = graph.units_to_pixels(graph.data[series][0][start+2],'x');
+			var yi = graph.units_to_pixels(graph.data[series][1][start+2],'y');
 			ctx.beginPath();
 			var smoothing = .2;
 			ctx.moveTo(old_xi1,old_yi1);
@@ -6009,7 +6364,7 @@ new_graph : function (graphname,canvasname){
 		}
 		this.colors_backup = clone(this.colors);
 	},
-	find_scale : function (min_point,max_point,size,guide_width,scalemode,tight){
+	find_scale : function (min_point,max_point,size,guide_width,scalemode,tight,axis){
 	"use strict";
 		if (scalemode === 'lin'){
 			//linear scale
@@ -6159,9 +6514,18 @@ new_graph : function (graphname,canvasname){
 		}
 		if (log_vals_i == 0 && sections > 2*required_secions){
 		//do the far zoomed out log scale.
+<<<<<<< HEAD
 		
 		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
 		
+=======
+		//if using si numbers change the way liner scales are found.
+		var c = (axis === 'y' && ( this.graphics_style.y_label_mode === 'infix' || this.graphics_style.y_label_mode === 'postfix' ));
+		c = c || (axis === 'x' && ( this.graphics_style.x_label_mode === 'infix' || this.graphics_style.x_label_mode === 'postfix' ));
+		if (c){ vals = [1,3,6,9];}
+		the_scale = this.find_scale( Math.max(-249,Math.log10(min_point)),Math.min(249,Math.log10(max_point)),size,guide_width,'lin',tight);
+		if (c){ vals = [1,2,5];}
+>>>>>>> origin/master
 		lowpoint = the_scale.lowpoint; //308 is the javascript float maxamum and minimum
 		highpoint = the_scale.highpoint;
 		scale = the_scale.scale;
@@ -6324,10 +6688,14 @@ new_graph : function (graphname,canvasname){
 		manualmax = Math.min(manualmax,1e250);
 		manualmin = Math.max(manualmin,-1e250);
 		//protect against numbers smaller than 1e-250
+<<<<<<< HEAD
 		if (scale === 'log'){
 			manualmax = Math.max(manualmax,2e-250);
 			manualmin = Math.max(manualmin,2e-250);
 		}
+=======
+		
+>>>>>>> origin/master
 		//protect against times really far away. this could be improved.
 		if (scale === 'time'){
 			manualmax = Math.min(manualmax,+100000000000000);
@@ -6413,8 +6781,8 @@ new_graph : function (graphname,canvasname){
 				scale = 'lin';
 				this.errors.push("all "+name+" data is negative, cant plot that log"+name);
 			}
-			if (scale === 'log' && low<0){
-				low = 1e200;
+			if (scale === 'log' && low<=2e-250){
+				low = 2e250;
 				for (var i = 0;i<data.length;i++){
 					//find lowest y that isn't zero
 					for (var ii = 0;ii<this.data[i][1].length;ii++){
@@ -6423,10 +6791,12 @@ new_graph : function (graphname,canvasname){
 						}
 					}
 				}
-				if (low == 1e200){
-					low = 1e-13;
+				
 			}
-			}	
+		if (scale === 'log'){
+			manualmax = Math.max(manualmax,2e-250);
+			manualmin = Math.max(manualmin,2e-250);
+		}			
 			
 			/*
 			if (Math.abs(high)<2e-12 && high != 0.0 && scale !=='log'){
@@ -6441,7 +6811,7 @@ new_graph : function (graphname,canvasname){
 			
 			return {low:low, high:high, automax:automax,automin:automin,scale:scale};
 	},
-	use_scale : function (the_scale,target_size,guideWidth){
+	use_scale : function (the_scale,target_size,guideWidth,axis){
 		"use strict";
 		var lowpoint = the_scale.lowpoint; 
 		var highpoint = the_scale.highpoint;
@@ -6500,8 +6870,8 @@ new_graph : function (graphname,canvasname){
 					label = (0).toFixed(Math.max(1,precision-1));
 					
 				} else {
-					label = mjs_precision(i,precision);
-				
+					//label = mjs_precision(i,precision);
+					label = this.get_axis_string(i,axis,precision);
 				}
 				strings.push(label);
 				tick += width;
@@ -6550,8 +6920,10 @@ new_graph : function (graphname,canvasname){
 			while (tick < target_size-1) {
 				i = Math.pow(10,j*scale+lowpoint);
 				pos.push(tick);
-				label = mjs_precision(i,precision);
+				//label = mjs_precision(i,precision);
+				label = this.get_axis_string(i,axis,precision);
 				strings.push(label);
+				
 				tick += width;
 				j +=1;
 			}
@@ -6590,7 +6962,9 @@ new_graph : function (graphname,canvasname){
 					tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint);
 					
 					if (tick< target_size-10){
-						strings.push(mjs_precision(i,2));
+						//strings.push(mjs_precision(i,2));
+						strings.push(this.get_axis_string(i,axis,2));
+						
 						pos.push(tick);
 					}
 					//use the mid point rule for minor ticks 
@@ -6639,7 +7013,8 @@ new_graph : function (graphname,canvasname){
 				i = Math.pow(10,lowpoint)+scale;
 				
 				while (i < Math.pow(10,highpoint)-scale/2  ) {
-					label = mjs_precision(i,precision);
+					//label = mjs_precision(i,precision);
+					label = this.get_axis_string(i,axis,precision);
 					tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint); 
 					pos.push(tick);
 					strings.push(label);
@@ -6941,7 +7316,7 @@ new_graph : function (graphname,canvasname){
 	gs.y_scale_auto_max = ylimits.automax;
 	gs.y_scale_mode = ylimits.scale;
 	
-	var the_scalex = this.find_scale(xlow,xhigh,this.canvas.width,guideWidthx,gs.x_scale_mode,gs.x_scale_tight);
+	var the_scalex = this.find_scale(xlow,xhigh,this.canvas.width,guideWidthx,gs.x_scale_mode,gs.x_scale_tight,'x');
 	var lowpointx = the_scalex.lowpoint; //far left point
 	var highpointx = the_scalex.highpoint; //far right point
 	var scalex = the_scalex.scale; // the width of a section on the graph.
@@ -6953,7 +7328,11 @@ new_graph : function (graphname,canvasname){
 	var power_highx = the_scalex.power_high;
 	//log scale
 	
+<<<<<<< HEAD
 	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight);
+=======
+	var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,guideWidthy,gs.y_scale_mode,gs.y_scale_tight,'y');
+>>>>>>> origin/master
 	
 	//this is an experiament to use the fontsize to set the guidewidth
 	//var the_scaley = this.find_scale(ylow,yhigh,this.canvas.height,tick_labels_font_size*2,gs.y_scale_mode,gs.y_scale_tight);
@@ -6974,8 +7353,8 @@ new_graph : function (graphname,canvasname){
 	gs.x_auto_max = highpointx;
 	gs.y_auto_min = lowpointy;
 	gs.y_auto_max = highpointy;
-	var positionsx = this.use_scale(the_scalex,canvas.width,guideWidthx);
-	var positionsy = this.use_scale(the_scaley,canvas.height,guideWidthy);
+	var positionsx = this.use_scale(the_scalex,canvas.width,guideWidthx,'x');
+	var positionsy = this.use_scale(the_scaley,canvas.height,guideWidthy,'y');
 
 	
 	//if the autos are on update the manual settings
@@ -7238,7 +7617,7 @@ new_graph : function (graphname,canvasname){
 		var y = canvas.height - positionsy.pos[i];
 		var label = positionsy.strings[i];
 		//if it is near the top, don't put a label, as this is where the axis label is.
-		if (y > tick_len+lable_spacing+axis_labels_font_size/2){
+		if (y > tick_len+lable_spacing+axis_labels_font_size/2 && y < canvas.height - tick_labels_font_size - tick_lables_font_padding-tick_len){
 			ctx.fillText(label,tick_len*1.2+2,y+3);
 		}
 		
@@ -7458,8 +7837,8 @@ new_graph : function (graphname,canvasname){
 				}
 				ctx.stroke();
 				//drawEllipse(ctx, graph.units_to_pixels(stats.x_mean,'x'), graph.units_to_pixels(stats.y_mean,'y'), graph.units_to_pixels(stats.sigma_x,'x'), graph.units_to_pixels(stats.sigma_y,'y'));
-				drawEllipse(ctx, stats.x_mean, stats.y_mean, stats.sigma_x, stats.sigma_y);
-				drawEllipse(ctx, stats.x_mean, stats.y_mean, stats.sigma_x*2, stats.sigma_y*2);
+				drawEllipse(this,ctx, stats.x_mean, stats.y_mean, stats.sigma_x, stats.sigma_y);
+				drawEllipse(this,ctx, stats.x_mean, stats.y_mean, stats.sigma_x*2, stats.sigma_y*2);
 			}
 			if (gs.fits === 'old' && this.fit_data.length == 0){
 				gs.fits = 'none';
@@ -7494,6 +7873,7 @@ new_graph : function (graphname,canvasname){
 					
 					fit = fits.fit_funs[fits.fit_strings.indexOf(gs.fits)]( normed.x ,this.data[i][1]);
 					string1=fit.strings[0] + "  "+normed.s;
+					console.log('normalised: x = -' + normed.x_mean +' / '+ normed.sigma_x);
 				} else {
 					fit = fits.fit_funs[fits.fit_strings.indexOf(gs.fits)](this.data[i][0],this.data[i][1]);
 					string1=fit.strings[0];
@@ -7524,7 +7904,7 @@ new_graph : function (graphname,canvasname){
 				} else {
 					var fit_y = fit.fun(fit_x,fit.parameters);
 				}
-				
+				console.log("fit parameters: " + fit.parameters);
 				
 				//save the fit data
 				this.fit_data[i] = [];
@@ -7696,6 +8076,7 @@ new_graph : function (graphname,canvasname){
 		
 	},
 	pixels_to_units : function (pixels,axis){ // convertis pixels over the graph to the corrisponding value on the graph
+		
 			if (axis === 'x'){
 				if (this.graphics_style.x_scale_mode ==='lin' || this.graphics_style.x_scale_mode ==='time'){
 					return  pixels / this.canvas.width * (this.graphics_style.x_auto_max - this.graphics_style.x_auto_min )+this.graphics_style.x_auto_min;
@@ -7709,27 +8090,68 @@ new_graph : function (graphname,canvasname){
 					return (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min) * (this.canvas.height-pixels) / this.canvas.height + this.graphics_style.y_auto_min;
 				}
 				if (this.graphics_style.y_scale_mode ==='log'){
-					return Math.pow(10,(this.canvas.height-pixels)  / this.canvas.height * (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min )+this.graphics_style.y_auto_min);
+					var r =  Math.pow(10,(this.canvas.height-pixels)  / this.canvas.height * (this.graphics_style.y_auto_max - this.graphics_style.y_auto_min )+this.graphics_style.y_auto_min);
+					return r < 1e-200 ? 1e-200 : r;
 				}
 				
 			}
 		},
-	get_axis_string : function (n, axis){
-		if (axis == 'x'){
-			if (this.graphics_style.x_scale_mode ==='lin' || this.graphics_style.x_scale_mode ==='log'){
-				return mjs_precision(n,this.graphics_style.x_precision+1);
+	get_axis_string : function (n, axis,precision){
+		if ( !isFinite(precision)){
+			if (axis == 'x'){
+				precision = this.graphics_style.x_precision+1;
 			}
-			if (this.graphics_style.x_scale_mode ==='time'){
-				return mjs_date_print(n,0,this.graphics_style.x_precision+1);
+			if (axis == 'y'){
+				precision = this.graphics_style.y_precision+1;
 			}
 		}
+		if (axis == 'x'){
+			var r = this.graphics_style.x_axis_prefix|| "";
+			if (this.graphics_style.x_scale_mode ==='lin' || this.graphics_style.x_scale_mode ==='log'){
+				switch (this.graphics_style.x_label_mode){
+				case "norm":
+					r+= mjs_precision(n,precision);
+					break;
+				case "infix":
+					r+= eng_form_infix(n,precision);
+					break;
+				case "postfix":
+					r+= eng_form_postfix(n,precision);
+					break;
+				case "sci":
+					r+= n.toExponential(precision-1);
+				}
+				
+			}
+			if (this.graphics_style.x_scale_mode ==='time'){
+				r+= mjs_date_print(n,0,precision);
+			}
+			r += this.graphics_style.x_axis_postfix;
+			return r;
+		}
 		if (axis == 'y'){
+			var r = this.graphics_style.y_axis_prefix|| "";
 			if (this.graphics_style.y_scale_mode ==='lin' || this.graphics_style.y_scale_mode ==='log'){
-				return mjs_precision(n,this.graphics_style.y_precision+1);
+				switch (this.graphics_style.y_label_mode){
+				case "norm":
+					r+= mjs_precision(n,precision);
+					break;
+				case "infix":
+					r+= eng_form_infix(n,precision);
+					break;
+				case "postfix":
+					r+= eng_form_postfix(n,precision);
+					break;
+				case "sci":
+					r+= n.toExponential(precision-1);
+				}
+				
 			}
 			if (this.graphics_style.y_scale_mode ==='time'){
-				return mjs_date_print(n,0,this.graphics_style.y_precision+1);
+				r+= mjs_date_print(n,0,precision);
 			}
+			r += this.graphics_style.y_axis_postfix;
+			return r;
 		}
 	
 	},
@@ -7801,6 +8223,8 @@ new_graph : function (graphname,canvasname){
 		full_screen_graph.mjs_plot();
 },
 
+
+
 };//end of graph object
 	graph.canvas = canvas;
 	make_interactive(graph);
@@ -7835,6 +8259,12 @@ get_graph_style : function (){
 	 lable_spacing : 8,//pixels away from the tick lables
 	 x_axis_title : 'x axis (units)',
 	 y_axis_title : 'y axis (units)',
+	 x_axis_prefix : "",
+	 x_axis_postfix : "",
+	 y_axis_prefix : "",
+	 y_axis_postfix : "",
+	 x_label_mode : 'norm', // or infix,postfix,sci
+	 y_label_mode : 'norm', // or infix,postfix,sci
 	 minor_tick_len : 5,
 	 guideWidthx : 35, //pixels accross
 	 guideWidthy : 30, //pixels a across
@@ -7915,3 +8345,7 @@ convert_time_strings : function (array_of_strings){
 return mjs_plot;
 
 }());
+
+
+//embedd LZstring for compression 
+var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToBase64:function(o){if(null==o)return"";var r=i._compress(o,6,function(o){return n.charAt(o)});switch(r.length%4){default:case 0:return r;case 1:return r+"===";case 2:return r+"==";case 3:return r+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(e){return o(n,r.charAt(e))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""==o?null:i._decompress(o.length,16384,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=i.compress(o),n=new Uint8Array(2*r.length),e=0,t=r.length;t>e;e++){var s=r.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null===o||void 0===o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;t>e;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(o){return null==o?"":i._compress(o,6,function(o){return e.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(n){return o(e,r.charAt(n))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var e,t,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),c=a+u,Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}if(""!==a){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==r-1){d.push(n(m));break}v++}return d.join("")},decompress:function(o){return null==o?"":""==o?null:i._decompress(o.length,32768,function(r){return o.charCodeAt(r)})},_decompress:function(o,n,e){var t,i,s,p,u,c,a,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:n,index:1};for(i=0;3>i;i+=1)f[i]=i;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(t=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 2:return""}for(f[3]=l,s=l,w.push(l);;){if(A.index>o)return"";for(p=0,c=Math.pow(2,m),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(l=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 2:return w.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[l])v=f[l];else{if(l!==d)return null;v=s+s.charAt(0)}w.push(v),f[d++]=s+v.charAt(0),h--,s=v,0==h&&(h=Math.pow(2,m),m++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module&&(module.exports=LZString);
