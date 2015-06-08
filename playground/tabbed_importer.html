@@ -36,17 +36,18 @@ Lines starting with a # or a % are comment lines and are ignored.
 Empty lines are also ignored.
 The data is assumed in column format (each column is a series).
 Tabs seperate columns and rows are seperated by a new line.
-This is what you usually get if you copy/paste from Origin/Matlab/Excell
+This is what you usually get if you copy/paste from Origin/Matlab/Excell.
+Numbers with commas in them will be processed to numbers i.e. 1,234 -> 1234
 </p>
 
 Paste here <em> or </em> load a local file:<input type="file" id="file" ><button type='button' onClick='startRead()'>Load</button>
-<button type='button' onClick="document.getElementById('input').value = ''">Clear</button><br>
+<button type='button' onClick="clearBoxes()">Clear</button><br>
 
 
 
 
 <div id='drop'>
- <textarea id='input' rows ='15'>paste you data here from Origin/Matlab/Excell. Drag and drop a file</textarea>
+ <textarea id='input' rows ='15'>paste you data here from Origin/Matlab/Excell. Or drag and drop a text file into this space.</textarea>
  </div>
 
   <textarea id='result' rows ='15' ></textarea>
@@ -61,7 +62,10 @@ Paste here <em> or </em> load a local file:<input type="file" id="file" ><button
   </div>
 </body>
   <script>
-
+function clearBoxes(){
+document.getElementById('input').value = '';
+document.getElementById('result').value = '';
+}
   function convert_time_strings(array_of_strings){
 	//converts an array of time strings to milliseconds from epoc
 	//example time strings:
@@ -118,7 +122,6 @@ function makeCountdownGoNow(){
    var headderlines = parseInt(document.getElementById('headderlines').value) || 0;
    var headdercols = parseInt(document.getElementById('headdercols').value) || 0;
    
-
    i_running = 0;
    
    for (var i =headderlines,l=lines.length;i<l;i++){
@@ -131,8 +134,8 @@ function makeCountdownGoNow(){
 		for (var j = headdercols ;j<line.length;j++){
 			if (!results[j-headdercols]){results[j-headdercols] = [];}
 			
-			if (IsNumeric(line[j])){
-				results[j-headdercols][i_running] = parseFloat(line[j]);
+			if (IsNumeric(line[j].replace(/,/g, ''))){
+				results[j-headdercols][i_running] = parseFloat(line[j].replace(/,/g, ''));
 				//console.log('was number');
 			}  else if (datetimes && IsDate(line[j])) {
 				results[j-headdercols][i_running] = Date.parse( line[j]); ; //'"' + line[j] + '"';
