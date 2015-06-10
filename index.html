@@ -585,25 +585,25 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 
 
 <script>
-	var pressure_graph = mjs_plot.new_graph("pressure_graph","democanvas");
+	var index_pressure_graph = mjs_plot.new_graph("index_pressure_graph","democanvas");
 	time = mjs_plot.convert_time_strings(pressureTimes);
 	//this is how you set style things up:
-	pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
-	pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
-	pressure_graph.default_graphics_style.title = "Example Graph";
-	pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
-	pressure_graph.default_graphics_style.x_axis_title =  "Hours";
-	pressure_graph.default_graphics_style.font_name =  "helvetica";
-	pressure_graph.default_graphics_style.axis_labels_font_size = 12;
-	pressure_graph.default_graphics_style.tick_labels_font_size= 12;
-	pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
-	pressure_graph.default_graphics_style.hidden_lines = [ false, true, true, false, true, true, false ];
-	pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
-	pressure_graph.default_graphics_style.color_fg =  "#111111";
-	pressure_graph.default_graphics_style.show_grid = true;
-	pressure_graph.default_graphics_style.y_scale_mode = "log";
-	pressure_graph.default_graphics_style.x_scale_mode =  "time";
-	pressure_graph.mjs_plot();
+	index_pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
+	index_pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
+	index_pressure_graph.default_graphics_style.title = "Example Graph";
+	index_pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
+	index_pressure_graph.default_graphics_style.x_axis_title =  "Hours";
+	index_pressure_graph.default_graphics_style.font_name =  "helvetica";
+	index_pressure_graph.default_graphics_style.axis_labels_font_size = 12;
+	index_pressure_graph.default_graphics_style.tick_labels_font_size= 12;
+	index_pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
+	index_pressure_graph.default_graphics_style.hidden_lines = [ false, true, true, false, true, true, false ];
+	index_pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
+	index_pressure_graph.default_graphics_style.color_fg =  "#111111";
+	index_pressure_graph.default_graphics_style.show_grid = true;
+	index_pressure_graph.default_graphics_style.y_scale_mode = "log";
+	index_pressure_graph.default_graphics_style.x_scale_mode =  "time";
+	index_pressure_graph.mjs_plot();
 	
 	
 	var demo1Graph = mjs_plot.new_graph("demo1Graph","demo1");
@@ -653,9 +653,9 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 	
 	function draw_graphs(){
 	//resize to page
-	pressure_graph.canvas.width = pressure_graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
-	pressure_graph.canvas.height = Math.min(0.628*pressure_graph.canvas.width,0.6*window.innerHeight) ;
-	pressure_graph.mjs_plot();
+	index_pressure_graph.canvas.width = index_pressure_graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	index_pressure_graph.canvas.height = Math.min(0.628*index_pressure_graph.canvas.width,0.6*window.innerHeight) ;
+	index_pressure_graph.mjs_plot();
 	
 	demo1Graph.canvas.width = demo1Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
 	demo1Graph.canvas.height = Math.min(0.628*demo1Graph.canvas.width,0.6*window.innerHeight) ;
