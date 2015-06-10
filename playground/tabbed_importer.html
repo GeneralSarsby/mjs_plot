@@ -37,10 +37,11 @@ Empty lines are also ignored.
 The data is assumed in column format (each column is a series).
 Tabs seperate columns and rows are seperated by a new line.
 This is what you usually get if you copy/paste from Origin/Matlab/Excell.
-Numbers with commas in them will be processed to numbers i.e. 1,234 -> 1234
+Numbers with commas in them will be processed to numbers i.e. 1,234 -> 1234.
+Currency with $ or £ in the data element will be parsed as numbers.
 </p>
 
-Paste here <em> or </em> load a local file:<input type="file" id="file" ><button type='button' onClick='startRead()'>Load</button>
+Paste, Drag n Drop, <em> or </em> load a local file:<input type="file" id="file" ><button type='button' onClick='startRead()'>Load</button>
 <button type='button' onClick="clearBoxes()">Clear</button><br>
 
 
@@ -55,8 +56,8 @@ Paste here <em> or </em> load a local file:<input type="file" id="file" ><button
 <br><button type='button' onClick='makeCountdownGoNow()'>Make</button><br>
   <input type="checkbox" id="transpose" > Transpose<br>
   <input type="checkbox" id="datetimes" > Find Datetimes (will replace dates with milliseconds from epoch (unix)<br>
-  <input type="number" id="headderlines" value="0" > Number of headder lines<br>
-  <input type="number" id="headdercols" value="0"> Number of headder columns<br>
+  <input type="number" id="headderlines" value="0" > Number of header lines<br>
+  <input type="number" id="headdercols" value="0"> Number of header columns<br>
   
  <p>When your happy, copy/paste the arrays back into the script window of mjslab</p>
   </div>
@@ -111,7 +112,6 @@ function makeCountdownGoNow(){
     var input = document.getElementById('input').value;
 	
 	
-	
    var lines = input.split("\n");
    var results = [];
    
@@ -132,17 +132,18 @@ function makeCountdownGoNow(){
 	   
 	   
 		for (var j = headdercols ;j<line.length;j++){
-			if (!results[j-headdercols]){results[j-headdercols] = [];}
+			if (!results[j-headdercols]){results[j-headdercols] = [];} //no data here
 			
-			if (IsNumeric(line[j].replace(/,/g, ''))){
-				results[j-headdercols][i_running] = parseFloat(line[j].replace(/,/g, ''));
+			var strippedNumber = line[j].replace(/,|[£]|[$]/g, '');
+			if (IsNumeric(strippedNumber)){
+				results[j-headdercols][i_running] = parseFloat(strippedNumber);
 				//console.log('was number');
 			}  else if (datetimes && IsDate(line[j])) {
 				results[j-headdercols][i_running] = Date.parse( line[j]); ; //'"' + line[j] + '"';
 				//console.log('was date');
-			} else {
+			} 
+			else {
 				results[j-headdercols][i_running] = '"' + line[j] + '"';
-				//console.log('was str');
 			}
 			
 		}
@@ -206,6 +207,7 @@ function loaded(evt) {
   var fileString = evt.target.result;
   
   document.getElementById('input').value = fileString;
+  makeCountdownGoNow();
   // Handle UTF-16 file dump
   if(utils.regexp.isChinese(fileString)) {
     //Chinese Characters + Name validation
