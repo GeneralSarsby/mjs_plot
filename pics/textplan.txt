@@ -1,0 +1,68 @@
+pictures to get/make
+
+SVG output.
+
+Take graphs further
+- Export graph as .svg to edit in Inkscape or Adobe CS
+- We can't do everything. Use the tools you want.
+
+Print your Graphs
+ - 300 DPI images for crisp prints.
+ - Anysize prints using the current size of the graph
+ - Premade sizes for large and small figures.
+
+Measuring
+ - Gradients
+ - time constants
+ - powerlaws
+ - works with a time axis: get results in /s /m /h /day 
+
+Multi Touch
+ - pinch to zoom/pan
+ - quick zoom preview.
+ 
+Time Axis
+ - any scale between 0.001ms to 10 years
+ - Unambigous, shows enough infomation without clutter.
+
+Function Plotter
+ - Drawn on-the-fly
+ - Infinate canvas
+ - Functions on a Time axis
+
+Data Transformations
+ - A stacking list of transformations
+ - all common opperations
+ - 1/x log(x) ln(x) exp(x) 10^x
+ - smooth, y vs y, dy/dx, intergrate
+ - jitter, subtract line
+ - custom functions.
+ - subtract fit, remove outliers.
+ - and more!
+
+Fullscreen graphs
+ - great for phones*
+ - overheads
+
+*Non-Safari browsers until Apple implements the fullscreen API
+
+Data Fits
+ - Linear
+ - Decays
+ - Polys
+Extrapolate fits to make predictions.
+
+Data Export
+ - Never get stuck
+ - Even use MJS plot as a medium to 
+share full graphs with just a link. 
+
+Log Scales That work
+ - Normal log
+ - Zoomed in log
+ - hyper logy view
+
+Histograph Generator
+ - auto binning, nice scales.
+ - even on log axis
+
