@@ -402,7 +402,7 @@ function is_touch_device() {
 var mouse_down = false;
 var start_x = 0;
 var end_x = 0;
-
+var full_screen_graph;
 //fix f****ng google chrome and ie. 
 try {
 	//might not even have log10. 
