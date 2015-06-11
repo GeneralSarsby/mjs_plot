@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="initial-scale=1.0,user-scalable=no" >
 <!-- <link rel="stylesheet" type="text/css" href="mjsplot.css"> -->
 	<script src="mjs_plot_0_3_n.js"></script>
 	<script src="pressure2.js"></script>
 <style>
-
-
-
 
 #topmatter {
 background:#262C42;
@@ -32,8 +30,9 @@ body {color: #333;background-color: #eee;
 	padding:0px;
 	min-width: 320px;
 	line-height: 1.42857;
-padding-top:0px;
-font-family: "helvetica"}
+	padding-top:0px;
+	font-family: "helvetica";
+}
 
 h3{font-weight: normal;margin:10px;text-align:center;}
 
@@ -67,7 +66,6 @@ nav a{color:#777; font-size: x-small}
 
 strong {
 font-weight: 600;
-
 }
 
 .featurebox {
@@ -78,7 +76,7 @@ width: 251px;
 	display: inline-block;
 	vertical-align: middle;
 	background-color: #fff;
-	}
+}
 	
 #boxes{
 	min-width: 320px;max-width:800px;
@@ -103,7 +101,6 @@ padding:10px
 }
 .demobox {
 	margin:5px;
-	
 	display: inline-block;
 	text-align: left;
 	width: 45%;
@@ -121,8 +118,7 @@ padding:10px
 	vertical-align: top;
 	background-color: #fff;
 	border-radius: 5px;
-
-	}
+}
 
 
 </style>
@@ -134,7 +130,9 @@ padding:10px
  <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> 
  <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
 
-<h1>MJS Plot</h1>
+
+ <h1>MJS Plot</h1>
+
 <h4>A javascript library for highly interactive graphs for analysis and data exploration.</h4>
 
 </div>
@@ -204,7 +202,7 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
  </div>
  
  <div id="demos">
-	<h3> Features</h3>
+<h3> Features</h3>
 	 
  <div class="demobox">
   <h2>Measuring</h2>
@@ -223,7 +221,7 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 <p>It works with times axes too: get results in /ms /s /m /h or /day.</p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/measureTool.jpg" alt="Smiley face" width="100%"> 
+	  <img src="pics/measureTool.jpg" alt="measureTool" width="100%"> 
  </div> 
  
   <div class="demobox">
@@ -235,7 +233,7 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 
  </div>
  <div class="imgdemobox">
-	  <img src="pics/multitouch.jpg" alt="Smiley face" width="100%" style="max-width:356px"> 
+	  <img src="pics/multitouch.jpg" alt="multitouch" width="100%" style="max-width:356px"> 
  </div>
 	
 	
@@ -251,11 +249,10 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 <p>Data fittings also work on time series data using pre-fit normalisation.</p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/fits.jpg" alt="Smiley face" width="100%"  style="max-width:540px"> 
+	  <img src="pics/fits.jpg" alt="fits" width="100%"  style="max-width:540px"> 
  </div>
  
-	
-	   <div class="demobox">
+<div class="demobox">
  <h2>Data Transformations</h2>
  <hr>
  <p>
@@ -268,7 +265,7 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 <li>1/x, log(), ln(), exp() etc
 <li>Smooth (with variable aperture)
 <li>dy/dx, integrate
-<li>y vs y</li>
+<li>y vs y
 <li>Jitter, subtract line
 <li>custom functions.
 <li>subtract fit, remove outliers.
@@ -278,9 +275,9 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and
 Clicking again on a function can change it's arguments, e.g. smoothing aperture.
 There are also pop and reset options to remove the last applied transform or to remove all of them.
 </p>
- </div>
+</div>
  <div class="imgdemobox">
-	  <img src="pics/transforms.jpg" alt="Smiley face" width="100%" style="max-width:540px"> 
+	  <img src="pics/transforms.jpg" alt="transforms" width="100%" style="max-width:540px"> 
  </div>
  
  
@@ -302,7 +299,7 @@ the variable <tt>now</tt> available to get the current time in ms.
 </p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/functions.jpg" alt="Smiley face" width="100%" style="max-width:540px"> 
+	  <img src="pics/functions.jpg" alt="functions" width="100%" style="max-width:540px"> 
  </div>
  
  
@@ -322,7 +319,7 @@ Send this link to a peer and they will be able to see the graph just as you see 
 </p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/export.png" alt="Smiley face" width="100%"  style="max-width:225px"> 
+	  <img src="pics/export.png" alt="export" width="100%"  style="max-width:225px"> 
  </div>
  
  <div class="demobox">
@@ -341,7 +338,7 @@ Handling months with different number of days. Leap days, and leap seconds OK.
 </p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/timescales.jpg" alt="Smiley face" width="100%" style="max-width:432px"> 
+	  <img src="pics/timescales.jpg" alt="timescales" width="100%" style="max-width:432px"> 
  </div>
  
   <div class="demobox">
@@ -360,7 +357,7 @@ Handling months with different number of days. Leap days, and leap seconds OK.
 </ul>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/logscales.png" alt="Smiley face" width="100%"  style="max-width:345px"> 
+	  <img src="pics/logscales.png" alt="logscales" width="100%"  style="max-width:345px"> 
  </div>
  
  
@@ -378,7 +375,7 @@ Great for small screens, tablets, phones, and overhead monitors.
 <p>Not working on Apples's Safari until they implement the fullscreen API</p>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/fulscreenMobile.jpg" alt="Smiley face"  style="max-height:356px"> 
+	  <img src="pics/fulscreenMobile.jpg" alt="fulscreenMobile"  style="max-height:356px"> 
  </div>
  
  
@@ -393,7 +390,7 @@ Great for small screens, tablets, phones, and overhead monitors.
 </ul>
  </div>
  <div class="imgdemobox">
-	  <img src="pics/histograms.jpg" alt="Smiley face" width="100%"  style="max-width:523px"> 
+	  <img src="pics/histograms.jpg" alt="histograms" width="100%"  style="max-width:523px"> 
  </div>
  
  
@@ -409,7 +406,7 @@ Great for small screens, tablets, phones, and overhead monitors.
  </div>
  
  <div class="imgdemobox">
-	  <img src="pics/SVGexport.jpg" alt="Smiley face" width="100%" style="max-width:540px"> 
+	  <img src="pics/SVGexport.jpg" alt="SVGexport" width="100%" style="max-width:540px"> 
  </div>
 
 <div class="demobox">
@@ -422,7 +419,7 @@ There are pre-defined sizes for small and large figures commonly used in papers 
 
  </div>
  <div class="imgdemobox">
-	  <img src="pics/figureSizes.png" alt="Smiley face"  style="max-height:300px"> 
+	  <img src="pics/figureSizes.png" alt="figureSizes"  style="max-height:300px"> 
  </div>
  
    <h3>Playground</h3>
@@ -587,14 +584,12 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 <canvas height="206" width="329" id="demo4"></canvas>
  </div>
  
- <div>
- 
- 
 <br>
 <br>
 <p> MJS 2014-2015</p>
 
-
+ <img src="logo.png" alt="logo"> 
+</div> 
 <script>
 	var index_pressure_graph = mjs_plot.new_graph("index_pressure_graph","democanvas");
 	time = mjs_plot.convert_time_strings(pressureTimes);
@@ -686,4 +681,6 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 	
 	}
 </script>
-</div></div></body></html>
+
+</body>
+</html>
