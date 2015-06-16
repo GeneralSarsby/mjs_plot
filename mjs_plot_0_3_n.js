@@ -402,7 +402,7 @@ function is_touch_device() {
 var mouse_down = false;
 var start_x = 0;
 var end_x = 0;
-
+var full_screen_graph;
 //fix f****ng google chrome and ie. 
 try {
 	//might not even have log10. 
@@ -3177,10 +3177,10 @@ function mouse_up_event(event,graph){
 					gs.x_scale_auto_min=false;
 					if (gs.x_scale_mode ==='time'){
 						var d  =  new Date(gs.x_manual_min);
-						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.x_manual_min = r || gs.x_manual_min;
 					} else {
-						gs.x_manual_min = parseFloat(prompt("new lowlimit",gs.x_manual_min )) || gs.x_manual_min;
+						gs.x_manual_min = parseFloat(prompt("new low limit",gs.x_manual_min )) || gs.x_manual_min;
 					}
 				}
 				break;
@@ -3192,10 +3192,10 @@ function mouse_up_event(event,graph){
 					gs.x_scale_auto_max=false;
 					if (gs.x_scale_mode ==='time'){
 						var d  =  new Date(gs.x_manual_max);
-						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.x_manual_max = r || gs.x_manual_max;
 					} else {
-						gs.x_manual_max = parseFloat(prompt("new lowlimit",gs.x_manual_max )) || gs.x_manual_max;
+						gs.x_manual_max = parseFloat(prompt("new high limit",gs.x_manual_max )) || gs.x_manual_max;
 					}
 				}
 				break;
@@ -3260,10 +3260,10 @@ function mouse_up_event(event,graph){
 					gs.y_scale_auto_min=false;
 					if (gs.y_scale_mode ==='time'){
 						var d  =  new Date(gs.y_manual_min);
-						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.y_manual_min = r || gs.y_manual_min;
 					} else {
-						gs.y_manual_min = parseFloat(prompt("new lowlimit",gs.y_manual_min )) || gs.y_manual_min;
+						gs.y_manual_min = parseFloat(prompt("new low limit",gs.y_manual_min )) || gs.y_manual_min;
 					}
 				}
 				break;
@@ -3275,10 +3275,10 @@ function mouse_up_event(event,graph){
 					gs.y_scale_auto_max=false;
 					if (gs.y_scale_mode ==='time'){
 						var d  =  new Date(gs.y_manual_max);
-						var r = Date.parse( prompt("new lowlimit",d.toISOString() ) );
+						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.y_manual_max = r || gs.y_manual_max;
 					} else {
-						gs.y_manual_max = parseFloat(prompt("new lowlimit",gs.y_manual_max )) || gs.y_manual_max;
+						gs.y_manual_max = parseFloat(prompt("new high limit",gs.y_manual_max )) || gs.y_manual_max;
 					}
 				}
 				break;
