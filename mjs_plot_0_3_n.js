@@ -253,8 +253,11 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	  - fixed bug with minor ticks being overdrawn. Only visable on SVG output.
 	  - added groups to the SVG context. This means each line is grouped for easyer editing.
 	  - added clipPath to SVG output. this prevents the lines going outside the box.
-
-			
+	  - added maths number display mode, it uses unicode characters for 10x^3 etc..
+	  - put in method to find precision on log axis.
+	  - fixed minor typos
+	  - imporved mjs_precision output
+	  - added and using getFloat. a helper function to get a number from the user. Does better checking.
 *********************************************** */
 
 mjs_plot = (function () {
@@ -693,6 +696,14 @@ function trim(n,l,h){
 	n = Math.min(n,h);
 	return n;
 }
+function getFloat(promptString,fallback){
+	var r = parseFloat(prompt(promptString,fallback));
+	if (isFinite(r)){
+		return r;
+	} else {
+	 return fallback;
+	}
+}
 
 function mjs_time_difference_print(milliseconds){
 	//for printing the elapsed time. not absolute time.
@@ -820,7 +831,6 @@ function round_to_month(milliseconds){
 	}
  }
  
- //var pm = String.fromCharCode( 177 ); //the plus minus sign
 
 var fits = {
 	//each fit has some_fit and some_fun
@@ -1270,33 +1280,33 @@ fits.fit_strings = ['exp','exp_c','linear','quad', 'cubic','poly4','poly5','poly
 fits.fit_funs = [fits.exponential,fits.exponential_plus_c,fits.linear,fits.poly2,fits.poly3,fits.poly4,fits.poly5,fits.poly6,fits.poly7,fits.constant,fits.log,fits.power,fits.power_plus_c,fits.gauss];
 			
 function mjs_precision(number,precision){
-	var precision = Math.max(1,precision);
+	precision = trim(precision,1,21);
+	var sign = number <0 ? '-' : '';
+	number = Math.abs(number);
 	
-	if (precision<1){precision =1;}
-	if (precision>21){precision =21;}
-	/*
-	if (Math.abs(number) < 1e-13){
-		number = 0;
-		return number.toFixed(precision);
+	if ( number <= 2e-3){
+		var label = number.toExponential(precision-1);
+		//this hack gets the scheme to change on the 0.001 rather than the number higher than in.
+		// comparing number <= 1e-3 dosn't work as there might be floating point mess keeping it higher. i.e. 0.0010000000003
+		// testing against <= 9.99999e-4 could work but breaks when zoomed in. How many 9s, still has floating point problums.
+		if (parseInt(label.split('e')[1]) < -3){ 
+			return sign+ label; 
+		}
 	}
-	*/
-	if (Math.abs(number) < 1e-3){
-		return label = number.toExponential(precision); 
-	}
+	
 	var label = number.toPrecision(precision);
 	//this bit of mess fixes the strings that say 3.1e+2 rather than 310.
 	//as '3.1e+2' is longer (6) than '310' (3).
-	if (label.length > number.toPrecision(precision+2).length){
-		label =  number.toPrecision(precision+2);
-	}
-	if (label.length > number.toPrecision(precision+1).length){
+	if (label.length >= number.toPrecision(precision+1).length){
 		label =  number.toPrecision(precision+1);
 	}
-	if (label.length > number.toPrecision(precision+3).length){
+	if (label.length >= number.toPrecision(precision+2).length){
+		label =  number.toPrecision(precision+2);
+	}
+	if (label.length >= number.toPrecision(precision+3).length){
 		label =  number.toPrecision(precision+3);
 	}
-	
-	return label
+	return sign+label
 }
 
 
@@ -2676,12 +2686,10 @@ function mouse_move_event_actual(event,graph){
 			
 			ctx.restore();
 		} else {
-		
 			end_x = x;
 			end_y = y;
 			ctx.fillStyle = gs.color_bg; 
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			
 			ctx.putImageData(graph.graph_image_for_drag,end_x-start_x,end_y-start_y);
 		}
 	}
@@ -3165,7 +3173,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.x_manual_min = r || gs.x_manual_min;
 					} else {
-						gs.x_manual_min = parseFloat(prompt("new low limit",gs.x_manual_min )) || gs.x_manual_min;
+						gs.x_manual_min = getFloat("new low limit",gs.x_manual_min );
 					}
 				}
 				break;
@@ -3180,7 +3188,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.x_manual_max = r || gs.x_manual_max;
 					} else {
-						gs.x_manual_max = parseFloat(prompt("new high limit",gs.x_manual_max )) || gs.x_manual_max;
+						gs.x_manual_max = getFloat("new high limit",gs.x_manual_max );
 					}
 				}
 				break;
@@ -3248,7 +3256,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.y_manual_min = r || gs.y_manual_min;
 					} else {
-						gs.y_manual_min = parseFloat(prompt("new low limit",gs.y_manual_min )) || gs.y_manual_min;
+						gs.y_manual_min = getFloat("new low limit",gs.y_manual_min );
 					}
 				}
 				break;
@@ -3263,7 +3271,8 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.y_manual_max = r || gs.y_manual_max;
 					} else {
-						gs.y_manual_max = parseFloat(prompt("new high limit",gs.y_manual_max )) || gs.y_manual_max;
+					
+						gs.y_manual_max =getFloat("new high limit",gs.y_manual_max )
 					}
 				}
 				break;
@@ -5962,7 +5971,7 @@ new_graph : function (graphname,canvasname){
 	reader_index:[0,0],//the i,j indices in the data of the picked reader point. 
 	transform_index : -1,
 	transform_text_x : 'x',
-	ui : {size:20,touch:is_touch_device(),mouse_is_dragging:false, is_touching : false,draw_time :1e200,copy_time:1e200,ticking:false,latestEvent:false }, //contains ui infomation.
+	ui : {size:20,touch:is_touch_device(),mouse_is_dragging:false, is_touching : false,draw_time :1e200,copy_time:1e200,ticking:false,latestEvent:false}, //contains ui infomation.
 	transform_text_y : 'y',
 	drawing_methods : {
 		draw_y_errors : function(graph,ctx,series,start,end,dot_size){
@@ -6017,8 +6026,8 @@ new_graph : function (graphname,canvasname){
 			ctx.stroke();
 		},
 		draw_dot : function(graph,ctx,series,start,end,dot_size){
-			ctx.beginPath();
 			graph.points_drawn+=end-start;
+			ctx.beginPath();
 			for (var j =start;j<end;j++){
 				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
@@ -6392,14 +6401,11 @@ new_graph : function (graphname,canvasname){
 		if (scalemode === 'lin'){
 			//linear scale
 			var val_i = 0;
-			
 			if (Math.abs(min_point) > 1e-250){
-			var power = Math.floor(Math.log10(Math.abs(min_point)))-10 ;
+			var power = Math.floor(Math.log10( max_point - min_point ))-10 ;
 			} else {
 			power = -250;
 			} 
-			
-			
 			var notgood = 1;
 			var scale = 0;
 			var width;
@@ -6706,6 +6712,9 @@ new_graph : function (graphname,canvasname){
 		manualmin = Math.max(manualmin,-1e250);
 		//protect against numbers smaller than 1e-250
 		
+		var t = manualmax;
+		manualmax = Math.max(manualmax,manualmin);
+		manualmin = Math.min(t,manualmin);
 		//protect against times really far away. this could be improved.
 		if (scale === 'time'){
 			manualmax = Math.min(manualmax,+100000000000000);
@@ -7570,10 +7579,9 @@ new_graph : function (graphname,canvasname){
 	}
 	
 	if (!this.isSVG){
-		if (graph.needs_drag_image || gs.mouse_mode === 'drag'){
-		
+		if (this.needs_drag_image || gs.mouse_mode === 'drag'){
 			this.graph_image_for_drag = ctx.getImageData(0,0,canvas.width,canvas.height);
-			graph.needs_drag_image = false;
+			this.needs_drag_image = false;
 		}
 	}
 	
