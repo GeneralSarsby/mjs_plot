@@ -246,14 +246,23 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	 - added splash screen to be draw when a new graph is made.
 	 - apperentally my "use strict" was in the wrong palce and wasn't checking globals. This is fixed and
 	    then a bunch of global fixes followed.
-
-	   
-			
+0_3_6 - imporved axis lable layout.
+	  - imporved string rendering of linear fits
+	  - removed options menu. replaced with style menu
+	  - added font menu. Finds fonts avaliable on the system using MJSFontList.
+	  - fixed bug with minor ticks being overdrawn. Only visable on SVG output.
+	  - added groups to the SVG context. This means each line is grouped for easyer editing.
+	  - added clipPath to SVG output. this prevents the lines going outside the box.
+	  - added maths number display mode, it uses unicode characters for 10x^3 etc..
+	  - put in method to find precision on log axis.
+	  - fixed minor typos
+	  - imporved mjs_precision output
+	  - added and using getFloat. a helper function to get a number from the user. Does better checking.
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_5';
+var MJS_PLOT_VERSION = '0_3_6';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
@@ -510,6 +519,30 @@ function eng_form_postfix(number,precision){
 	}
 	return neg_sign+postfix_form;
 }
+var superscriptCharacters = [8304,185,178,179,8308,8309,8310,8311,8312,8313]; //zero to 9 in unicode superscripts. 
+var superscriptMinus = String.fromCharCode(8315);
+var superscriptPlus = String.fromCharCode(8314);
+var unicodeTimes = String.fromCharCode(215);
+function toSuperscript(n){
+var s
+if (n<0){s = superscriptMinus; n*=-1;}
+else{s=''}
+n=parseInt(n).toString();
+for (var i=0;i<n.length;i++){
+	s+=String.fromCharCode( superscriptCharacters[parseInt(n[i])] )
+}
+return s;
+}
+
+function maths_form(number,precision){
+var s = number.toExponential(trim(precision-1,0,20));
+var parts = s.split('e');
+if (parts[0] === '1'){
+	return '10' + toSuperscript(parts[1]);
+} else {
+	return parts[0] + unicodeTimes+'10' + toSuperscript(parts[1])
+}
+}
 	
 function download_text(text,filename,type){
 	var ftype = type || 'data:text/plain;charset=utf-8';
@@ -663,6 +696,14 @@ function trim(n,l,h){
 	n = Math.min(n,h);
 	return n;
 }
+function getFloat(promptString,fallback){
+	var r = parseFloat(prompt(promptString,fallback));
+	if (isFinite(r)){
+		return r;
+	} else {
+	 return fallback;
+	}
+}
 
 function mjs_time_difference_print(milliseconds){
 	//for printing the elapsed time. not absolute time.
@@ -790,7 +831,6 @@ function round_to_month(milliseconds){
 	}
  }
  
- //var pm = String.fromCharCode( 177 ); //the plus minus sign
 
 var fits = {
 	//each fit has some_fit and some_fun
@@ -965,10 +1005,8 @@ var fits = {
 		var s_a = s * Math.sqrt( 1/n + x_mean * x_mean/sum_xx );
 		var squared = String.fromCharCode( 178 ); //σ²
 		string1 = 'r'+squared+' = ' + number_quote(r_2,1-r_2);
-		string2 = 'intecept a = ' + number_quote(a,s_a) +
-					',   S(a) = ' +mjs_precision(s_a,2);
-		string3 = 'slope b = ' + number_quote(b,s_b) + 
-					',   S(b) = ' +mjs_precision(s_b,2);
+		string2 = 'intecept a = ' + number_quote(a,s_a) +String.fromCharCode( 177 ) +mjs_precision(s_a,2);
+		string3 = 'slope b = ' + number_quote(b,s_b) + String.fromCharCode( 177 )+mjs_precision(s_b,2);
 		return {parameters: [b,a], strings: [string1,string2,string3],fun:fits.linear_fun};
 	},
 	constant_fun : function(x,params){
@@ -1102,26 +1140,28 @@ var fits = {
 		var ss_reg = sum_ff;
 		var r_squared = 1-ss_res/ss_tot;
 		var squared = String.fromCharCode( 178 ); //σ²
-		var string2 = 'y = ';
+		var string2 = '';
 		var string3 = '';
+		
 		if (coeffs.length>4){
 		for(var i = coeffs.length-1; i >= 4; i--){
-		  if(i > 1) string2 += mjs_precision(coeffs[i],5)+ 'x^' + i + ' + ';
-		  else if (i == 1) string2 += mjs_precision(coeffs[i],5) + 'x' + ' + ';
-		  else string2 += mjs_precision(coeffs[i],5);
+		  if(i > 1) string2 += mjs_precision(coeffs[i],4)+ 'x^' + i + ' + ';
+		  else if (i == 1) string2 += mjs_precision(coeffs[i],4) + 'x' + ' + ';
+		  else string2 += mjs_precision(coeffs[i],4);
 		}
 		for(; i >= 0; i--){
-		  if(i > 1) string3 += mjs_precision(coeffs[i],5)+ 'x^' + i + ' + ';
-		  else if (i == 1) string3 += mjs_precision(coeffs[i],5) + 'x' + ' + ';
-		  else string3 += mjs_precision(coeffs[i],5);
+		  if(i > 1) string3 += mjs_precision(coeffs[i],4)+ 'x^' + i + ' + ';
+		  else if (i == 1) string3 += mjs_precision(coeffs[i],4) + 'x' + ' + ';
+		  else string3 += mjs_precision(coeffs[i],4);
 		}
 		} else {
 		for(var i = coeffs.length-1; i >= 0; i--){
-		  if(i > 1) string2 += mjs_precision(coeffs[i],5)+ 'x^' + i + ' + ';
-		  else if (i == 1) string2 += mjs_precision(coeffs[i],5) + 'x' + ' + ';
-		  else string2 += mjs_precision(coeffs[i],5);
+		  if(i > 1) string2 += mjs_precision(coeffs[i],4)+ 'x^' + i + ' + ';
+		  else if (i == 1) string2 += mjs_precision(coeffs[i],4) + 'x' + ' + ';
+		  else string2 += mjs_precision(coeffs[i],4);
 		}
 		}
+		
 		
 		string1 = 'r'+squared+' = ' + number_quote(r_squared,1-r_squared);
 		//return coeffs;
@@ -1225,7 +1265,7 @@ var fits = {
 		for (var i = 0;i<x.length;i++){
 			x_primed[i] = (x[i] - s.x_mean)/s.sigma_x;
 		}
-		var string1 = "normalized (x-" + s.x_mean+")/"+s.sigma_x;
+		var string1 = "normalized (x-" + s.x_mean.toFixed()+")/"+s.sigma_x.toFixed();
 		return {x:x_primed,s:string1,x_mean:s.x_mean,sigma_x:s.sigma_x}
 	},
 	post_fit_normalizing : function(x,normalised){
@@ -1240,33 +1280,33 @@ fits.fit_strings = ['exp','exp_c','linear','quad', 'cubic','poly4','poly5','poly
 fits.fit_funs = [fits.exponential,fits.exponential_plus_c,fits.linear,fits.poly2,fits.poly3,fits.poly4,fits.poly5,fits.poly6,fits.poly7,fits.constant,fits.log,fits.power,fits.power_plus_c,fits.gauss];
 			
 function mjs_precision(number,precision){
-	var precision = Math.max(1,precision);
+	precision = trim(precision,1,21);
+	var sign = number <0 ? '-' : '';
+	number = Math.abs(number);
 	
-	if (precision<1){precision =1;}
-	if (precision>21){precision =21;}
-	/*
-	if (Math.abs(number) < 1e-13){
-		number = 0;
-		return number.toFixed(precision);
+	if ( number <= 2e-3){
+		var label = number.toExponential(precision-1);
+		//this hack gets the scheme to change on the 0.001 rather than the number higher than in.
+		// comparing number <= 1e-3 dosn't work as there might be floating point mess keeping it higher. i.e. 0.0010000000003
+		// testing against <= 9.99999e-4 could work but breaks when zoomed in. How many 9s, still has floating point problums.
+		if (parseInt(label.split('e')[1]) < -3){ 
+			return sign+ label; 
+		}
 	}
-	*/
-	if (Math.abs(number) < 1e-3){
-		return label = number.toExponential(precision); 
-	}
+	
 	var label = number.toPrecision(precision);
 	//this bit of mess fixes the strings that say 3.1e+2 rather than 310.
 	//as '3.1e+2' is longer (6) than '310' (3).
-	if (label.length > number.toPrecision(precision+2).length){
-		label =  number.toPrecision(precision+2);
-	}
-	if (label.length > number.toPrecision(precision+1).length){
+	if (label.length >= number.toPrecision(precision+1).length){
 		label =  number.toPrecision(precision+1);
 	}
-	if (label.length > number.toPrecision(precision+3).length){
+	if (label.length >= number.toPrecision(precision+2).length){
+		label =  number.toPrecision(precision+2);
+	}
+	if (label.length >= number.toPrecision(precision+3).length){
 		label =  number.toPrecision(precision+3);
 	}
-	
-	return label
+	return sign+label
 }
 
 
@@ -1349,63 +1389,7 @@ function mouse_move_event_actual(event,graph){
 	
 	if (mouse_down == false){
 		
-		if (gs.o >= 1){
-			ctx.fillStyle = gs.color_bg;
-			ctx.globalAlpha = 0.5;
-			ctx.beginPath();
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			
-			//draw the options plane.
-			
-			ctx.fill();
-			ctx.stroke();
-			ctx.globalAlpha = 1;
-			ctx.fillStyle = gs.color_fg;
-			ctx.strokeStyle = gs.color_fg;
-			var values = [gs.guideWidthx, gs.guideWidthy, gs.symbol_size, gs.line_thickness, gs.tick_len,gs.minor_tick_len, gs.title_font_size,gs.tick_labels_font_size,gs.axis_labels_font_size,gs.title_spacing,gs.tick_lables_font_padding,gs.lable_spacing,gs.graph_line_thickness];
-			var names = ['scale width x','scale width y','symbol size','line thickness','tick length','minor tick length','title font size','ticks font size','axis font size','title spacing','tick padding','label spacing','graph line thickness'];
-			
-			var s = edge*0.7;//gs.tick_labels_font_size; //size to use for the menu
-			var s = Math.min(canvas.height/32,canvas.width/25);
-			graph.ui.s = s;
-			ctx.font=s*0.8 + 'px ' + gs.font_name//"14px Courier New";
-			for (var i = 0;i<values.length;i++){
-				ctx.rect(s,s + i * s*1.2 -s*0.75 ,s,s);
-				ctx.rect(2*s,s + i * s*1.2 -s*0.75 ,s,s);
-				ctx.textAlign="center"; 
-				ctx.fillText( '+' ,1.5*s, s + i * s*1.2);
-				ctx.fillText( '-' ,2.5*s, s + i * s*1.2);
-				ctx.textAlign="left"; 
-				ctx.fillText( names[i] + ' = ' + mjs_precision(values[i],3) ,3.5*s, s + i * s*1.2);
-			}
-			ctx.stroke();
-			//the strings
-			var strings  = [gs.font_name,gs.title,gs.subtitle,gs.subtitle2,gs.x_axis_title,gs.y_axis_title,gs.color_fg,gs.color_bg,gs.color_mg];
-			var string_names = ['font','title','subtitle','subtitle2','x-axis','y-axis','fg color','bg color','mg color'];
-			j=0;
-			for (var i = values.length;i<values.length+strings.length;i++){
-				ctx.rect(s,s + i * s*1.2-s*0.75,s*3,s);
-				ctx.textAlign="center";
-				ctx.fillText( 'edit' ,2.5*s, s + i * s*1.2);
-				ctx.textAlign="left";
-				ctx.fillText( string_names[j] + ' = ' + strings[j] ,s+s*3.5, s + i * s*1.2);
-				j++;
-			}
-			ctx.stroke();
-			i++;
-			ctx.rect(s,s + i * s*1.2 -s*0.75 ,s*4,s);
-			ctx.stroke();
-			ctx.textAlign="center";
-			ctx.fillText( 'Reset' ,s*2.5, s + i * s*1.2);
-			i++;
-			ctx.rect(s,s + i * s*1.2 -s*0.75 ,s*4,s);
-			ctx.stroke();
-			ctx.fillText( 'Exit' ,s*2.5, s + i * s*1.2);
-			
-			gs.mouse_mode = 'options';
-			return;
-		}
-		
+		ctx.textAlign="left";
 		//not at the very edges draw interactive stuff
 		ctx.fillStyle = gs.color_fg;
  		ctx.strokeStyle = gs.color_fg; 
@@ -1488,9 +1472,7 @@ function mouse_move_event_actual(event,graph){
 			
 				//fit text handle
 				
-				if (gs.fits === 'none'){
-					//don't draw the handle if there is no fit text.
-				} else {
+				if (gs.fits !== 'none'){
 					ctx.beginPath();
 					ctx.arc(gs.fit_text_position.x*canvas.width, gs.fit_text_position.y*canvas.height, 2*cs , 0 ,Math.PI*2, true);
 					ctx.stroke();
@@ -1646,16 +1628,17 @@ function mouse_move_event_actual(event,graph){
 			
 			ctx.beginPath();
 			ctx.rect(0,0,edge*4,edge);
-			
 			ctx.rect(4*edge,0,edge*4,edge);
+			ctx.rect(canvas.width-5*edge,0,edge*3,edge);
 			ctx.fill();
 			ctx.stroke();
 			
 			ctx.fillStyle = gs.color_fg;
+			
 			ctx.beginPath();
 			ctx.fillText("symbol/line",0.2*edge,0.8*edge);
 			ctx.fillText("Graph",4.2*edge,0.8*edge);
-			
+			ctx.fillText("Style",canvas.width-4.8*edge,0.8*edge);
 			ctx.fillStyle = gs.color_bg;
 			
 			
@@ -1744,7 +1727,6 @@ function mouse_move_event_actual(event,graph){
 			ctx.fillStyle = gs.color_bg;
 			ctx.rect(canvas.width-edge,0,edge,edge);
 			ctx.rect(canvas.width-edge*2,0,edge,edge);
-			ctx.rect(canvas.width-edge*3,0,edge,edge);
 			ctx.fill();
 			ctx.stroke();
 			ctx.fillStyle = gs.color_fg;
@@ -1754,13 +1736,6 @@ function mouse_move_event_actual(event,graph){
 			// infomation button
 			ctx.fillStyle = gs.color_fg;
 			ctx.fillText('i',canvas.width-1.7*edge, edge*0.7);
-			
-			//the ... button. opens the options pane. like the info pane. 
-			ctx.beginPath();
-			ctx.arc(canvas.width-2.2*edge, edge*0.7, edge*0.07 , 0 ,Math.PI*2, true);
-			ctx.arc(canvas.width-2.5*edge, edge*0.7, edge*0.07 , 0 ,Math.PI*2, true);
-			ctx.arc(canvas.width-2.8*edge, edge*0.7, edge*0.07 , 0 ,Math.PI*2, true);
-			ctx.fill();
 			
 			ctx.fillStyle = gs.color_fg;
 			//flush the drawing code
@@ -1936,6 +1911,61 @@ function mouse_move_event_actual(event,graph){
 			ctx.stroke();
 		}
 		
+		
+		if (graph.drawStylemenu){
+			if (x < canvas.width-2*edge && x > canvas.width-10*edge && y < 14*edge){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(canvas.width-10*edge,0,edge*8,edge*14);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = edge*0.8;
+				var dy = -1*edge;
+				var lx = canvas.width-10*edge+0.2*edge;
+				ctx.textAlign="left";
+				ctx.fillText('Style',lx+5*edge, ly);ly-=dy;
+				ctx.fillText('Pick Font',lx, ly);
+				if (gs.font_name.length <10){
+					ctx.fillText(gs.font_name,lx+4*edge, ly);
+				} else {
+					ctx.fillText(gs.font_name.slice(0,9)+'...',lx+4*edge, ly);
+				}
+				ly-=dy;
+				ctx.fillText('Font Size:',lx, ly);
+				ctx.fillText('Title:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Ticks:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Axis:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Spacing:',lx, ly);
+				ctx.fillText('Title:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Ticks:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Axis:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Colors:',lx, ly);
+				ctx.fillText('FG:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('BG:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('MG:',lx+4*edge, ly);ly-=dy;
+				ctx.fillText('Line Width:',lx, ly);ly-=dy;
+				ctx.fillText('Tick Len -major:',lx, ly);ly-=dy;
+				ctx.fillText('Tick Len -minor:',lx, ly);ly-=dy;
+				ly =  edge*2.8;
+				ctx.textAlign="center";
+				lx = canvas.width-3.5*edge;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[edit]',lx+0.5*edge, ly);ly-=dy;
+				ctx.fillText('[edit]',lx+0.5*edge, ly);ly-=dy;
+				ctx.fillText('[edit]',lx+0.5*edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+				ctx.fillText('[-]',lx, ly);ctx.fillText('[+]',lx+edge, ly);ly-=dy;
+			} else {
+				graph.drawStylemenu = false;
+			}
+		}
 		if (graph.drawxmenu){
 			if (x < 12*edge && y > canvas.height - 9*edge){
 				ctx.fillStyle = gs.color_bg;
@@ -2014,6 +2044,7 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('[time]',lx+10.5*edge, ly);ly-=dy;
 				ctx.fillText('[-]',lx+6*edge, ly);
 				ctx.fillText('[+]',lx+10*edge, ly);ly-=dy;
+				//ctx.fillText('[1.2'+unicodeTimes+'10]'+String.fromCharCode(178),lx+3*edge, ly);
 				ctx.fillText('[1200]',lx+5*edge, ly);
 				ctx.fillText('[1k2]',lx+7*edge, ly);
 				ctx.fillText('[1.2k]',lx+9*edge, ly);
@@ -2214,6 +2245,27 @@ function mouse_move_event_actual(event,graph){
 				
 			} else {
 				graph.drawgraphmenu = false;
+			}
+		}
+		if (graph.drawFontMenu){
+			var items = MJSFontList.fontList.length+1;
+			if (x < canvas.width-2*edge && x > canvas.width-10*edge && y < edge*items){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(canvas.width-10*edge,0,edge*8,edge*items);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = edge*0.8;
+				var dy = -1*edge;
+				var lx = canvas.width-10*edge+0.2*edge;
+				ctx.textAlign="left";
+				ctx.fillText('Other ...',lx, ly);ly-=dy;
+				for (var i =0;i<items-1;i++){
+					ctx.fillText(MJSFontList.fontList[i],lx, ly);ly-=dy;
+				}
+			} else {
+				graph.drawFontMenu = false;
 			}
 		}
 		
@@ -2634,12 +2686,10 @@ function mouse_move_event_actual(event,graph){
 			
 			ctx.restore();
 		} else {
-		
 			end_x = x;
 			end_y = y;
 			ctx.fillStyle = gs.color_bg; 
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			
 			ctx.putImageData(graph.graph_image_for_drag,end_x-start_x,end_y-start_y);
 		}
 	}
@@ -2877,6 +2927,7 @@ function mouse_move_event_actual(event,graph){
 		
 		graph.ui.mouse_is_dragging = false;
 		
+		
 		//distance from fit text handle
 		var d = Math.sqrt(Math.pow(start_x-gs.fit_text_position.x*canvas.width,2)+Math.pow(start_y-gs.fit_text_position.y*canvas.height,2));
 		if (d<2*cs){
@@ -3008,64 +3059,6 @@ function mouse_up_event(event,graph){
 	var no_drag_size = gs.tick_len;
 	var edge = graph.ui.size;
 	
-	if (gs.o >=1){
-		var s = graph.ui.s;
-		var names = ['scale width x','scale width y','symbol size','line thickness','tick length','minor tick length','title font size','ticks font size','axis font size','title spacing','tick padding','label spacing','graph line thickness'];
-		var values = ['guideWidthx', 'guideWidthy','symbol_size','line_thickness','tick_len','minor_tick_len', 'title_font_size','tick_labels_font_size','axis_labels_font_size','title_spacing','tick_lables_font_padding','lable_spacing','graph_line_thickness'];
-
-		var item = Math.ceil((end_y - s)/(1.2*s));
-		var button = Math.ceil((end_x - s) / (s))-1;
-		var speed = 1.1
-		if (button >= 1){
-			var scale = 1.0/speed;
-			//right hand button smaller
-		} else {
-			var scale = speed;
-		   //left had button, larger.
-		}
-		console.log(names[item]);
-		//2.5*edge+tick_labels_font_size*1.2
-		if (item >=0 && item < values.length){
-			eval("graph.graphics_style." + values[item] + '*=' + scale);
-		}
-		item -= values.length;
-		var strings  = ['font_name','title','subtitle','subtitle2','x_axis_title','y_axis_title','color_fg','color_bg','color_mg'];
-		var string_names = ['font','title','subtitle','subtitle2','x-axis','y-axis','fg color','bg color','mg color'];
-		if (item >=0 && item < strings.length){
-			var name = string_names[item];
-			var old_item = eval("graph.graphics_style." + strings[item]);
-			eval("graph.graphics_style." + strings[item] + '= prompt("new '+name+'", "'+old_item+'") || "'+old_item+'"; ');
-			//check if it was chainging an axis name. as the transforms will need to be rerun
-			if (name === 'y-axis' || name === 'x-axis'){
-				graph.transform_index--;
-			}
-		}
-		
-
-		item -= strings.length;
-		if (item == 1){
-			//reset everything except the current state of the options pane
-			var temp =gs.o;
-		    //graph.graphics_style = get_graph_style();
-			//graph.graphics_style = graph.default_graphics_style;
-			graph.graphics_style = JSON.parse(JSON.stringify(graph.default_graphics_style));
-			graph.graphics_style.modified = false;
-			graph.graphics_style.o = temp;
-			console.log('doing reset');
-			//need to force the data transforms to run to update the axies titles
-			graph.transform_index=-1;
-		}
-		item--;;
-		if (item == 1){
-			//exit button
-			graph.graphics_style.o = 0;
-			console.log('menu exit');
-		}
-		
-		graph.mjs_plot();
-		mouse_move_event(event,graph);
-		return;
-	}
 	
 	//zooming with rectangle. 
 	if (gs.mouse_mode === 'zoom'){
@@ -3180,7 +3173,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.x_manual_min = r || gs.x_manual_min;
 					} else {
-						gs.x_manual_min = parseFloat(prompt("new low limit",gs.x_manual_min )) || gs.x_manual_min;
+						gs.x_manual_min = getFloat("new low limit",gs.x_manual_min );
 					}
 				}
 				break;
@@ -3195,7 +3188,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.x_manual_max = r || gs.x_manual_max;
 					} else {
-						gs.x_manual_max = parseFloat(prompt("new high limit",gs.x_manual_max )) || gs.x_manual_max;
+						gs.x_manual_max = getFloat("new high limit",gs.x_manual_max );
 					}
 				}
 				break;
@@ -3263,7 +3256,7 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new low limit",d.toISOString() ) );
 						gs.y_manual_min = r || gs.y_manual_min;
 					} else {
-						gs.y_manual_min = parseFloat(prompt("new low limit",gs.y_manual_min )) || gs.y_manual_min;
+						gs.y_manual_min = getFloat("new low limit",gs.y_manual_min );
 					}
 				}
 				break;
@@ -3278,7 +3271,8 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.y_manual_max = r || gs.y_manual_max;
 					} else {
-						gs.y_manual_max = parseFloat(prompt("new high limit",gs.y_manual_max )) || gs.y_manual_max;
+					
+						gs.y_manual_max =getFloat("new high limit",gs.y_manual_max )
 					}
 				}
 				break;
@@ -3448,6 +3442,71 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
+	if(graph.drawStylemenu){
+		var ly = Math.floor(end_y/edge);
+		var lx = Math.floor((canvas.width-end_x)/edge)-2; //true for right side false for left
+		switch(ly){
+		case 0:
+			graph.drawStylemenu=false;
+			break;
+		case 1:
+			//pick font
+			graph.drawStylemenu=false;
+			graph.drawFontMenu=true;
+			break;
+		case 2:
+			if (lx){gs.title_font_size--;} else {gs.title_font_size++;}
+			break;
+		case 3:
+			if (lx){gs.tick_labels_font_size--;} else {gs.tick_labels_font_size++;}
+			break;
+		case 4:
+			if (lx){gs.axis_labels_font_size--;} else {gs.axis_labels_font_size++;}
+			break;	
+		case 5:
+			if (lx){gs.title_spacing--;} else {gs.title_spacing++;}
+			break;	
+		case 6:
+			if (lx){gs.tick_lables_font_padding--;} else {gs.tick_lables_font_padding++;}
+			break;	
+		case 7:
+			if (lx){gs.lable_spacing--;} else {gs.lable_spacing++;}
+			break;	
+		case 8:
+			gs.color_fg = prompt("new forground color",gs.color_fg ) || gs.color_fg;
+			break;
+		case 9:
+			gs.color_bg = prompt("new background color",gs.color_bg ) || gs.color_bg;
+			break;
+		case 10:
+			gs.color_mg = prompt("new midground color",gs.color_mg ) || gs.color_mg;
+			break;
+		case 11:
+			if (lx){gs.graph_line_thickness = Math.max(0.1,gs.graph_line_thickness-0.5);} else {gs.graph_line_thickness+=0.5;}
+			break;
+		case 12:
+			if (lx){gs.tick_len = Math.max(0.1,gs.tick_len-1);} else {gs.tick_len+=1;}
+			break;
+		case 13:
+			if (lx){gs.minor_tick_len = Math.max(0.1,gs.minor_tick_len-1);} else {gs.minor_tick_len+=1;}
+			break;
+		}
+		graph.mjs_plot();
+		mouse_move_event(event,graph);
+		return;
+	}
+	if(graph.drawFontMenu){
+		var ly = Math.floor(end_y/edge)-1;
+		if (ly == -1){
+		gs.font_name = prompt("font",gs.font_name ) || gs.font_name; 
+		} else {
+		gs.font_name = MJSFontList.fontList[ly];
+		}	
+		graph.mjs_plot();
+		mouse_move_event(event,graph);
+		return;
+	}
+	
 	//top buttons
 	if (end_y < edge){
 		if ( end_x < 4*edge){
@@ -3499,14 +3558,9 @@ function mouse_up_event(event,graph){
 		if ( end_x < canvas.width - edge && end_x > canvas.width - 2*edge){
 		//infomation button 
 			gs.i =  (gs.i + 1)%2;//a two state button.
-			gs.o = 0;
 		}
-		if ( end_x < canvas.width - edge*2 && end_x > canvas.width - 3*edge){
-		//options button 
-			gs.o =  (gs.o + 1)%2;//a two state button.
-			graph.pre_mouse_mode = gs.mouse_mode;
-			gs.mouse_mode = 'options';
-			gs.i = 0;
+		if ( end_x < canvas.width - 2*edge && end_x > canvas.width - 5*edge){
+			graph.drawStylemenu = true;
 		}
 		
 		graph.mjs_plot();
@@ -4554,8 +4608,6 @@ function mouse_up_event(event,graph){
 	}
 	
 	
-	
-	
 	//bottom buttons
 	if (end_y>canvas.height-edge){
 		if ( end_x < 2*edge && end_x > 0*edge){
@@ -5019,6 +5071,7 @@ function make_interactive(graph){
 
 function SVGContext(ctx){
 	this.target = document.getElementById("_mjsplotSVG");
+	this.targetStack = [];
 	this._ctx = ctx;//borrow from the 2dcanvas context
 	this.x=0;
 	this.y=0;
@@ -5065,11 +5118,11 @@ function SVGContext(ctx){
 	this.arc = function(x,y,r,a1,a2,direction){
 		this._shape_type = 'arc';
 		this._shape = document.createElementNS(svgNS, "circle");
-		this._shape.setAttributeNS(null, "stroke-width", this.lineWidth);
+		this._shape.setAttributeNS(null, "stroke-width", this.lineWidth.toFixed(this._pixel_precision));
 		this._shape.setAttributeNS(null, "stroke", this.strokeStyle);
-		this._shape.setAttributeNS(null, "r", r);
-		this._shape.setAttributeNS(null, "cx", x);
-		this._shape.setAttributeNS(null, "cy", y);
+		this._shape.setAttributeNS(null, "r", r.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS(null, "cx", x.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS(null, "cy", y.toFixed(this._pixel_precision));
 	}
 	this.moveTo = function (x,y){
 		this._path+= ' M' + x.toFixed(this._pixel_precision) + ' ' + y.toFixed(this._pixel_precision);
@@ -5148,6 +5201,34 @@ function SVGContext(ctx){
 		this.fill();
 	}
 	this.strokeText = function (l,x,y){	}
+	this.startGroup = function(){
+		this.targetStack.push(this.target);
+		var g = document.createElementNS(svgNS, "g");
+		this.target.appendChild(g);
+		this.target = g;
+	}
+	this.endGroup = function(){
+		this.target = this.targetStack.pop();
+	}
+	this.startClipBox = function(x,y,w,h){
+		var defs = document.createElementNS(svgNS, "defs");
+		var clippath = document.createElementNS(svgNS, "clipPath");
+		clippath.setAttributeNS(null, "id", "graphClipPath");
+		var rect = document.createElementNS(svgNS, "rect");
+		rect.setAttributeNS(null, 'x', x.toFixed());
+		rect.setAttributeNS(null, 'y', y.toFixed());
+		rect.setAttributeNS(null, 'width', w.toFixed());
+		rect.setAttributeNS(null, 'height', h.toFixed());
+		
+		clippath.appendChild(rect);
+		defs.appendChild(clippath);
+		this.target.appendChild(defs);
+		this.targetStack.push(this.target);
+		var g = document.createElementNS(svgNS, "g");
+		g.setAttributeNS(null, 'clip-path', 'url(#graphClipPath)' );
+		this.target.appendChild(g);
+		this.target = g;
+	}
 	
 	this.getImageData = this._ctx.getImageData;
 	this.measureText = function(s){return {width:this._ctx.measureText(s).width}} ;
@@ -5863,6 +5944,8 @@ new_graph : function (graphname,canvasname){
 	drawfitsmenu : false,
 	drawtimemenu : false,
 	drawgraphmenu : false,
+	drawFontMenu : false,
+	drawStylemenu : false,
 	drawcaptionmenu:false,
 	drawxmenu:false,
 	drawymenu:false,
@@ -5888,7 +5971,7 @@ new_graph : function (graphname,canvasname){
 	reader_index:[0,0],//the i,j indices in the data of the picked reader point. 
 	transform_index : -1,
 	transform_text_x : 'x',
-	ui : {size:20,touch:is_touch_device(),mouse_is_dragging:false, is_touching : false,draw_time :1e200,copy_time:1e200,ticking:false,latestEvent:false }, //contains ui infomation.
+	ui : {size:20,touch:is_touch_device(),mouse_is_dragging:false, is_touching : false,draw_time :1e200,copy_time:1e200,ticking:false,latestEvent:false}, //contains ui infomation.
 	transform_text_y : 'y',
 	drawing_methods : {
 		draw_y_errors : function(graph,ctx,series,start,end,dot_size){
@@ -5943,13 +6026,14 @@ new_graph : function (graphname,canvasname){
 			ctx.stroke();
 		},
 		draw_dot : function(graph,ctx,series,start,end,dot_size){
-			ctx.beginPath();
 			graph.points_drawn+=end-start;
+			ctx.beginPath();
 			for (var j =start;j<end;j++){
 				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
 				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
-				ctx.fillRect(xi-dot_size/2,yi-dot_size/2,dot_size,dot_size);
+				ctx.rect(xi-dot_size/2,yi-dot_size/2,dot_size,dot_size);
 			}
+			ctx.fill();
 		},
 		draw_cdot : function(graph,ctx,series,start,end,dot_size){
 			dot_size/=2;
@@ -6317,14 +6401,11 @@ new_graph : function (graphname,canvasname){
 		if (scalemode === 'lin'){
 			//linear scale
 			var val_i = 0;
-			
 			if (Math.abs(min_point) > 1e-250){
-			var power = Math.floor(Math.log10(Math.abs(min_point)))-10 ;
+			var power = Math.floor(Math.log10( max_point - min_point ))-10 ;
 			} else {
 			power = -250;
 			} 
-			
-			
 			var notgood = 1;
 			var scale = 0;
 			var width;
@@ -6631,6 +6712,9 @@ new_graph : function (graphname,canvasname){
 		manualmin = Math.max(manualmin,-1e250);
 		//protect against numbers smaller than 1e-250
 		
+		var t = manualmax;
+		manualmax = Math.max(manualmax,manualmin);
+		manualmin = Math.min(t,manualmin);
 		//protect against times really far away. this could be improved.
 		if (scale === 'time'){
 			manualmax = Math.min(manualmax,+100000000000000);
@@ -6777,7 +6861,6 @@ new_graph : function (graphname,canvasname){
 			var zero_position = (0-lowpoint)*target_size/(highpoint - lowpoint)
 			
 			
-			
 			//dummy run to get the precision
 			while (tick <= target_size) {
 				i = tick/width*scale+lowpoint;
@@ -6824,10 +6907,11 @@ new_graph : function (graphname,canvasname){
 				//use few small ticks
 					minor_ticks = few_minor_ticks[val_i];
 				}
-			while (tick <= target_size) {
-				minor_pos.push(tick);
+			while (tick < target_size-2) {
 				tick += width/minor_ticks;
+				minor_pos.push(tick);
 			}
+			minor_pos.pop();
 		}
 		//the far zoomed out view.
 		if (scalemode === 'log' && val_i == -1){
@@ -6878,6 +6962,7 @@ new_graph : function (graphname,canvasname){
 				minor_pos.push(tick);
 				tick += width/minor_ticks;
 			}
+			minor_pos.pop();
 		}
 		 if (scalemode === 'log' && val_i != -1){
 			//the pure log mode
@@ -6886,7 +6971,30 @@ new_graph : function (graphname,canvasname){
 				power = power_low;
 				i = log_vals[val_i][val_i_low] * Math.pow(10,power_low);
 				old_i = i;
-				precision = 2;
+				precision = 1;
+				var lable = '';
+				var old_lable = ''
+				//dummy run for precision
+				while (i < log_vals[val_i][val_i_high] * Math.pow(10,power_high) ){
+					val_is +=1; 
+					if (val_is >= log_vals[val_i].length){
+						power += 1;
+						val_is = 0;
+					}
+					i = log_vals[val_i][val_is] * Math.pow(10,power);
+					tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint);
+					
+					lable = this.get_axis_string(i,axis,precision);
+					if (lable === old_lable){
+					precision++;
+					lable = this.get_axis_string(i,axis,precision);
+					}
+					old_lable = lable;
+				}
+				//actual run
+				i = log_vals[val_i][val_i_low] * Math.pow(10,power_low);
+				val_is = val_i_low;
+				power = power_low;
 				while (i < log_vals[val_i][val_i_high] * Math.pow(10,power_high) ){
 					val_is +=1; 
 					if (val_is >= log_vals[val_i].length){
@@ -6898,7 +7006,7 @@ new_graph : function (graphname,canvasname){
 					
 					if (tick< target_size-10){
 						//strings.push(mjs_precision(i,2));
-						strings.push(this.get_axis_string(i,axis,2));
+						strings.push(this.get_axis_string(i,axis,precision));
 						
 						pos.push(tick);
 					}
@@ -6910,21 +7018,25 @@ new_graph : function (graphname,canvasname){
 					
 					old_i = i;
 				}
+				
+				
 				//use the minor ticks array 
 				if (val_i <= 8){
 					i = log_vals[val_i][val_i_low] * Math.pow(10,power_low);
 					val_is = val_i_low;
 					power = power_low;
 					while (i < log_vals[val_i][val_i_high] * Math.pow(10,power_high)){
-						i = log_vals_ticks[val_i][val_is] * Math.pow(10,power);
-						tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint); 
-						minor_pos.push(tick);
 						val_is +=1;
 						if (val_is >= log_vals_ticks[val_i].length){
 							power += 1;
 							val_is = 0;
 						}
+						i = log_vals_ticks[val_i][val_is] * Math.pow(10,power);
+						tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint); 
+						minor_pos.push(tick);
+						
 					}
+					minor_pos.pop();
 				}
 			} else {
 				//log mode with a linear labels and ticks( really zoomed in).
@@ -6966,10 +7078,11 @@ new_graph : function (graphname,canvasname){
 					}
 				i = Math.pow(10,lowpoint);
 				while (i < Math.pow(10,highpoint)) {
+					i += scale/minor_ticks;
 					tick = (Math.log10(i)-lowpoint)*target_size/(highpoint - lowpoint); 
 					minor_pos.push(tick);
-					i += scale/minor_ticks;
 				}
+				minor_pos.pop();
 			}
 		}
 		
@@ -7043,7 +7156,6 @@ new_graph : function (graphname,canvasname){
 				
 				strings.push(label);
 				
-				
 				while (mtick < tick) {
 					mtick += width;
 					minor_pos.push(mtick);
@@ -7051,14 +7163,13 @@ new_graph : function (graphname,canvasname){
 				var mtick = tick;
 				minor_pos.pop();
 				
-				
-				
 			}
 			
-			while (mtick < target_size) {
+			while (mtick <= target_size-2) {
 					mtick += width;
 					minor_pos.push(mtick);
 			}
+			minor_pos.pop();
 			
 			stepping = false;
 			var stepping = label.length*.7*this.graphics_style.tick_labels_font_size*this.graphics_style.scaling_factor > scale;
@@ -7132,62 +7243,33 @@ new_graph : function (graphname,canvasname){
 	ctx.lineJoin="round";
 	var canvas = this.canvas;
 	
-	
-	
-	var graph_line_thickness =gs.graph_line_thickness;
-	var symbol_size = gs.symbol_size;
-	var line_thickness= gs.line_thickness;
-	var tick_len = gs.tick_len;
+	var scaling_factor =gs.scaling_factor;
+	var graph_line_thickness =gs.graph_line_thickness*scaling_factor;
+	var symbol_size = gs.symbol_size*scaling_factor;
+	var line_thickness= gs.line_thickness*scaling_factor;
+	var tick_len = gs.tick_len*scaling_factor;
 	var mode = gs.mode;
 	var font_name = gs.font_name;
-	var title_font_size = gs.title_font_size;
+	var title_font_size = gs.title_font_size*scaling_factor;
 	var title = gs.title;
 	var subtitle = gs.subtitle;
-	var title_spacing = gs.title_spacing;
-	var tick_labels_font_size = gs.tick_labels_font_size;
-	var tick_lables_font_padding = gs.tick_lables_font_padding;
-	var axis_labels_font_size=gs.axis_labels_font_size;
-	var lable_spacing =gs.lable_spacing;
+	var title_spacing = gs.title_spacing*scaling_factor;
+	var tick_labels_font_size = gs.tick_labels_font_size*scaling_factor;
+	var tick_lables_font_padding = gs.tick_lables_font_padding*scaling_factor;
+	var axis_labels_font_size=gs.axis_labels_font_size*scaling_factor;
+	var lable_spacing =gs.lable_spacing*scaling_factor;
 	var x_axis_title =gs.x_axis_title;
 	var y_axis_title = gs.y_axis_title;
-	var minor_tick_len = gs.minor_tick_len;
-	var guideWidthx = gs.guideWidthx;
-	var guideWidthy = gs.guideWidthy;
-	var scaling_factor =gs.scaling_factor;
+	var minor_tick_len = gs.minor_tick_len*scaling_factor;
+	var guideWidthx = gs.guideWidthx*scaling_factor;
+	var guideWidthy = gs.guideWidthy*scaling_factor;
+	
 
-	// general scaling ... everything up or down with scaling_factor.
-	guideWidthx *= scaling_factor;
-	guideWidthy *= scaling_factor;
-	lable_spacing *=scaling_factor;
-	axis_labels_font_size*=scaling_factor;
-	tick_lables_font_padding*=scaling_factor;
-	tick_labels_font_size*=scaling_factor;
-	title_spacing*=scaling_factor;
-	title_font_size*=scaling_factor;
-	tick_len*=scaling_factor;
-	line_thickness*=scaling_factor;
-	symbol_size*=scaling_factor;
-	graph_line_thickness*=scaling_factor;
-	minor_tick_len*=scaling_factor;
-	
-	/*
-	//day night mode stuff
-	if (gs.day_night_mode){
-		gs.color_fg = '#ffffff';
-		gs.color_bg = '#000000';
-	} else {
-		//daytime
-		gs.color_fg = '#000000';
-		gs.color_bg = '#ffffff';
-	}
-	*/
-	
 	//befor clearing the scrren try to draw some text to check the font is ok
 	try{
-		ctx.font=tick_labels_font_size + 'px ' + font_name//"24px Courier New";
+		ctx.font=tick_labels_font_size + 'px ' + font_name;
 		ctx.fillText('font test',10,10);
 	} catch(e) {
-		console.log('font faliure');
 		this.errors.push("font faliure");
 		font_name = "Courier New";
 		gs.font_name = "Courier New";
@@ -7206,6 +7288,7 @@ new_graph : function (graphname,canvasname){
 	if (this.isSVG){
 		ctx.clearAll();
 		ctx.font_name = font_name;
+		ctx.startClipBox(0,0,canvas.width,canvas.height)
 	}
 	
 	//run data transforms
@@ -7423,6 +7506,7 @@ new_graph : function (graphname,canvasname){
 		//  . . .
 		// j = n [ ,  ,  , 1,2,3,i, , ,]
 		//draw the sequences. 
+		if (this.isSVG){ctx.startGroup();}
 		for (k=0;k<seq_start.length;k++){
 			
 			if (  gs.line_mode.indexOf('line') >-1  ){
@@ -7483,6 +7567,7 @@ new_graph : function (graphname,canvasname){
 				this.drawing_methods.draw_x_errors(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
 		}
+		if (this.isSVG){ctx.endGroup();}
 		
 	}
 	ctx.lineWidth = graph_line_thickness;
@@ -7494,10 +7579,9 @@ new_graph : function (graphname,canvasname){
 	}
 	
 	if (!this.isSVG){
-		if (graph.needs_drag_image || gs.mouse_mode === 'drag'){
-		
+		if (this.needs_drag_image || gs.mouse_mode === 'drag'){
 			this.graph_image_for_drag = ctx.getImageData(0,0,canvas.width,canvas.height);
-			graph.needs_drag_image = false;
+			this.needs_drag_image = false;
 		}
 	}
 	
@@ -7548,8 +7632,8 @@ new_graph : function (graphname,canvasname){
 		var y = canvas.height - positionsy.pos[i];
 		var label = positionsy.strings[i];
 		//if it is near the top, don't put a label, as this is where the axis label is.
-		if (y > tick_len+lable_spacing+axis_labels_font_size/2 && y < canvas.height - tick_labels_font_size - tick_lables_font_padding-tick_len){
-			ctx.fillText(label,tick_len*1.2+2,y+3);
+		if (y > tick_len+lable_spacing+axis_labels_font_size+tick_labels_font_size/2 && y < canvas.height - tick_labels_font_size - tick_lables_font_padding-tick_len-tick_labels_font_size/2){
+			ctx.fillText(label,tick_len*1.2+tick_lables_font_padding+2,y+3);
 		}
 		
 		ctx.moveTo(0,y);
@@ -7674,10 +7758,10 @@ new_graph : function (graphname,canvasname){
 	}
 	if (stepping) {
 	ctx.fillText(label,canvas.width - lable_spacing - tick_len,
-					 canvas.height - tick_len-lable_spacing- 2*tick_labels_font_size);
+					 canvas.height - tick_len-lable_spacing- 2*tick_labels_font_size-tick_lables_font_padding);
 	} else {
 	ctx.fillText(label,canvas.width - lable_spacing - tick_len,
-					 canvas.height - tick_len-lable_spacing-tick_labels_font_size);
+					 canvas.height - tick_len-lable_spacing-tick_labels_font_size-tick_lables_font_padding);
 	}
 	ctx.textAlign="left"; 
 	//draw y axis lable
@@ -7685,7 +7769,8 @@ new_graph : function (graphname,canvasname){
 	if (gs.y_scale_mode ==='time' && this.graphics_style.y_precision > 1){
 		label += ' ' + mjs_date_print( this.pixels_to_units(0,'y') ,0,Math.max(this.graphics_style.y_precision-1,0));
 	}
-	ctx.fillText(label,tick_len+lable_spacing,tick_len+lable_spacing);
+	//var yoffset = ctx.measureText(positionsy.strings[positionsy.strings.length-1]).width;
+	ctx.fillText(label,tick_len+lable_spacing+tick_lables_font_padding,tick_len+lable_spacing+axis_labels_font_size);
 	//draw transforms stack
 	
 	// draw infomation overlay if the info button is pushed.
@@ -7801,7 +7886,6 @@ new_graph : function (graphname,canvasname){
 				var string3;
 				if (gs.x_scale_mode ==='time'){
 					var normed = fits.pre_fit_normalizing(this.data[i][0]);
-					
 					fit = fits.fit_funs[fits.fit_strings.indexOf(gs.fits)]( normed.x ,this.data[i][1]);
 					string1=fit.strings[0] + "  "+normed.s;
 					console.log('normalised: x = -' + normed.x_mean +' / '+ normed.sigma_x);
@@ -8049,8 +8133,13 @@ new_graph : function (graphname,canvasname){
 				case "postfix":
 					r+= eng_form_postfix(n,precision);
 					break;
+				case "maths":
+					r+=maths_form(n,precision);
+					break;
 				case "sci":
 					r+= n.toExponential(precision-1);
+					break;
+				
 				}
 				
 			}
@@ -8075,6 +8164,9 @@ new_graph : function (graphname,canvasname){
 					break;
 				case "sci":
 					r+= n.toExponential(precision-1);
+					break;
+				case "maths":
+					r+=maths_form(n,precision);
 				}
 				
 			}
@@ -8187,7 +8279,7 @@ get_graph_style : function (){
 	 tick_labels_font_size : 10,//10
 	 tick_lables_font_padding : 2, // px extra space up from the ticks
 	 axis_labels_font_size: 10,//12
-	 lable_spacing : 8,//pixels away from the tick lables
+	 lable_spacing : 4,//pixels away from the tick lables
 	 x_axis_title : 'x axis (units)',
 	 y_axis_title : 'y axis (units)',
 	 x_axis_prefix : "",
@@ -8198,7 +8290,7 @@ get_graph_style : function (){
 	 y_label_mode : 'norm', // or infix,postfix,sci
 	 minor_tick_len : 5,
 	 guideWidthx : 35, //pixels accross
-	 guideWidthy : 30, //pixels a across
+	 guideWidthy : 20, //pixels a across
 	 scaling_factor : 1,//scales up everything together...
 	 mouse_mode : mouse_mode, //changes the function of the mouse. between 'zoom' and 'drag' and 'measure'
 	 fits : 'none', //what fitting is applied
@@ -8280,3 +8372,7 @@ return mjs_plot;
 
 //embedd LZstring for compression 
 var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToBase64:function(o){if(null==o)return"";var r=i._compress(o,6,function(o){return n.charAt(o)});switch(r.length%4){default:case 0:return r;case 1:return r+"===";case 2:return r+"==";case 3:return r+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(e){return o(n,r.charAt(e))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""==o?null:i._decompress(o.length,16384,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=i.compress(o),n=new Uint8Array(2*r.length),e=0,t=r.length;t>e;e++){var s=r.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null===o||void 0===o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;t>e;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(o){return null==o?"":i._compress(o,6,function(o){return e.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(n){return o(e,r.charAt(n))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var e,t,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),c=a+u,Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}if(""!==a){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==r-1){d.push(n(m));break}v++}return d.join("")},decompress:function(o){return null==o?"":""==o?null:i._decompress(o.length,32768,function(r){return o.charCodeAt(r)})},_decompress:function(o,n,e){var t,i,s,p,u,c,a,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:n,index:1};for(i=0;3>i;i+=1)f[i]=i;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(t=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 2:return""}for(f[3]=l,s=l,w.push(l);;){if(A.index>o)return"";for(p=0,c=Math.pow(2,m),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(l=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 2:return w.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[l])v=f[l];else{if(l!==d)return null;v=s+s.charAt(0)}w.push(v),f[d++]=s+v.charAt(0),h--,s=v,0==h&&(h=Math.pow(2,m),m++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module&&(module.exports=LZString);
+
+//embedd MJSFont list for the font menu with added computer modern and cmr10
+MJSFontList=function(){function a(a){var n,e,o,t=0;if(0==a.length)return t;for(n=0,o=a.length;o>n;n++)e=a.charCodeAt(n),t=(t<<5)-t+e,t|=0;return t}function n(n){d.clearRect(0,0,u,c),d.font=l+n,d.fillText(r,0,c/2);var e=i.toDataURL("image/png");return a(e)}function e(a){return-1==s.indexOf(n(a))}var o=["sans-serif","serif","monospace","cursive"],t=["Arial","Arial Black","Baskerville","Batang","Big Caslon","Book Antiqua","Brush Script MT","Calibri","Candara","Century Gothic","Charcoal","Comic Sans MS","Computer Modern","Copperplate","Courier","DejaVu Sans","DejaVu Sans Mono","DejaVu Serif","Didot","Droid Sans","Droid Sans Mono","Droid Serif","Franklin Gothic Medium","Futura","Gadget","Garamond","Geneva","Georgia","Goudy Old Style","Helvetica","Impact","Latin Modern Roman","Latin Modern Mono","Latin Modern Sans","Lato","Lora","Lucida Console","Lucida Grande","Lucida Sans Unicode","Monaco","Open Sans Condensed","Oswald","PT Sans","Palatino","Palatino Linotype","Roboto","Rockwell","Rockwell Extra Bold","Segoe UI","Source Sans Pro","Tahoma","Times New Roman","Trebuchet MS","Ubuntu","Ubuntu-Title","Ubuntu Mono","Verdana","cursive"],r=(document.getElementsByTagName("body")[0],["agAmMqQwWlLi1"]),i=document.createElement("canvas"),u=100,c=15;i.width=u,i.height=c;for(var l="10px ",d=i.getContext("2d"),s=[],S=0;S<o.length;S++)s.push(n(o[S]));for(var m=o,S=0;S<t.length;S++)e(t[S])&&m.push(t[S]);return{fontList:m,hasFont:e,getFontMetric:n}}();
+
