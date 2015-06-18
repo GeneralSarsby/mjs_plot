@@ -578,11 +578,8 @@ function show_text_to_screen(text,graph){
 	export_textarea.value = text;
 	graph.canvas.parentNode.appendChild(textDiv);
 	graph.canvas.parentNode.removeChild(graph.canvas);
-	
 }
 
-
-	
 function save_gs(name, gs){
 	//bake_cookie(name, gs);
 	if (hasLocalStorage()){
@@ -603,8 +600,6 @@ function load_gs(graphname){
 		console.log("No local storage!");
 	}
 	 return gs;
-	
-	
 }
 
 function linear_regression(x,y){
@@ -746,16 +741,12 @@ function mjs_time_difference_print(milliseconds){
 	var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 	var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 	
-	
 	//if (hp == 2){s+=days[d.getDay()];}
 	//if (hp == 2){s+=months[d.getMonth()];}
-	
 	
 	if ( hp == 2 && lp == 2 ){
 		s+=(d.getMonth()+1)+'-'//months[d.getMonth()]
 	}
-	
-	
 	
 	if (hp == 1 && lp>1){s+=months[d.getMonth()]+'-';hp++;}
 	
@@ -780,7 +771,6 @@ function mjs_time_difference_print(milliseconds){
 		s=months[d.getMonth()];
 		return s;
 	}
-	
 	
 	if (hp <= 0){s+=d.getFullYear();}
 	if (hp <= 0 && lp >= 1){s+='-';}
@@ -1162,7 +1152,6 @@ var fits = {
 		}
 		}
 		
-		
 		string1 = 'r'+squared+' = ' + number_quote(r_squared,1-r_squared);
 		//return coeffs;
 		return {parameters: coeffs, strings: [string1,string2,string3],fun:fits.polyn_fun};
@@ -1309,8 +1298,6 @@ function mjs_precision(number,precision){
 	return sign+label
 }
 
-
-
 function number_quote(number,error){
 	//returns a string which would be correct to quote to the given error.
 	// assuming that error is given to 2 sig fig.
@@ -1318,7 +1305,6 @@ function number_quote(number,error){
 	if (! isFinite(number)){number = 0;}
 	return mjs_precision(number, Math.max(2,Math.floor(Math.log10(Math.abs(number))) -   Math.floor(Math.log10(Math.abs(error))) + 2) );
 }
-
 
 function drawEllipse(graph,ctx, centerX, centerY, radiusX, radiusY) {
 	ctx.beginPath();
@@ -1336,7 +1322,6 @@ function drawEllipse(graph,ctx, centerX, centerY, radiusX, radiusY) {
 	}
 	ctx.stroke();
 }
-
 
 function mouse_move_event(event,graph){
 	graph.ui.latestEvent = event;
@@ -1370,9 +1355,7 @@ function mouse_move_event_actual(event,graph){
 	var px = graph.pixels_to_units(x,'x');
 	var py = graph.pixels_to_units(y,'y');
 	
-	
 	ctx.putImageData(graph.graph_image,0,0);
-	
 	
 	if (graph.ui.touch){
 		var edge = 	Math.min(Math.min(canvas.width / 22, canvas.height/15));
@@ -1385,7 +1368,6 @@ function mouse_move_event_actual(event,graph){
 	if (DEBUGG_FPS){
 		ctx.fillText('fps: '+ (1/graph.ui.copy_time*1000),30,30);
 	}
-	
 	
 	if (mouse_down == false){
 		
@@ -1574,8 +1556,6 @@ function mouse_move_event_actual(event,graph){
 					label= mjs_date_print(graph.data[pi][0][pj],0,8);
 				}
 				
-				
-				//label = 'x='+graph.data[pi][0][pj];
 				ctx.strokeText(label,x+2*cs,y+gs.axis_labels_font_size*1.6);
 				ctx.fillText(label,x+2*cs,y+gs.axis_labels_font_size*1.6);
 				
@@ -1587,14 +1567,10 @@ function mouse_move_event_actual(event,graph){
 					label= mjs_date_print(graph.data[pi][1][pj],0,8);
 				}
 				
-				
-				
-				//label = 'y='+graph.data[pi][1][pj];
 				ctx.strokeText(label,x+2*cs,y);
 				ctx.fillText(label,x+2*cs,y);
 				
 				label = graph.captions[pi];
-				//label = 'y='+graph.data[pi][1][pj];
 				
 				ctx.strokeText(label,x+2*cs,y-gs.axis_labels_font_size*1.6);
 				ctx.fillText(label,x+2*cs,y-gs.axis_labels_font_size*1.6);
@@ -1640,7 +1616,6 @@ function mouse_move_event_actual(event,graph){
 			ctx.fillText("Graph",4.2*edge,0.8*edge);
 			ctx.fillText("Style",canvas.width-4.8*edge,0.8*edge);
 			ctx.fillStyle = gs.color_bg;
-			
 			
 			//mouse mode to drag button
 			ctx.rect(edge*9,0,edge,edge);
@@ -1890,7 +1865,6 @@ function mouse_move_event_actual(event,graph){
 			ctx.fillText('e',canvas.width-0.7*edge, canvas.height - edge*0.3);
 			ctx.stroke();
 			
-			
 			//draw day/nightmode button
 			ctx.fillStyle = gs.color_fg;
 			ctx.beginPath();
@@ -1910,7 +1884,6 @@ function mouse_move_event_actual(event,graph){
 			ctx.fill();
 			ctx.stroke();
 		}
-		
 		
 		if (graph.drawStylemenu){
 			if (x < canvas.width-2*edge && x > canvas.width-10*edge && y < 14*edge){
@@ -2120,8 +2093,6 @@ function mouse_move_event_actual(event,graph){
 				var lx = 3*edge;
 				var ly = 1*edge;//top left corner of a 1x1edge square
 				
-				
-				
 				//dot
 				ctx.fillStyle = gs.color_fg;
 				ctx.rect(lx + 0.3*edge,ly + 0.3*edge,edge*0.4,edge*0.4);
@@ -2214,7 +2185,6 @@ function mouse_move_event_actual(event,graph){
 				
 				ctx.stroke();
 				
-				
 			} else {
 			console.log('leaving menu');
 				graph.drawmodemenu = false;
@@ -2269,7 +2239,6 @@ function mouse_move_event_actual(event,graph){
 			}
 		}
 		
-		
 		if (graph.drawexportmenu){
 			if (x > canvas.width - 8*edge && y > canvas.height-edge*14){
 				//ctx.font= (0.55*edge) + 'px ' + gs.font_name;//"24px Courier New";
@@ -2301,7 +2270,6 @@ function mouse_move_event_actual(event,graph){
 			} else {
 				graph.drawexportmenu = false;
 			}
-		
 		}
 		
 		if (graph.drawcaptionmenu){
@@ -2512,7 +2480,6 @@ function mouse_move_event_actual(event,graph){
 				}
 				ly -= edge;
 				ctx.fillText( 'new function line',lx, ly);
-					
 				
 				for (var i = no_of_lines-1;i+1>0;i--){
 					var label = graph.captions_backup[i] ||  'label' ;
@@ -2530,8 +2497,6 @@ function mouse_move_event_actual(event,graph){
 				//none button
 				ctx.fillText('all',15.2*edge+0.2, canvas.height -edge*0.2);
 				ctx.fillText('none',17.2*edge+0.2, canvas.height -edge*0.2);
-				
-				
 				
 			}else {
 				graph.drawlinemenu = false;
@@ -2601,7 +2566,6 @@ function mouse_move_event_actual(event,graph){
 			}
 			ctx.fillStyle = gs.color_fg;
 			//ctx.font= (0.55*edge) + 'px ' + gs.font_name;//"24px Courier New";
-			
 			
 			ctx.fillText('Auto Zoom',0.2*edge, canvas.height - edge*1.3);
 			if (gs.mouse_mode === 'zoom'){
@@ -2924,9 +2888,7 @@ function mouse_move_event_actual(event,graph){
 	
 	if (mouse_down && gs.mouse_mode === 'mouse'){
 		
-		
 		graph.ui.mouse_is_dragging = false;
-		
 		
 		//distance from fit text handle
 		var d = Math.sqrt(Math.pow(start_x-gs.fit_text_position.x*canvas.width,2)+Math.pow(start_y-gs.fit_text_position.y*canvas.height,2));
@@ -2997,9 +2959,6 @@ function mouse_move_event_actual(event,graph){
 			
 			return;
 		}
-		
-		
-		
 	}
 }
 
@@ -3015,8 +2974,6 @@ function mouse_down_event(event,graph){
 		drag_x_min = graph.pixels_to_units(0,'x');
 		drag_y_max = graph.pixels_to_units(0,'y');
 		drag_y_min = graph.pixels_to_units(canvas.height,'y');
-		
-		
 }
 var dotcount = 0;
 
@@ -3058,8 +3015,6 @@ function mouse_up_event(event,graph){
 	
 	var no_drag_size = gs.tick_len;
 	var edge = graph.ui.size;
-	
-	
 	//zooming with rectangle. 
 	if (gs.mouse_mode === 'zoom'){
 		
@@ -3271,7 +3226,6 @@ function mouse_up_event(event,graph){
 						var r = Date.parse( prompt("new high limit",d.toISOString() ) );
 						gs.y_manual_max = r || gs.y_manual_max;
 					} else {
-					
 						gs.y_manual_max =getFloat("new high limit",gs.y_manual_max )
 					}
 				}
@@ -3517,8 +3471,6 @@ function mouse_up_event(event,graph){
 		//dot button
 		graph.drawgraphmenu = true;
 		}
-	
-		
 		if ( end_x < 10*edge && end_x > 9*edge){
 		//drag button
 		gs.mouse_mode = 'drag';
@@ -3568,9 +3520,6 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
-	
-
-	
 	if(graph.drawtimemenu){
 		var lx = 10*edge;
 		var ldx = 2*edge;
@@ -3612,7 +3561,6 @@ function mouse_up_event(event,graph){
 			graph.drawtimemenu = false;
 			graph.mjs_plot();
 		}
-		
 		
 		mouse_move_event(event,graph);
 		return;
@@ -3776,8 +3724,6 @@ function mouse_up_event(event,graph){
 				gs.data_transforms[n] = "log_x";
 				gs.data_transforms_args[n] = [0];
 			}
-			
-		
 		}
 		if ( end_x < 12*edge && end_x > 10*edge && end_y > canvas.height - edge*12 && end_y < canvas.height - edge*11){
 			// x over 10 button
@@ -3847,8 +3793,6 @@ function mouse_up_event(event,graph){
 				gs.data_transforms[n] = "swap_x_y";
 				gs.data_transforms_args[n] = [];
 			}
-			
-			
 			var temp = gs.x_manual_min;
 			gs.x_manual_min =gs.y_manual_min;
 			gs.y_manual_min =temp;
@@ -3896,7 +3840,6 @@ function mouse_up_event(event,graph){
 				gs.y_manual_min = Math.pow(gs.y_manual_min,2);
 				gs.y_manual_max = Math.pow(gs.y_manual_max,2);
 			}
-			
 			
 		}
 		if ( end_x < 14*edge && end_x > 12*edge && end_y > canvas.height - edge*4 && end_y < canvas.height - edge*3){
@@ -4161,9 +4104,7 @@ function mouse_up_event(event,graph){
 		graph.mjs_plot();
 		mouse_move_event(event,graph);
 		return;
-	
 	}
-	
 	//line menu buttons
 	if (graph.drawlinemenu){
 		if ( end_x < 15*edge && end_x > 11*edge && end_y > canvas.height-edge){
@@ -4227,7 +4168,6 @@ function mouse_up_event(event,graph){
 			} 
 		}
 		
-		
 		graph.transform_index--;
 		graph.mjs_plot();
 		mouse_move_event(event,graph);
@@ -4241,9 +4181,7 @@ function mouse_up_event(event,graph){
 		var my = canvas.height;
 		var dy = edge;
 		
-		
 		if ( end_y > my - dy && end_y < my){
-			
 			return;
 		}
 		
@@ -4426,18 +4364,6 @@ function mouse_up_event(event,graph){
 			var svg = document.getElementById("_mjsplotSVG").outerHTML;
 			// get a headder on it for utf-8
 			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
-			//make a download link
-			/*
-			var pom = document.createElement('a');
-			//on click do the download
-			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(xmlheadder+svg));
-			pom.setAttribute('download', 'mjsplot_graph.svg');
-			pom.style.display = 'none';
-			document.body.appendChild(pom);
-			pom.click();
-			//clean up
-			document.body.removeChild(pom);
-			*/
 			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
 			document.body.removeChild(svgDiv);
 			graph.isSVG=false;
@@ -4480,7 +4406,6 @@ function mouse_up_event(event,graph){
 			graph.mjs_plot();
 			var svg = document.getElementById("_mjsplotSVG").outerHTML;
 			
-			
 			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
 			
 			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
@@ -4503,30 +4428,15 @@ function mouse_up_event(event,graph){
 			var data_code = JSON.stringify(graph.data_backup);
 			var gs_code = JSON.stringify(graph.graphics_style);
 			var captions_code = JSON.stringify(graph.captions_backup);
-			
-			//text += "put this in <head>"+nl;
-			//text+= mjsplot_embed+nl;
-			//text+="This links to a copy of mjs_plot. You will need to put mjs_plot_3_n.js in the same folder."+nl;
-			//text+="The plan is to get a CDN so you can skip this step." +nl;
-			
-			
-			//text += nl +"put a canvas in the <body> where you want the graph:" + nl;
-			//text += canvas_embed+nl;
-			
-			//text += nl+"Put this after the <body>:" + nl;
-			//text += '<script>' + nl;
-			//text+= graph_name+' = new mjs_plot.new_graph("'+graph_name+'","'+canvas_name+'") ;'+nl;
+
 			text+= graph_name+'.set_data( '+data_code+' );'+nl;
 			text+= graph_name+'.set_captions( '+captions_code+' ); '+nl;
 			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
-			//text+= graph_name+'.plot();\n'+nl;
-			//text += '</script>' + nl;
-			var shower = MJS_PLOT_LINK_LOADER;//"http://www.lancaster.ac.uk/pg/sarsby/compressions/page.html#"
+
+			var shower = MJS_PLOT_LINK_LOADER;
 			show_text_to_screen(shower+graph_name+LZString.compressToEncodedURIComponent(text),graph);
 			
 		}my-=dy;
-		
-		
 		
 		return;
 	}
@@ -4562,8 +4472,6 @@ function mouse_up_event(event,graph){
 		if ( end_y > canvas.height-9*edge && end_y < canvas.height-8*edge && end_x > 18*edge){
 			gs.fits = 'gauss';
 		}
-		
-		//exp_c
 		if ( end_y > canvas.height-3*edge && end_y < canvas.height-2*edge && end_x < 18*edge){
 			gs.fits = 'const';
 		}
@@ -4589,7 +4497,6 @@ function mouse_up_event(event,graph){
 			gs.fits = 'poly5';
 		}
 		
-		
 		graph.mjs_plot();
 		
 		if ( end_x < 18*edge && end_x > 15*edge && end_y > canvas.height-edge){
@@ -4606,8 +4513,6 @@ function mouse_up_event(event,graph){
 		mouse_move_event(event,graph);
 		return;
 	}
-	
-	
 	//bottom buttons
 	if (end_y>canvas.height-edge){
 		if ( end_x < 2*edge && end_x > 0*edge){
@@ -4639,14 +4544,12 @@ function mouse_up_event(event,graph){
 			//x scalemode button
 			gs.x_scale_mode = 'time';
 		}
-		
 		if ( end_x < 11*edge && end_x > 8*edge){
 			//f() menu button
 			graph.drawfxmenu = true;
 			mouse_move_event(event,graph);
 			return;
 		}
-		
 		if ( end_x < 15*edge && end_x > 11*edge){
 			//line menu button
 			console.log('line menu button');
@@ -4661,8 +4564,6 @@ function mouse_up_event(event,graph){
 			mouse_move_event(event,graph);
 			return;
 		}
-		
-		
 		if ( end_x < canvas.width && end_x > canvas.width - edge){
 		//export data button
 			//data_out(graph);
@@ -4688,9 +4589,7 @@ function mouse_up_event(event,graph){
 		graph.mjs_plot();
 		mouse_move_event(event,graph);
 		return;
-	
 	}
-	
 	//zoom without drag
 	if (gs.mouse_mode === 'zoom'){
 		ctx.rect(start_x-no_drag_size*0.5,start_y-no_drag_size*0.5,no_drag_size,no_drag_size);
@@ -4716,25 +4615,18 @@ function mouse_up_event(event,graph){
 			gs.x_manual_max = graph.pixels_to_units(canvas.width+f*gs.guideWidthx,'x');
 			gs.y_manual_min = graph.pixels_to_units(canvas.height+f*gs.guideWidthy,'y');
 			gs.y_manual_max = graph.pixels_to_units(-f*gs.guideWidthy,'y');
-			
-			
 		}
-		
 	}
 	
 	//on mobile, don't replot the graph if using the measure mode. 
 	if (graph.ui.touch && gs.mouse_mode === 'measure' && graph.ui.is_touching){
 		graph.graph_image = ctx.getImageData(0,0,canvas.width,canvas.height);
 		return;
-		
 	}
-	
 	//on mobile, don't replot the graph if using the measure mode. 
 	if (graph.ui.touch && gs.mouse_mode === 'measure'){
 		graph.mjs_plot();return;
-		
 	}
-	
 	//dragging
 	if (gs.mouse_mode === 'drag'){
 		if (graph.ui.touch && graph.ui.is_touching){
@@ -4788,9 +4680,7 @@ function mouse_up_event(event,graph){
 
 			graph.mjs_plot();return;
 		}
-		
 	}
-	
 	if (gs.mouse_mode === 'reader'){
 		//the the point that is closed to whene the mouse ended the click
 		 //end_x = graph.pixels_to_units(end_x,'x');
@@ -4878,7 +4768,6 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
-	
 	if (graph.graphics_style.mouse_mode === 'y-c'){
 		//running cut
 		console.log('y-c');
@@ -4901,7 +4790,6 @@ function mouse_up_event(event,graph){
 		graph.mjs_plot();
 		return;
 	}
-	
 	
 	if (gs.mouse_mode === 'mouse'){
 	
@@ -4945,8 +4833,6 @@ function mouse_up_event(event,graph){
 		}
 	}
 	
-	
-	
 	graph.mjs_plot();
 }
 
@@ -4966,9 +4852,7 @@ function touch_start_event(event,graph){
 		touch_start_x[1] =  event.targetTouches[1].clientX-rect.left;
 		touch_start_y[1] =  event.targetTouches[1].clientY-rect.top;
 	}
-	
 	touch_move_event(event,graph);
-	
 }
 
 function touch_move_event(event,graph){
@@ -4989,8 +4873,6 @@ function touch_move_event(event,graph){
 		touch_x[1] =  event.targetTouches[1].clientX-rect.left;
 		touch_y[1] =  event.targetTouches[1].clientY-rect.top;
 	}
-	
-	
 	event.clientX =  my_touches[my_touches.length-1].clientX;//+rect.left;
 	event.clientY =  my_touches[my_touches.length-1].clientY;//+rect.top;
 	mouse_move_event(event,graph);
@@ -4999,17 +4881,14 @@ function touch_move_event(event,graph){
 
 function touch_cancel_event(event,graph){
 graph.ui.is_touching = event.targetTouches.length != 0;
-//document.getElementById('errors').innerHTML="touch cancle";
 	event.preventDefault();
 	touch_end_event(event,graph);
 }
 function touch_leave_event(event,graph){
-//document.getElementById('errors').innerHTML="touch leave";
 	touch_end_event(event,graph);
 }
 
 function touch_click_event(event,graph){
-	//document.getElementById('errors').innerHTML="touch click";
 	rect = graph.canvas.getBoundingClientRect();
 	start_x = event.clientX - rect.left;
 	start_y = event.clientY - rect.top;
@@ -5017,21 +4896,11 @@ function touch_click_event(event,graph){
 	
 }
 function touch_end_event(event,graph){
-	//document.getElementById('errors').innerHTML="touchendevent";
-	//console.log('touch end');
-	//graph.errors.push('touch end');
 	//event.preventDefault();
 	graph.ui.is_touching = event.targetTouches.length != 0;
 	rect = graph.canvas.getBoundingClientRect();
-	//document.getElementById('errors').innerHTML="a";
-	//start_x =  event.targetTouches[0].clientX-rect.left;
-	//start_y =  event.targetTouches[0].clientY-rect.top;
 	start_x =  my_touches[0].clientX-rect.left;;//+rect.left;
 	start_y =  my_touches[0].clientY-rect.top;;//+rect.top;
-	//document.getElementById('errors').innerHTML="touchendevent";
-	//end_x =  event.targetTouches[my_touches.length-1].clientX-rect.left;
-	//end_y =  event.targetTouches[my_touches.length-1].clientY-rect.top;
-
 	event.clientX =  my_touches[my_touches.length-1].clientX;//+rect.left;
 	event.clientY =  my_touches[my_touches.length-1].clientY;//+rect.top;
 	mouse_up_event(event,graph);
@@ -5229,7 +5098,6 @@ function SVGContext(ctx){
 		this.target.appendChild(g);
 		this.target = g;
 	}
-	
 	this.getImageData = this._ctx.getImageData;
 	this.measureText = function(s){return {width:this._ctx.measureText(s).width}} ;
 	
@@ -6416,14 +6284,7 @@ new_graph : function (graphname,canvasname){
 			extra_sections = 2;
 			}
 			var best_sections = Math.floor( size / guide_width  ) +extra_sections;
-		
-			
-			
-			
 			var scale = vals[val_i]* Math.pow(10,power);
-			
-		
-			
 			var sections = Math.ceil(max_point/scale)-Math.floor(min_point/scale)+extra_sections;
 			
 			while (sections > best_sections ){
@@ -6591,7 +6452,6 @@ new_graph : function (graphname,canvasname){
 			var start_time = min_point-(min_point%allowed_intervals[i]) - extra_sections*allowed_intervals[i];
 			var high_time = max_point-(max_point%allowed_intervals[i]) + extra_sections*allowed_intervals[i];// +allowed_intervals[i] ;
 			
-			
 			if (allowed_intervals[i]>=31536000000){
 				//using years
 				var d = new Date(start_time);
@@ -6720,8 +6580,6 @@ new_graph : function (graphname,canvasname){
 			manualmax = Math.min(manualmax,+100000000000000);
 			manualmin = Math.max(manualmin,-100000000000000);
 		}
-		
-		
 			//protect against empty data series
 			this.no_data = false;
 			if (data.length == 0){
@@ -6817,18 +6675,7 @@ new_graph : function (graphname,canvasname){
 			manualmin = Math.max(manualmin,2e-250);
 		}			
 			
-			/*
-			if (Math.abs(high)<2e-12 && high != 0.0 && scale !=='log'){
-				high = Math.sign(high) *2e-12;
-				this.errors.push( name + " high is too small to cope with.");
-			}
-			if (Math.abs(low) <=1e-12 && low != 0.0 && scale !=='log'){
-				low = Math.sign(low) * 1e-12;
-				this.errors.push(name + " low is too small to cope with.");
-			}
-			*/
-			
-			return {low:low, high:high, automax:automax,automin:automin,scale:scale};
+		return {low:low, high:high, automax:automax,automin:automin,scale:scale};
 	},
 	use_scale : function (the_scale,target_size,guideWidth,axis){
 		"use strict";
@@ -7019,7 +6866,6 @@ new_graph : function (graphname,canvasname){
 					old_i = i;
 				}
 				
-				
 				//use the minor ticks array 
 				if (val_i <= 8){
 					i = log_vals[val_i][val_i_low] * Math.pow(10,power_low);
@@ -7096,7 +6942,6 @@ new_graph : function (graphname,canvasname){
 			
 			j--;
 			
-			
 			var low_precision = string_precisions[i];
 			var high_precision = string_precisions[j];
 			
@@ -7132,8 +6977,6 @@ new_graph : function (graphname,canvasname){
 				high_precision++;
 			}
 			
-			
-
 			var section_time = lowpoint;
 			var tick = 0;
 			var mtick = 0;
@@ -7141,8 +6984,6 @@ new_graph : function (graphname,canvasname){
 			while (section_time < highpoint-allowed_intervals[i] && tick+scale < target_size-2) {
 				
 				section_time+=allowed_intervals[i];
-				
-				
 				
 				if (allowed_intervals[i] >= 2592000000){
 					section_time = round_to_month(section_time);
@@ -7233,10 +7074,7 @@ new_graph : function (graphname,canvasname){
 		this.graphics_style = JSON.parse(JSON.stringify(this.default_graphics_style));
 	}
 	
-	
-	
 	var gs = this.graphics_style;
-	
 	var ctx = this.canvas.getContext('2d');
 	if (this.isSVG){var ctx = new SVGContext(ctx)};
 	
@@ -7264,7 +7102,6 @@ new_graph : function (graphname,canvasname){
 	var guideWidthx = gs.guideWidthx*scaling_factor;
 	var guideWidthy = gs.guideWidthy*scaling_factor;
 	
-
 	//befor clearing the scrren try to draw some text to check the font is ok
 	try{
 		ctx.font=tick_labels_font_size + 'px ' + font_name;
@@ -7390,7 +7227,6 @@ new_graph : function (graphname,canvasname){
 	gs.widthx = widthx;
 	gs.widthy = widthy;
 	
-	
 	//draw a grid.
 	if (gs.show_grid){
 		ctx.strokeStyle = gs.color_fg;
@@ -7438,7 +7274,6 @@ new_graph : function (graphname,canvasname){
 	var points_drawn = 0;
 	//for histogram find the 0 point or use the bottom of the screen.
 	var hist_zero = Math.min(this.units_to_pixels(0,'y'),canvas.height);
-	
 	
 	var full_auto_zoom = gs.y_scale_auto_min && gs.y_scale_auto_max && gs.x_scale_auto_min && gs.x_scale_auto_max
 	//point drawing code here
@@ -7531,15 +7366,6 @@ new_graph : function (graphname,canvasname){
 			if (  gs.symbol_mode === 'cross'   ){
 				this.drawing_methods.draw_cross(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			
-			/*
-			if (  gs.symbol_mode.indexOf('block') >-1  ){
-				this.drawing_methods.draw_circ(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
-			}
-			if (  gs.symbol_mode.indexOf('cross') >-1  ){
-				this.drawing_methods.draw_circ(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
-			}
-			*/
 			if (  gs.line_mode.indexOf('zig') >-1  ){
 				this.drawing_methods.draw_zig(this,ctx,i,seq_start[k],seq_end[k]);
 			}
@@ -7735,8 +7561,6 @@ new_graph : function (graphname,canvasname){
 			ctx.fillText(label,x,y);
 		}
 	}
-	
-	
 	ctx.lineWidth = graph_line_thickness;
 	ctx.strokeStyle = graph.graphics_style.color_fg;
 	ctx.fillStyle = graph.graphics_style.color_fg;
@@ -7776,7 +7600,6 @@ new_graph : function (graphname,canvasname){
 	// draw infomation overlay if the info button is pushed.
 	ctx.beginPath();
 	ctx.stroke();
-	
 	
 	var sigma = String.fromCharCode( 963 ); //σ²
 	var squared = String.fromCharCode( 178 ); //σ²
@@ -7957,8 +7780,6 @@ new_graph : function (graphname,canvasname){
 			
 		}
 	} // end of series loop
-	
-	
 	
 	ctx.lineWidth = graph_line_thickness;
 	ctx.textAlign="center"; 
@@ -8179,7 +8000,6 @@ new_graph : function (graphname,canvasname){
 	
 	},
 	make_full_screen : function (graph){
-		
 		var doc = window.document;
 		full_screen_graph = graph;
 		var docEl = full_screen_graph.canvas;
@@ -8245,8 +8065,6 @@ new_graph : function (graphname,canvasname){
 		full_screen_graph.canvas.height = window.innerHeight;
 		full_screen_graph.mjs_plot();
 },
-
-
 
 };//end of graph object
 	graph.canvas = canvas;
@@ -8331,7 +8149,6 @@ get_graph_style : function (){
 	 }
 }
 ,
-	
 convert_time_strings : function (array_of_strings){
 	//converts an array of time strings to milliseconds from epoc
 	//example time strings:
@@ -8352,7 +8169,6 @@ convert_time_strings : function (array_of_strings){
 	yyy-mm-dd hh:mm:ss
 	
 	as that is some crazy non-standard old time brittish thing and you will end up with a mess. 
-	
 	*/
 	var r = [];
 	for (var i = 0 ; i < array_of_strings.length;i++){
@@ -8363,12 +8179,9 @@ convert_time_strings : function (array_of_strings){
 
 };
 
-
-
 return mjs_plot;
 
 }());
-
 
 //embedd LZstring for compression 
 var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToBase64:function(o){if(null==o)return"";var r=i._compress(o,6,function(o){return n.charAt(o)});switch(r.length%4){default:case 0:return r;case 1:return r+"===";case 2:return r+"==";case 3:return r+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(e){return o(n,r.charAt(e))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""==o?null:i._decompress(o.length,16384,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=i.compress(o),n=new Uint8Array(2*r.length),e=0,t=r.length;t>e;e++){var s=r.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null===o||void 0===o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;t>e;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(o){return null==o?"":i._compress(o,6,function(o){return e.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(n){return o(e,r.charAt(n))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var e,t,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),c=a+u,Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}if(""!==a){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==r-1){d.push(n(m));break}v++}return d.join("")},decompress:function(o){return null==o?"":""==o?null:i._decompress(o.length,32768,function(r){return o.charCodeAt(r)})},_decompress:function(o,n,e){var t,i,s,p,u,c,a,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:n,index:1};for(i=0;3>i;i+=1)f[i]=i;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(t=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 2:return""}for(f[3]=l,s=l,w.push(l);;){if(A.index>o)return"";for(p=0,c=Math.pow(2,m),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(l=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 2:return w.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[l])v=f[l];else{if(l!==d)return null;v=s+s.charAt(0)}w.push(v),f[d++]=s+v.charAt(0),h--,s=v,0==h&&(h=Math.pow(2,m),m++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module&&(module.exports=LZString);
