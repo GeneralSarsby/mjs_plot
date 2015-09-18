@@ -258,11 +258,17 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	  - fixed minor typos
 	  - imporved mjs_precision output
 	  - added and using getFloat. a helper function to get a number from the user. Does better checking.
+0_3_7 - touch screens now use a small block in the center in the under-the-finger view
+	  - the grid uses color_mg rather than transparancy.
+	  - added per-line colours
+	  - added per-line symbol and line modes.
+	  - gs.symbol_modes gs.line_modes and gs.line_colours
+	  
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_6';
+var MJS_PLOT_VERSION = '0_3_7';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
@@ -2491,6 +2497,13 @@ function mouse_move_event_actual(event,graph){
 					} else {
 						ctx.fillText('(+)',11.2*edge+0.2, canvas.height - no_of_lines*edge + edge*(i-0.2));
 					}
+					ctx.beginPath();
+					ctx.rect(20.2*edge,canvas.height - no_of_lines*edge + edge*(i-0.8),0.6*edge,0.6*edge);
+					ctx.fill();
+					ctx.beginPath();
+					ctx.rect(19.2*edge,canvas.height - no_of_lines*edge + edge*(i-0.8),0.6*edge,0.6*edge);
+					ctx.stroke();
+					
 				}
 				ctx.fillStyle = gs.color_fg;
 				//all button
@@ -2585,8 +2598,9 @@ function mouse_move_event_actual(event,graph){
 			ctx.stroke();
 			ctx.putImageData(image,canvas.width/2-2*edge,canvas.height/2-2*edge);
 			ctx.beginPath();
-			ctx.arc(canvas.width/2, canvas.height/2, edge/2 , 0 ,Math.PI*2, true);
-			ctx.stroke();
+			var cd = Math.max(0.1*edge,2); //center dot size
+			ctx.rect(canvas.width/2-cd,canvas.height/2-cd,2*cd,2*cd);
+			ctx.fill();
 		}
 	}
 	ctx.beginPath();
@@ -3280,6 +3294,7 @@ function mouse_up_event(event,graph){
 		if (ly==0){
 			graph.drawmodemenu=false;
 		}
+		
 		if (ly==1){
 			//symbols
 			switch(lx){
@@ -3311,6 +3326,11 @@ function mouse_up_event(event,graph){
 				gs.symbol_mode = "cross";
 				break;
 			}
+			if (lx > 1){
+				gs.symbol_modes = [];
+			}
+			
+			
 		}
 		if (ly==2){
 			//lines
@@ -3346,8 +3366,11 @@ function mouse_up_event(event,graph){
 				gs.line_mode = "hist";
 				break;
 			}
+			if (lx > 1){
+				gs.line_modes = [];
+			}
 		}
-		
+		graph.do_line_modes();
 		graph.mjs_plot();
 		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
 		return;
@@ -3386,9 +3409,7 @@ function mouse_up_event(event,graph){
 			gs.scaling_factor*=1.1;
 			break;
 		case 9:
-			graph.graphics_style = JSON.parse(JSON.stringify(graph.default_graphics_style));
-			graph.graphics_style.modified = false;
-			graph.transform_index= -1;
+			graph.reset();
 			break;
 		}
 		graph.mjs_plot();
@@ -4114,7 +4135,7 @@ function mouse_up_event(event,graph){
 			return;
 		}
 		//pressed hide/show
-		if ( end_x < 20*edge && end_x > 11*edge && end_y < canvas.height-edge){
+		if ( end_x < 21*edge && end_x > 11*edge && end_y < canvas.height-edge){
 			
 			var no_of_lines = graph.data_backup.length;
 			var no_of_function_lines = gs.function_lines.length;
@@ -4150,7 +4171,16 @@ function mouse_up_event(event,graph){
 			item -= no_of_function_lines;
 			if (item >= 0){
 				console.log('hideshow'+ item);
-				gs.hidden_lines[item] = !gs.hidden_lines[item];
+				if (end_x > 20*edge){
+					//line colour stuff
+					gs.line_colours[item] = prompt("new color name or hex",graph.colors_backup[item] ) || graph.colors_backup[item];
+				} else if (end_x > 19*edge){
+					gs.symbol_modes[item] = prompt("new symbol mode ( dot cdot circ box x cross)",graph.symbol_modes_backup[item] ) || graph.symbol_modes_backup[item];
+					gs.line_modes[item] = prompt("new line mode ( line zig zag mid arrpox interp hist)",graph.line_modes_backup[item] ) || graph.line_modes_backup[item];
+					graph.do_line_modes()
+				} else {
+					gs.hidden_lines[item] = !gs.hidden_lines[item];
+				}
 			}
 		}
 		//all button
@@ -5155,6 +5185,8 @@ var transforms = {
 				data.splice(ii,1);
 				graph.captions.splice(ii,1);
 				graph.colors.splice(ii,1);
+				graph.line_modes.splice(ii,1);
+				graph.symbol_modes.splice(ii,1);
 			}
 		}
 	},
@@ -5470,6 +5502,8 @@ var transforms = {
 				data.splice(ii,1);
 				graph.captions.splice(ii,1);
 				graph.colors.splice(ii,1);
+				graph.symbol_modes.splice(ii,1);
+				graph.line_modes.splice(ii,1);
 			}
 		}
 	},
@@ -5828,12 +5862,24 @@ new_graph : function (graphname,canvasname){
 	isSVG : false, // when using the SVG render is set to true.
 	svg : '',
 	errors : [],
+	
 	data : [],
 	data_backup : [],
+	
 	colors : [],
 	colors_backup : [],
-	captions_backup : [],
+	
 	captions : [],
+	captions_backup : [],
+	
+	symbol_modes : [],
+	symbol_modes_backup : [],
+	
+	line_modes : [],
+	line_modes_backup : [],
+	
+	
+	
 	onPlotFunctions :[],//each function in here is called after a plot
 	fit_data : [], //save the fit data
 	reader_index:[0,0],//the i,j indices in the data of the picked reader point. 
@@ -6230,9 +6276,12 @@ new_graph : function (graphname,canvasname){
 		for (var i = 0;i<this.data.length;i++){
 			this.graphics_style.hidden_lines[i] = this.graphics_style.hidden_lines[i] || false;
 		}
-		
+		this.do_colours();
+		this.do_line_modes();
+	},
+	do_colours: function(){
 		this.colors = [];
-		for (var i=0;i<this.data.length;i++){
+		for (var i=0;i<this.data_backup.length;i++){
 			if (this.graphics_style.caption_colors){
 				try {
 					this.colors[i] = color_from_string( this.captions[i] ||  'label'  );
@@ -6240,11 +6289,29 @@ new_graph : function (graphname,canvasname){
 					this.colors[i] = color_from_string( 'label' );
 				}
 			} else {
-				this.colors[i] = get_color(i,this.data.length-1);
+				this.colors[i] =  this.graphics_style.line_colours[i] || get_color(i,this.data.length-1);
 			}
 		}
 		this.colors_backup = clone(this.colors);
-		
+		this.graphics_style.line_colours = clone(this.colors);
+	},
+	do_line_modes : function(){
+		for (var i=0;i<this.data_backup.length;i++){
+			//pad the per-line modes from the single settings.
+			this.graphics_style.line_modes[i] = this.graphics_style.line_modes[i] || this.graphics_style.line_mode;
+			this.graphics_style.symbol_modes[i] = this.graphics_style.symbol_modes[i] || this.graphics_style.symbol_mode;
+		}
+		this.line_modes = clone(this.graphics_style.line_modes);
+		this.symbol_modes = clone(this.graphics_style.symbol_modes);
+		this.line_modes_backup = clone(this.graphics_style.line_modes);
+		this.symbol_modes_backup = clone(this.graphics_style.symbol_modes);	
+	},
+	reset : function(){
+		this.graphics_style = JSON.parse(JSON.stringify(graph.default_graphics_style));
+		this.graphics_style.modified = false;
+		this.transform_index= -1;
+		this.do_colours();
+		this.do_line_modes();
 	},
 	set_captions : function (captions){
 	"use strict";
@@ -6253,16 +6320,7 @@ new_graph : function (graphname,canvasname){
 		if (this.captions.length != this.data_backup.length){
 			this.errors.push("number of captions and number of series don't match");
 		}
-		this.colors = [];
-		for (var i=0;i<this.data.length;i++){
-			if (this.graphics_style.caption_colors){
-				this.colors[i] = color_from_string( this.captions[i] ||  'label'  );
-				console.log('using cap colours');
-			} else {
-				this.colors[i] = get_color(i,this.data.length-1);
-			}
-		}
-		this.colors_backup = clone(this.colors);
+		this.do_colours();
 	},
 	find_scale : function (min_point,max_point,size,guide_width,scalemode,tight,axis){
 	"use strict";
@@ -7061,7 +7119,7 @@ new_graph : function (graphname,canvasname){
 	//catch errors in plotting
 	if (this.plot_failed){
 		this.errors.push('failed for unknown reason');
-		this.graphics_style = JSON.parse(JSON.stringify(this.default_graphics_style));
+		this.reset();
 	}
 	this.plot_failed = true; //is set to false at  the end. 
 	
@@ -7069,9 +7127,8 @@ new_graph : function (graphname,canvasname){
 	//get things out of gs.
 	//if gs.modified is false use the default style
 	if (this.graphics_style.modified == false){
-		//below is a hack to get the graphics style to clone
 		console.log('getting defautts');
-		this.graphics_style = JSON.parse(JSON.stringify(this.default_graphics_style));
+		this.reset();
 	}
 	
 	var gs = this.graphics_style;
@@ -7133,7 +7190,13 @@ new_graph : function (graphname,canvasname){
 	if (this.transform_index != gs.data_transforms.length ){
 		this.data = clone(this.data_backup);
 		this.captions = clone(this.captions_backup);
+		this.colors_backup = clone(gs.line_colours);
+		this.line_modes_backup = clone(gs.line_modes);
+		this.symbol_modes_backup = clone(gs.symbol_modes);
+		
 		this.colors = clone(this.colors_backup);
+		this.line_modes = clone(this.line_modes_backup);
+		this.symbol_modes = clone(this.symbol_modes_backup);
 		this.transform_index = 0;
 		this.transform_text_x = x_axis_title;//'x';
 		this.transform_text_y = y_axis_title;//'y';
@@ -7229,8 +7292,8 @@ new_graph : function (graphname,canvasname){
 	
 	//draw a grid.
 	if (gs.show_grid){
-		ctx.strokeStyle = gs.color_fg;
-		ctx.globalAlpha = 0.2; //draw them subtle dammit!
+		ctx.strokeStyle = gs.color_mg;
+		//ctx.globalAlpha = 0.2; //draw them subtle dammit!
 		ctx.beginPath();
 		for (var i = 0;i<positionsy.pos.length;i++){
 			var y = canvas.height - positionsy.pos[i];
@@ -7243,7 +7306,7 @@ new_graph : function (graphname,canvasname){
 			ctx.lineTo(x,canvas.height);
 		}
 		ctx.stroke();
-		ctx.globalAlpha = 1;
+		//ctx.globalAlpha = 1;
 	}
 	
 	//draw the function lines
@@ -7279,6 +7342,8 @@ new_graph : function (graphname,canvasname){
 	//point drawing code here
 	for (i = 0;i<this.data.length;i++){
 		ctx.strokeStyle = this.colors[i];
+		var symbol_mode = this.symbol_modes[i];
+		var line_mode = this.line_modes[i];
 		ctx.fillStyle = ctx.strokeStyle ;
 		if (gs.symbol_mode === 'none' && gs.line_mode == 'none'){
 			this.errors.push("no symbols or lines to draw");
@@ -7344,44 +7409,44 @@ new_graph : function (graphname,canvasname){
 		if (this.isSVG){ctx.startGroup();}
 		for (k=0;k<seq_start.length;k++){
 			
-			if (  gs.line_mode.indexOf('line') >-1  ){
+			if (  line_mode.indexOf('line') >-1  ){
 				this.drawing_methods.draw_line(this,ctx,i,seq_start[k],seq_end[k]);
 			}
 			
-			if (  gs.symbol_mode === 'dot'   ){
+			if (  symbol_mode === 'dot'   ){
 				this.drawing_methods.draw_dot(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.symbol_mode === 'cdot'   ){
+			if (  symbol_mode === 'cdot'   ){
 				this.drawing_methods.draw_cdot(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.symbol_mode === 'circ'   ){
+			if (  symbol_mode === 'circ'   ){
 				this.drawing_methods.draw_circ(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.symbol_mode === 'box'   ){
+			if (  symbol_mode === 'box'   ){
 				this.drawing_methods.draw_box(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.symbol_mode === 'x'   ){
+			if (  symbol_mode === 'x'   ){
 				this.drawing_methods.draw_x(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.symbol_mode === 'cross'   ){
+			if (  symbol_mode === 'cross'   ){
 				this.drawing_methods.draw_cross(this,ctx,i,seq_start[k],seq_end[k],symbol_size);
 			}
-			if (  gs.line_mode.indexOf('zig') >-1  ){
+			if (  line_mode.indexOf('zig') >-1  ){
 				this.drawing_methods.draw_zig(this,ctx,i,seq_start[k],seq_end[k]);
 			}
-			if (  gs.line_mode.indexOf('zag') >-1  ){
+			if (  line_mode.indexOf('zag') >-1  ){
 				this.drawing_methods.draw_zag(this,ctx,i,seq_start[k],seq_end[k]);
 			}
-			if (  gs.line_mode.indexOf('mid') >-1  ){
+			if (  line_mode.indexOf('mid') >-1  ){
 				this.drawing_methods.draw_mid(this,ctx,i,seq_start[k],seq_end[k]);
 			}
-			if (  gs.line_mode.indexOf('approx') >-1  ){
+			if (  line_mode.indexOf('approx') >-1  ){
 				this.drawing_methods.draw_approx(this,ctx,i,seq_start[k],seq_end[k]);
 			}
-			if (  gs.line_mode.indexOf('interp') >-1  ){
+			if (  line_mode.indexOf('interp') >-1  ){
 				this.drawing_methods.draw_interp(this,ctx,i,seq_start[k],seq_end[k]);
 			}
-			if (  gs.line_mode.indexOf('hist') >-1  ){
+			if (  line_mode.indexOf('hist') >-1  ){
 				this.drawing_methods.draw_hist(this,ctx,i,seq_start[k],seq_end[k]);
 			}
 			if (this.data[i].length >=3){
@@ -8088,6 +8153,8 @@ get_graph_style : function (){
 	 mode : 'dot line', //'circles', 'dot', or 'line'
 	 symbol_mode : 'dot', // dot block circle croxx
 	 line_mode : 'line', // line approx interp zig zag mid hist
+	 symbol_modes : [], //per line symbol modes
+	 line_modes : [], //per line line modes. 
 	 font_name : "serif",
 	 title_font_size : 20,// in px (24)
 	 title : "Title",
@@ -8129,13 +8196,14 @@ get_graph_style : function (){
 	 show_captions : true,
 	 showTransformTexts : true, //show the stack of transforms and modify the axis titles.
 	 captions_display : "none",//xmin xmax ymin ymax yfirst ylast xfirst xlast or non
-	 color_fg : '#111111', //foreground color
-	 color_bg : '#eeeeee', //background color
-	 color_mg : '#555555', //midground color, for the grid.
+	 color_fg : '#111', //foreground color
+	 color_bg : '#eee', //background color
+	 color_mg : '#aaa', //midground color, for the grid.
 	 show_grid: false,
 	 v : MJS_PLOT_VERSION, //version of mjsplot
 	 caption_colors : false, // generate colors from the captions
 	 hidden_lines : [], // array of booleans if each line should be hidden.
+	 line_colours :[], // array of colours to use for the lines.
 	 data_transforms : [], //a list of the transform functions
 	 data_transforms_args : [], // the arguments for each transform
 	 i : 0, //state of the infomation button
