@@ -242,6 +242,30 @@ I don't have a CDN so please don't hot-link it. It was minified with  <a href='h
 
 <p>You can get the full sized file:<a href='mjs_plot_0_3_n.js'>mjs_plot_0_3_n.js</a></p>
 
+<p>New in 0_3_7: </p>
+<ul>
+<li> Touch screens now use a small block in the center in the under-the-finger view
+<li> The grid uses color_mg rather than transparancy.
+<li> Added per-line colours
+<li> Added per-line symbol and line modes.
+</ul>
+
+<p>New in 0_3_6: </p>
+<ul>
+<li> Imporved axis lable layout.
+<li> Imporved string rendering of linear fits
+<li> Removed options menu. replaced with style menu
+<li> Added font menu. Finds fonts avaliable on the system using MJSFontList.
+<li> Fixed bug with minor ticks being overdrawn. Only visable on SVG output.
+<li> Added groups to the SVG context. This means each line is grouped for easyer editing.
+<li> Added clipPath to SVG output. this prevents the lines going outside the box.
+<li> Added maths number display mode, it uses unicode characters for 10x^3 etc..
+<li> Put in method to find precision on log axis.
+<li> Fixed minor typos
+<li> Imporved mjs_precision output
+<li> Added and using getFloat. a helper function to get a number from the user. Does better checking.
+</ul>
+
 <p>New in 0_3_5: </p>
 <ul>
 <li>  Improved the mouse_out functanalitty.
