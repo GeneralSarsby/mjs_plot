@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<head>
+<meta name="viewport" content="initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+<script src="../mjs_plot_0_3_n.js"></script>
+  <style>
+body {margin:10px;padding:10px;min-width: 320px;margin-left:auto;margin-right:auto;}
+canvas, html{
+margin: 0px;
+padding: 0px;
+background-color: #272822;
+	color: #F8F8F2;
+	font: 12px "Monaco","Menlo","Ubuntu Mono","Consolas","source-code-pro",monospace;
+}
+h1{
+margin: 0px;
+text-align: center;
+padding: 1px;
+
+}
+textarea {
+background-color: #272822;
+	color: #F8F8F2;
+	width: 90%;
+	white-space: pre;
+	overflow: scroll;
+}
+</style>
+
+</head>
+<body>
+<h1>Import n' Plot</h1>
+<p>
+Lines starting with a # or a % are comment lines and are ignored.
+Empty lines are also ignored.
+The data is assumed in column format (each column is a series).
+Tabs seperate columns and rows are seperated by a new line.
+This is what you usually get if you copy/paste from Origin/Matlab/Excell.
+Numbers with commas in them will be processed to numbers i.e. 1,234 -> 1234.
+Numbers with spaces in them are also parsed as numbers i.e. 1 234 000 -> 1234000.
+Currency with $ or £ in the data element will be parsed as numbers.
+Percentages are also parsed as numbers. 80% -> 80
+A column with dates in it will try to find times in the next column.
+</p>
+
+Paste, Drag n Drop, <em> or </em> load a local file:<input type="file" id="file" ><button type='button' onClick='startRead()'>Load</button>
+<button type='button' onClick="clearBoxes()">Clear</button><br>
+
+<div id='drop'>
+ <textarea id='input' rows ='10'>paste you data here from Origin/Matlab/Excell. Or drag and drop a text file into this space.</textarea>
+ </div>
+
+  <textarea id='result' rows ='10' ></textarea>
+  
+<br><button type='button' onClick='makeCountdownGoNow()'>Make</button><br>
+  <input type="checkbox" id="transpose" > Transpose<br>
+  <input type="checkbox" id="datetimes" > Find Datetimes (will replace dates with milliseconds from epoch (unix) (<input type="checkbox" id="englighDates" >Engligh Dates)<br>
+  <input type="number" id="headderlines" value="0" > Number of header lines<br>
+  <input type="number" id="headdercols" value="0"> Number of header columns<br>
+  Column Delimeter: 
+  <input type="radio" name="delm" value="tab" id='tabdelim' >tab
+<input type="radio" name="delm" value="space" id='spacedelim' >space
+<input type="radio" name="delm" value="commar" id='commardelim' >commar
+  
+ <p>When your happy, pick the plot order below</p>
+  </div>
+  Plot destinations, use 'x' 'y' any other letter will be ignored.
+  <input spellcheck="false" dir="ltr" role="combobox" id="coumnroles" maxlength="2048" autocomplete="off" type="text">
+  <button type='button' onClick='plot_numbers()'>Plot</button><br>
+  
+    <center>
+ <canvas id="importcanvas" width="600" height="400"></canvas><br>
+   </center>
+  
+</body>
+  <script>
+  
+  var importGraph = mjs_plot.new_graph("importGraph","importcanvas");
+  importGraph.mjs_plot();
+  results = [];
+function plot_numbers(){
+var bits = document.getElementById('coumnroles').value;
+
+var currentx = [];
+var currenty = [];
+var needsx = [];
+var items = [];
+var caps = [];
+for (var i =0;i<bits.length && i<results.length;i++){
+
+if (bits[i] === 'x'){
+	currentx = results[i];
+	if (needsx.length!=0){
+		for (var j = 0 ; j < needsx.length;j++){
+			items.push([currentx,needsx[j]]);
+			caps.push('item');
+		}
+		needsx = [];
+	}
+}
+if (bits[i] === 'y'){
+	currenty = results[i];
+	if (currentx.length>0){
+		items.push([currentx,currenty]);
+		caps.push('item');
+	} else {
+		needsx.push(results[i]);
+	}
+}
+
+}
+
+importGraph.set_data(items);
+importGraph.set_captions(caps);
+importGraph.mjs_plot();
+}
+  
+function clearBoxes(){
+document.getElementById('input').value = '';
+document.getElementById('result').value = '';
+}
+
+function deEnglishDateString(s){
+
+// assuming dd mm yyyy with anything between.
+//it will return: mm/dd/yyyy
+//if there is a space. it is split and reattached afterwards
+
+//if it's not got delimiters in the right places then don't muck up the string.
+if(s[2] !== s[5]){return s;}
+
+s+= ' ';
+var parts = s.split(' ');
+
+var days = parts[0].slice(0,2);
+var months = parts[0].slice(3,5);
+var years = parts[0].slice(6,10);
+return months+'/'+days+'/'+years+' ' + parts[1];
+}
+
+function tryDates(s){
+	if (s[2] === ':'){
+	return false; //it's a time.
+	}
+	if (englighDates){
+		if (IsDate(deEnglishDateString(s))){return new Date(deEnglishDateString(s))}
+	} else {
+		if (IsDate(s)){return new Date(s)}
+	}
+	if (IsDate('1 ' + s)){return new Date('1 ' + s)}
+	if (IsDate(s)){return new Date(s)}
+	
+	return false;
+}
+
+  function convert_time_strings(array_of_strings){
+	r = [];
+	for (var i = 0 ; i < array_of_strings.length;i++){
+		r.push( Date.parse( array_of_strings[i] ) );
+	}
+	return r;
+}
+  function IsDate(input) {
+	if (typeof input === "string"){
+	  var d = new Date(input);
+	  return !isNaN(d.getTime());
+	 } else {return false}
+}
+  
+function IsNumeric(input){
+		return (input - 0) == input && (''+input).trim().length > 0;
+}
+
+englighDates = false;
+function importTabbedData(o){
+"use strict"
+//o is the object. which has a bunch of things in it:
+
+    var input = o.text|| '';
+	var transposed = o.transpose||false;//this works only if the default is false. 
+	var datetimes = o.ignoreDates || false; 
+   var headderlines = o.headerLines || 0;
+   var headdercols = o.headerColumns || 0;
+	var linesplitter = o.rowDelimiter || "\n";
+	var colsplitter = o.columnDelimiter || "\t";
+	englighDates = o.englighDates || false;
+   var lines = input.split(linesplitter);
+   var results = [];
+   
+   var dummyDate = '2014/11/02 ';
+   
+   var i_running = 0;
+   
+   for (var i =headderlines,l=lines.length;i<l;i++){
+	
+		if (lines[i].length > 0 && lines[i][0] !== '#' && lines[i][0] !== '%' ){
+			var line = lines[i].split(colsplitter);
+			for (var j = headdercols ;j<line.length;j++){
+				if (!results[j-headdercols]){results[j-headdercols] = [];} //no data here
+				var strippedNumber = line[j].replace(/,|[£]|[$]|[ ]|[%]/g, '');
+				if (IsNumeric(strippedNumber)){
+					results[j-headdercols][i_running] = parseFloat(strippedNumber);
+					//console.log('was number');
+				}  else if (datetimes && tryDates(line[j])) {
+					//try using the next column to find a time. 
+					//test if thers is a next column
+					//test if it works as a time on a compleat date (this stops it being used as a day.
+					//test if it works as a time on the date given.
+					if (line[j+1] && tryDates(dummyDate+line[j+1]) && tryDates(line[j] +' '+ line[j+1] ) ){
+						//found date and times!
+						results[j-headdercols][i_running] = tryDates(line[j] +' '+ line[j+1] ).getTime() ; //'"' + line[j] + '"';
+						
+					} else {
+						results[j-headdercols][i_running] = tryDates(line[j]).getTime() ; //'"' + line[j] + '"';
+						//console.log('was date');
+					}
+				} 
+				else {
+					results[j-headdercols][i_running] = '"' + line[j] + '"';
+				}
+				
+			}
+			i_running++;
+		  }
+	  }
+	 
+	 if (transposed){
+				results = results[0].map(function(col, i) { 
+		  return results.map(function(row) { 
+			return row[i] 
+		  })
+		});
+	 }
+	return results;
+}
+  
+function makeCountdownGoNow(){
+    var input = document.getElementById('input').value;
+    var transposed = document.getElementById('transpose').checked;
+	var datetimes = document.getElementById('datetimes').checked;
+	var headderlines = parseInt(document.getElementById('headderlines').value) || 0;
+	var headdercols = parseInt(document.getElementById('headdercols').value) || 0;
+	 
+	//get the delim
+	commardelim = document.getElementById('commardelim').checked;
+	spacedelim = document.getElementById('spacedelim').checked;
+	tabdelim = document.getElementById('tabdelim').checked;
+	console.log(spacedelim);
+	var colsplitter = '\t';
+	if (commardelim) {colsplitter = ','};
+	if (spacedelim) {colsplitter = ' '};
+	if (tabdelim) {colsplitter = '\t'};
+	var englighDates = document.getElementById('englighDates').checked;
+	results = importTabbedData({text:input,transpose:transposed,englighDates:englighDates,ignoreDates:datetimes,headerLines:headderlines,headerColumns:headdercols,columnDelimiter:colsplitter})
+	//o.englighDates
+	var t = "";
+	for (var i =0,l=results.length;i<l;i++){
+		t += '\nseries'+i+' = ['+results[i].toString()+'...];';
+	}
+	document.getElementById('result').value = t;//results.toString();
+
+}
+
+function startRead() {  
+  // obtain input element through DOM
+  var file = document.getElementById('file').files[0];
+  if(file){
+    getAsText(file);
+  }
+}
+
+function getAsText(readFile) {
+
+  var reader = new FileReader();
+  
+  // Read file into memory as UTF-16      
+  reader.readAsText(readFile, "UTF-8");
+  
+  // Handle progress, success, and errors
+  reader.onprogress = updateProgress;
+  reader.onload = loaded;
+  reader.onerror = errorHandler;
+}
+
+function updateProgress(evt) {
+  if (evt.lengthComputable) {
+    // evt.loaded and evt.total are ProgressEvent properties
+    var loaded = (evt.loaded / evt.total);
+    if (loaded < 1) {
+      // Increase the prog bar length
+      // style.width = (loaded * 200) + "px";
+	  document.getElementById('input').value = loaded.toString();
+    }
+  }
+}
+
+function loaded(evt) {  
+  // Obtain the read file data    
+  var fileString = evt.target.result;
+  
+  document.getElementById('input').value = fileString;
+  makeCountdownGoNow();  
+}
+
+function errorHandler(evt) {
+  if(evt.target.error.name == "NotReadableError") {
+    // The file could not be read
+	 document.getElementById('input').value = "unable to read file";
+  }
+}
+
+var drop = document.getElementById('drop');
+
+drop.addEventListener('dragover',cancel, true);
+drop.addEventListener('dragenter',cancel, true);
+
+ function cancel(e) {
+      if (e.preventDefault) { e.preventDefault(); }
+      return false;
+}
+
+function dragover(e){
+	document.getElementById('input').value = 'dragover' + e.toString();
+	return true;
+}
+function dragenter(e){
+	document.getElementById('input').value =  'dragenter' + e.toString();
+}
+
+drop.addEventListener('drop', function (e) {
+  e = e || window.event; // get window.event if e argument missing (in IE)   
+  if (e.preventDefault) { e.preventDefault(); } // stops the browser from redirecting off to the image.
+
+  var dt    = e.dataTransfer;
+  var files = dt.files;
+  
+  getAsText(files[0]);
+  
+  return false;
+},true);
+
+
+  </script>
