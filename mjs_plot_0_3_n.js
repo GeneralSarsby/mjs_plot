@@ -263,12 +263,16 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	  - added per-line colours
 	  - added per-line symbol and line modes.
 	  - gs.symbol_modes gs.line_modes and gs.line_colours
+0_3_8 - improved speed of the clean transform by up to 22x. this is used in trim, cut and filter, and many other transforms to remove non-finite values
+	  - added view last n transform to look at only the last however-many points. usefull for rolling data.
+	  - added custom filter transform that will evaluate an expression and filter from that. Very useful for looking at only that last hour (rolling) of data from logs.
+	  - added extra-precision option to the captions menu, so that the values of the captions can be expressed more precisly if the user wants it.
 	  
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_7';
+var MJS_PLOT_VERSION = '0_3_8';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
@@ -699,6 +703,14 @@ function trim(n,l,h){
 }
 function getFloat(promptString,fallback){
 	var r = parseFloat(prompt(promptString,fallback));
+	if (isFinite(r)){
+		return r;
+	} else {
+	 return fallback;
+	}
+}
+function getInt(promptString,fallback){
+	var r = parseInt(prompt(promptString,fallback));
 	if (isFinite(r)){
 		return r;
 	} else {
@@ -2279,10 +2291,10 @@ function mouse_move_event_actual(event,graph){
 		}
 		
 		if (graph.drawcaptionmenu){
-			if (x>canvas.width-4*edge && y < edge*8){
+			if (x>canvas.width-4*edge && y < edge*10){
 				ctx.fillStyle = gs.color_bg;
 				ctx.beginPath();
-				ctx.rect(canvas.width-4*edge,0,edge*4,edge*8);
+				ctx.rect(canvas.width-4*edge,0,edge*4,edge*10);
 				ctx.fill();
 				ctx.stroke();
 				ctx.beginPath();
@@ -2303,6 +2315,10 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('Min',canvas.width-1.8*edge, 5.8*edge);
 				ctx.fillText('Max',canvas.width-1.8*edge, 6.8*edge);
 				ctx.fillText('None',canvas.width-2.8*edge, 7.8*edge);
+				ctx.fillText('Extra Precision:',canvas.width-3.8*edge, 8.8*edge);
+				ctx.fillText(gs.captions_extra_precision,canvas.width-3.8*edge, 9.8*edge);
+				ctx.fillText('[-]',canvas.width-1.8*edge, 9.8*edge);
+				ctx.fillText('[+]',canvas.width-0.8*edge, 9.8*edge);
 				
 				ctx.beginPath()
 				ctx.moveTo(canvas.width-4*edge,edge);
@@ -2313,6 +2329,8 @@ function mouse_move_event_actual(event,graph){
 				ctx.lineTo(canvas.width,3*edge);
 				ctx.moveTo(canvas.width-2*edge,2*edge);
 				ctx.lineTo(canvas.width-2*edge,7*edge);
+				ctx.moveTo(canvas.width-4*edge,8*edge);
+				ctx.lineTo(canvas.width,8*edge);
 				ctx.stroke();
 				
 			} else {
@@ -2399,7 +2417,10 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('rmv outliers',16.2*edge, canvas.height - edge*12.3);
 				ctx.fillText('keep outliers',16.2*edge, canvas.height - edge*11.3);
 				ctx.fillText('custom y=f(x,y)',16.2*edge, canvas.height - edge*10.3);
+				ctx.fillText('custom filter',16.2*edge, canvas.height - edge*9.3);
 				
+				
+				ctx.fillText('view last n',16.2*edge, canvas.height - edge*3.3);
 				ctx.fillText('(y - mean)/sigma',16.2*edge, canvas.height - edge*2.3);
 				ctx.fillText('x spacing',16.2*edge, canvas.height - edge*1.3);
 				ctx.fillText('time->number',16.2*edge, canvas.height - edge*0.3);
@@ -3116,6 +3137,14 @@ function mouse_up_event(event,graph){
 		}
 		if (ly >2 && ly<7){
 			gs.show_captions=true;
+		}
+		if (ly > 7){
+			graph.drawcaptionmenu=true;
+			if (end_x > canvas.width-edge){
+				gs.captions_extra_precision = Math.min(gs.captions_extra_precision + 1, 10);
+			} else if (end_x > canvas.width - 2*edge){
+				gs.captions_extra_precision = Math.max(0,gs.captions_extra_precision - 1);
+			}
 		}
 		graph.mjs_plot();
 		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
@@ -4094,7 +4123,7 @@ function mouse_up_event(event,graph){
 		
 		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*11 && end_y < canvas.height - edge*10){
 			// remove outliers button
-			console.log('custom button');
+			console.log('custom f(x) button');
 			var f = prompt('y = f(x,y) =','y');
 			if (f){
 				gs.data_transforms[n] = "custom_y";
@@ -4102,12 +4131,33 @@ function mouse_up_event(event,graph){
 				
 			}
 		}
+		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*10 && end_y < canvas.height - edge*9){
+			// remove outliers button
+			console.log('custom filter button');
+			var f;
+			if (gs.x_scale_mode ==='time' || gs.y_scale_mode ==='time' ){
+				f = prompt('use, >, <, >=, <=, ==, x, y, now (time) and maths','x > now - 1000*60*60');
+			} else {
+				f = prompt('use, >, <, >=, <=, ==, x, y and maths','x*2+y*2 < 16');
+			}
+			if (f){
+				gs.data_transforms[n] = "custom_filter";
+				gs.data_transforms_args[n] = [f];
+			}
+		}
+		
 		
 		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*2 && end_y < canvas.height - edge*1){
 			// spacing button
 			console.log('x spacing');
 			gs.data_transforms[n] = "spacing";
 			gs.data_transforms_args[n] = [];
+		}
+		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*4 && end_y < canvas.height - edge*3){
+			// view last n button
+			console.log('view_last_n');
+			gs.data_transforms[n] = "view_last_n";
+			gs.data_transforms_args[n] = [ getInt("How Many Points",512) ];
 		}
 		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*3 && end_y < canvas.height - edge*2){
 			// mean_normalise button
@@ -5328,6 +5378,19 @@ var transforms = {
 		transforms.clean(data,graph);
 		graph.transform_text_y= 'f('+graph.transform_text_y +')';
 	},
+	custom_filter: function(data,args,graph){
+		for (i = 0;i<data.length;i++){
+			var filter = parseExpression(args[0],data[i][0],data[i][1]);
+			for (j = 0;j<data[i][0].length;j++){
+				if (!filter[j]){
+					data[i][1][j] = NaN;
+				}
+			}
+		}
+		transforms.clean(data,graph);
+		graph.transform_text_y= 'filter('+graph.transform_text_y +')';
+		
+	},
 	one_over_x: function(data,args,graph){
 		for (i = 0;i<data.length;i++){
 			for (j = 0;j<data[i][0].length;j++){
@@ -5466,34 +5529,72 @@ var transforms = {
 		for (i = 0;i<data.length;i++){
 			
 			if (data[i].length == 2){
-				for(var ii = data[i][0].length - 1; ii >= 0; ii--) {
-					if(  ! ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
-						data[i][0].splice(ii,1);
-						data[i][1].splice(ii,1);
+				/* this new method is much faster than the old method.
+				it takes about the same time when removing 1 point, but can be 22x faster when removing many points. 
+				*/
+				var missing = 0;
+				var len = data[i][0].length;
+				var ii=0;
+				var j = 0;
+				while (ii < len){
+					if(  ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
+						data[i][0][j] = data[i][0][ii];
+						data[i][1][j] = data[i][1][ii];
+						j++;
+					} else {
+						missing++;
 					}
+					ii++;
 				}
+				data[i][0] = data[i][0].slice(0,len-missing);
+				data[i][1] = data[i][1].slice(0,len-missing);
 			}
+			
 			if (data[i].length == 3){
-				for(var ii = data[i][0].length - 1; ii >= 0; ii--) {
-					if(  ! ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
-						data[i][0].splice(ii,1);
-						data[i][1].splice(ii,1);
-						//the errors
-						data[i][2].splice(ii,1);
+				var missing = 0;
+				var len = data[i][0].length;
+				var ii=0;
+				var j = 0;
+				while (ii < len){
+					if(  ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
+						data[i][0][j] = data[i][0][ii];
+						data[i][1][j] = data[i][1][ii];
+						data[i][2][j] = data[i][1][ii];
+						j++;
+					} else {
+						missing++;
 					}
+					ii++;
 				}
+				data[i][0] = data[i][0].slice(0,len-missing);
+				data[i][1] = data[i][1].slice(0,len-missing);
+				data[i][2] = data[i][1].slice(0,len-missing);
 			}
+			
 			if (data[i].length == 4){
-				for(var ii = data[i][0].length - 1; ii >= 0; ii--) {
-					if(  ! ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
-						data[i][0].splice(ii,1);
-						data[i][1].splice(ii,1);
-						//the errors
-						data[i][2].splice(ii,1);
-						data[i][3].splice(ii,1);
+				var missing = 0;
+				var len = data[i][0].length;
+				var ii=0;
+				var j = 0;
+				while (ii < len){
+					if(  ( isFinite(data[i][1][ii]) && isFinite(data[i][0][ii])  ) ) {
+						data[i][0][j] = data[i][0][ii];
+						data[i][1][j] = data[i][1][ii];
+						data[i][2][j] = data[i][1][ii];
+						data[i][3][j] = data[i][1][ii];
+						j++;
+					} else {
+						missing++;
 					}
+					ii++;
 				}
+				data[i][0] = data[i][0].slice(0,len-missing);
+				data[i][1] = data[i][1].slice(0,len-missing);
+				data[i][2] = data[i][1].slice(0,len-missing);
+				data[i][3] = data[i][1].slice(0,len-missing);
 			}
+			
+			
 			
 		}
 		//remove any empty series.
@@ -5753,6 +5854,16 @@ var transforms = {
 			}
 		}
 		graph.transform_text_y= 'jitter('+graph.transform_text_y +','+amount+'%)';
+	},
+	//view only the last n data points. useful for rolling data
+	view_last_n: function(data,args,graph){
+		
+		for (i = 0;i<data.length;i++){
+			var l = data[i][1].length;
+			data[i][1] = data[i][1].slice( Math.max(0,l-args[0]),l);
+			data[i][0] = data[i][0].slice( Math.max(0,l-args[0]),l);
+		}
+	
 	},
 	spacing: function(data,args,graph){
 		//the spacing between ajecent x points. 1/spacing is the dencity. 
@@ -7293,7 +7404,6 @@ new_graph : function (graphname,canvasname){
 	//draw a grid.
 	if (gs.show_grid){
 		ctx.strokeStyle = gs.color_mg;
-		//ctx.globalAlpha = 0.2; //draw them subtle dammit!
 		ctx.beginPath();
 		for (var i = 0;i<positionsy.pos.length;i++){
 			var y = canvas.height - positionsy.pos[i];
@@ -7306,9 +7416,7 @@ new_graph : function (graphname,canvasname){
 			ctx.lineTo(x,canvas.height);
 		}
 		ctx.stroke();
-		//ctx.globalAlpha = 1;
 	}
-	
 	//draw the function lines
 	
 	//this.drawSimpleLine(ctx,fit_x,fit_y);
@@ -7578,28 +7686,28 @@ new_graph : function (graphname,canvasname){
 			var splitter = " : ";
 			switch(gs.captions_display){
 				case "ylast":
-					label += splitter +  this.get_axis_string(this.data[i][1][this.data[i][1].length-1],'y');
+					label += splitter +  this.get_axis_string(this.data[i][1][this.data[i][1].length-1],'y',gs.captions_extra_precision + gs.y_precision);
 					break;
 				case "xlast":
-					label += splitter +  this.get_axis_string(this.data[i][0][this.data[i][0].length-1],'x');
+					label += splitter +  this.get_axis_string(this.data[i][0][this.data[i][0].length-1],'x',gs.captions_extra_precision + gs.x_precision);
 					break;
 				case "xfirst":
-					label += splitter +  this.get_axis_string(this.data[i][0][0],'x');
+					label += splitter +  this.get_axis_string(this.data[i][0][0],'x',gs.captions_extra_precision + gs.x_precision);
 					break;
 				case "yfirst":
-					label += splitter +  this.get_axis_string(this.data[i][1][0],'y');
+					label += splitter +  this.get_axis_string(this.data[i][1][0],'y',gs.captions_extra_precision + gs.y_precision);
 					break;
 				case "xmin":
-					label += splitter +  this.get_axis_string(  Math.min.apply(null, this.data[i][0] )  ,'x');
+					label += splitter +  this.get_axis_string(  Math.min.apply(null, this.data[i][0] )  ,'x',gs.captions_extra_precision + gs.x_precision);
 					break;	
 				case "ymin":
-					label += splitter +  this.get_axis_string(  Math.min.apply(null, this.data[i][1] )  ,'y');
+					label += splitter +  this.get_axis_string(  Math.min.apply(null, this.data[i][1] )  ,'y',gs.captions_extra_precision + gs.y_precision);
 					break;
 				case "ymax":
-					label += splitter +  this.get_axis_string(  Math.max.apply(null, this.data[i][1] )  ,'y');
+					label += splitter +  this.get_axis_string(  Math.max.apply(null, this.data[i][1] )  ,'y',gs.captions_extra_precision + gs.y_precision);
 					break;
 				case "xmax":
-					label += splitter +  this.get_axis_string(  Math.max.apply(null, this.data[i][0] )  ,'x');
+					label += splitter +  this.get_axis_string(  Math.max.apply(null, this.data[i][0] )  ,'x',gs.captions_extra_precision + gs.x_precision);
 					break;			
 			}
 			
@@ -7622,7 +7730,7 @@ new_graph : function (graphname,canvasname){
 				ctx.lineWidth = axis_labels_font_size/3;
 				ctx.strokeText(label,x,y);
 			}
-			ctx.fillStyle = '#808080';
+			ctx.fillStyle = gs.color_mg;
 			ctx.fillText(label,x,y);
 		}
 	}
@@ -8196,6 +8304,7 @@ get_graph_style : function (){
 	 show_captions : true,
 	 showTransformTexts : true, //show the stack of transforms and modify the axis titles.
 	 captions_display : "none",//xmin xmax ymin ymax yfirst ylast xfirst xlast or non
+	 captions_extra_precision : 1, //extra precision to display on the captions has a minimum of 0. don't go negative.
 	 color_fg : '#111', //foreground color
 	 color_bg : '#eee', //background color
 	 color_mg : '#aaa', //midground color, for the grid.
