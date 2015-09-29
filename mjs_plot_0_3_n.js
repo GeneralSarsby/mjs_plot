@@ -1365,6 +1365,11 @@ function mouse_move_event_actual(event,graph){
 	var ctx = canvas.getContext('2d');
 	var gs = graph.graphics_style;
 	
+	if (graph.graph_image){
+		ctx.putImageData(graph.graph_image,0,0);
+	} else{
+		return
+	}
 	
 	//ctx.stroke();
 	var rect = canvas.getBoundingClientRect();
@@ -1373,7 +1378,7 @@ function mouse_move_event_actual(event,graph){
 	var px = graph.pixels_to_units(x,'x');
 	var py = graph.pixels_to_units(y,'y');
 	
-	ctx.putImageData(graph.graph_image,0,0);
+	
 	
 	if (graph.ui.touch){
 		var edge = 	Math.min(Math.min(canvas.width / 22, canvas.height/15));
