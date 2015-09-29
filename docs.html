@@ -237,10 +237,18 @@ MJSplot is open source. You can grab a copy just by looking at the source code f
 If you jumped straight here, I suggest you look at <a href="#helpers">[Helpers]</a> for additional downloads.
 </p>
 <p>
-<a href='mjs_plot_0_3_n_min.js'>mjs_plot_0_3_n.min.js</a> is a link to the latest version in the 0_3 branch that will not have any breaking api changes. This is the one to use.
-I don't have a CDN so please don't hot-link it. It was minified with  <a href='http://jscompress.com/'>jscompress</a></p>
+<a href='mjs_plot_0_3_n.js'>mjs_plot_0_3_n.js</a> is a link to the latest version in the 0_3 branch that will not have any breaking api changes. This is the one to use.
+I don't have a CDN so please don't hot-link it. You can minify with  <a href='http://jscompress.com/'>jscompress</a></p>
 
 <p>You can get the full sized file:<a href='mjs_plot_0_3_n.js'>mjs_plot_0_3_n.js</a></p>
+
+<p>New in 0_3_8: </p>
+<ul>
+<li>  Improved speed of the clean transform by up to 22x. this is used in trim, cut and filter, and many other transforms to remove non-finite values
+<li>  Added view last n transform to look at only the last however-many points. usefull for rolling data.
+<li>  Added custom filter transform that will evaluate an expression and filter from that. Very useful for looking at only that last hour (rolling) of data from logs.
+<li>  Added extra-precision option to the captions menu, so that the values of the captions can be expressed more precisly if the user wants it.
+</ul>
 
 <p>New in 0_3_7: </p>
 <ul>
