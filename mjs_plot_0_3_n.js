@@ -267,12 +267,15 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	  - added view last n transform to look at only the last however-many points. usefull for rolling data.
 	  - added custom filter transform that will evaluate an expression and filter from that. Very useful for looking at only that last hour (rolling) of data from logs.
 	  - added extra-precision option to the captions menu, so that the values of the captions can be expressed more precisly if the user wants it.
-	  
+0_3_9 - fixed bug with graph reset. the colours now are reset correctlly.
+	  - fixed bug with data display not 'bouncing' off the right side of the screen.
+	  - fixed bug if mouseMove is called befor mjs_plot trying to draw an image that isn't rendered yet.
+	  - fixed UI bug where user trys to set an empty string ( a falsy type) and then it is ignored. Added getString function which garrentees a string to return.
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_8';
+var MJS_PLOT_VERSION = '0_3_9';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2015';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
@@ -712,6 +715,14 @@ function getFloat(promptString,fallback){
 function getInt(promptString,fallback){
 	var r = parseInt(prompt(promptString,fallback));
 	if (isFinite(r)){
+		return r;
+	} else {
+	 return fallback;
+	}
+}
+function getString(promptString,fallback){
+	var r = prompt(promptString,fallback);
+	if (typeof r ==='string'){
 		return r;
 	} else {
 	 return fallback;
@@ -1365,11 +1376,6 @@ function mouse_move_event_actual(event,graph){
 	var ctx = canvas.getContext('2d');
 	var gs = graph.graphics_style;
 	
-	if (graph.graph_image){
-		ctx.putImageData(graph.graph_image,0,0);
-	} else{
-		return
-	}
 	
 	//ctx.stroke();
 	var rect = canvas.getBoundingClientRect();
@@ -1378,7 +1384,11 @@ function mouse_move_event_actual(event,graph){
 	var px = graph.pixels_to_units(x,'x');
 	var py = graph.pixels_to_units(y,'y');
 	
-	
+	if (graph.graph_image){
+		ctx.putImageData(graph.graph_image,0,0);
+	} else {
+		return;
+	}
 	
 	if (graph.ui.touch){
 		var edge = 	Math.min(Math.min(canvas.width / 22, canvas.height/15));
@@ -1410,16 +1420,17 @@ function mouse_move_event_actual(event,graph){
 			if (gs.mouse_mode === 'zoom' || gs.mouse_mode === 'drag' || gs.mouse_mode === 'measure' ){
 				
 				var labelx = graph.get_axis_string(px,'x');
+				var labelxWidth = ctx.measureText(labelx).width;
 				var labely = graph.get_axis_string(py,'y');
 				
 				lw = labely.length * gs.scaling_factor*gs.axis_labels_font_size;
 				
 				if (graph.ui.touch && graph.ui.is_touching ){
-					ctx.fillText(labelx,x+cs, canvas.height-2*edge );
+					ctx.fillText(labelx,Math.min(x+cs, canvas.width-edge-labelxWidth), canvas.height-2*edge );
 					ctx.fillText(labely,2*edge,y-cs);
 				} else {
-					ctx.fillText(labelx,x+cs, Math.min(y+2*cs+2*edge,canvas.height-2*edge) );
-					ctx.fillText(labely,Math.max(x-2*cs-lw-2*edge,2*edge),y-cs);
+					ctx.fillText(labelx,Math.min(x+cs, canvas.width-edge-labelxWidth), Math.min(y+2*cs+2*edge,canvas.height-2*edge) );
+					ctx.fillText(labely,Math.max(x-2*cs-lw-2*edge,2*edge),Math.max(y-cs,gs.scaling_factor*gs.axis_labels_font_size+edge));
 				}
 				
 				ctx.beginPath();
@@ -3224,13 +3235,13 @@ function mouse_up_event(event,graph){
 				console.log(gs.x_label_mode);
 				break;
 			case 6:
-				gs.x_axis_prefix = prompt("new prefix",gs.x_axis_prefix ) || "";
+				gs.x_axis_prefix = getString("new prefix",gs.x_axis_prefix);
 				break;
 			case 7:
-				gs.x_axis_postfix = prompt("new postfix",gs.x_axis_postfix ) || "";
+				gs.x_axis_postfix = getString("new postfix",gs.x_axis_postfix );
 				break;
 			case 8:
-				gs.x_axis_title = prompt("new title",gs.x_axis_title ) || "";
+				gs.x_axis_title = getString("new title",gs.x_axis_title );
 				graph.transform_index--;
 				break;
 		}
@@ -3307,13 +3318,13 @@ function mouse_up_event(event,graph){
 				console.log(gs.y_label_mode);
 				break;
 			case 6:
-				gs.y_axis_prefix = prompt("new prefix",gs.y_axis_prefix ) || "";
+				gs.y_axis_prefix = getString("new prefix",gs.y_axis_prefix );
 				break;
 			case 7:
-				gs.y_axis_postfix = prompt("new postfix",gs.y_axis_postfix ) || "";
+				gs.y_axis_postfix = getString("new postfix",gs.y_axis_postfix );
 				break;
 			case 8:
-				gs.y_axis_title = prompt("new title",gs.y_axis_title ) || "";
+				gs.y_axis_title = getString("new title",gs.y_axis_title );
 				graph.transform_index--;
 				break;
 		}
@@ -3417,23 +3428,23 @@ function mouse_up_event(event,graph){
 			graph.drawgraphmenu=false;
 			break;
 		case 1:
-			gs.title = prompt("new title",gs.title ) || gs.title;
+			gs.title = getString("new title",gs.title );
 			break;
 		case 2:
-			gs.subtitle = prompt("new subtitle",gs.subtitle ) || gs.subtitle;
+			gs.subtitle = getString("new subtitle",gs.subtitle );
 			break;
 		case 3:
-			gs.subtitle2 = prompt("new subtitle",gs.subtitle2 ) || gs.subtitle2;
+			gs.subtitle2 = getString("new subtitle",gs.subtitle2 );
 			break;
 		case 4:
 			gs.showTransformTexts = !gs.showTransformTexts;
 			break;
 		case 5:
-			gs.x_axis_title = prompt("new x axis title",gs.x_axis_title ) || gs.x_axis_title;
+			gs.x_axis_title = getString("new x axis title",gs.x_axis_title )
 			graph.transform_index--;
 			break;
 		case 6:
-			gs.y_axis_title = prompt("new y axis title",gs.y_axis_title ) || gs.y_axis_title;
+			gs.y_axis_title = getString("new y axis title",gs.y_axis_title )
 			graph.transform_index--;
 			break;
 		case 7:
@@ -3482,13 +3493,13 @@ function mouse_up_event(event,graph){
 			if (lx){gs.lable_spacing--;} else {gs.lable_spacing++;}
 			break;	
 		case 8:
-			gs.color_fg = prompt("new forground color",gs.color_fg ) || gs.color_fg;
+			gs.color_fg = getString("new forground color",gs.color_fg );
 			break;
 		case 9:
-			gs.color_bg = prompt("new background color",gs.color_bg ) || gs.color_bg;
+			gs.color_bg = getString("new background color",gs.color_bg );
 			break;
 		case 10:
-			gs.color_mg = prompt("new midground color",gs.color_mg ) || gs.color_mg;
+			gs.color_mg = getString("new midground color",gs.color_mg );
 			break;
 		case 11:
 			if (lx){gs.graph_line_thickness = Math.max(0.1,gs.graph_line_thickness-0.5);} else {gs.graph_line_thickness+=0.5;}
@@ -3507,7 +3518,7 @@ function mouse_up_event(event,graph){
 	if(graph.drawFontMenu){
 		var ly = Math.floor(end_y/edge)-1;
 		if (ly == -1){
-		gs.font_name = prompt("font",gs.font_name ) || gs.font_name; 
+		gs.font_name = getString("font",gs.font_name );
 		} else {
 		gs.font_name = MJSFontList.fontList[ly];
 		}	
@@ -4127,7 +4138,6 @@ function mouse_up_event(event,graph){
 		}
 		
 		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*11 && end_y < canvas.height - edge*10){
-			// remove outliers button
 			console.log('custom f(x) button');
 			var f = prompt('y = f(x,y) =','y');
 			if (f){
@@ -4228,10 +4238,10 @@ function mouse_up_event(event,graph){
 				console.log('hideshow'+ item);
 				if (end_x > 20*edge){
 					//line colour stuff
-					gs.line_colours[item] = prompt("new color name or hex",graph.colors_backup[item] ) || graph.colors_backup[item];
+					gs.line_colours[item] = getString("new color name or hex",graph.colors_backup[item] );
 				} else if (end_x > 19*edge){
-					gs.symbol_modes[item] = prompt("new symbol mode ( dot cdot circ box x cross)",graph.symbol_modes_backup[item] ) || graph.symbol_modes_backup[item];
-					gs.line_modes[item] = prompt("new line mode ( line zig zag mid arrpox interp hist)",graph.line_modes_backup[item] ) || graph.line_modes_backup[item];
+					gs.symbol_modes[item] = getString("new symbol mode ( dot cdot circ box x cross)",graph.symbol_modes_backup[item] );
+					gs.line_modes[item] = getString("new line mode ( line zig zag mid arrpox interp hist)",graph.line_modes_backup[item] );
 					graph.do_line_modes()
 				} else {
 					gs.hidden_lines[item] = !gs.hidden_lines[item];
@@ -6405,7 +6415,7 @@ new_graph : function (graphname,canvasname){
 					this.colors[i] = color_from_string( 'label' );
 				}
 			} else {
-				this.colors[i] =  this.graphics_style.line_colours[i] || get_color(i,this.data.length-1);
+				this.colors[i] =  this.graphics_style.line_colours[i] || get_color(i,this.data_backup.length-1);
 			}
 		}
 		this.colors_backup = clone(this.colors);
