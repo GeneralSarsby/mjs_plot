@@ -29,7 +29,7 @@ height: 100%;
 	var yb = [];
 	var yc = [];
 	var x = [];
-	var points = 100000;
+	var points = 1000;//100000;
 	for (var i = 0;i<points;i++){
 		x.push(i);
 		ya.push(Math.random()+2);
@@ -37,8 +37,8 @@ height: 100%;
 		yb.push(Math.random()*0.8 + 2*i/points);
 		yc.push(Math.random()*1.14 + 3*Math.sin(i/points));
 	}
-	//ManyPointsGraph.set_data([[x,ya],[x,yb],[x,yc]]);
-	ManyPointsGraph.set_data([[x,ya]]);
+	ManyPointsGraph.set_data([[x,ya],[x,yb],[x,yc]]);
+	//ManyPointsGraph.set_data([[x,ya]]);
 	
 	ManyPointsGraph.set_captions(['a','b','c']);
 	
