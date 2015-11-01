@@ -242,6 +242,14 @@ I don't have a CDN so please don't hot-link it. You can minify with  <a href='ht
 
 <p>You can get the full sized file:<a href='mjs_plot_0_3_n.js'>mjs_plot_0_3_n.js</a></p>
 
+<p>New in 0_3_9: </p>
+<ul>
+<li> Fixed bug with graph reset: the colours now are reset correctlly.
+<li> Fixed bug with data display not 'bouncing' off the right and top sides of the graph.
+<li> Fixed bug if mouseMove is called befor mjs_plot trying to draw an image that isn't rendered yet.
+<li> Fixed UI bug where user trys to set an empty string ( a falsy type) and then it is ignored. Added getString function which guarantees a returned string.
+</ul>
+
 <p>New in 0_3_8: </p>
 <ul>
 <li>  Improved speed of the clean transform by up to 22x. this is used in trim, cut and filter, and many other transforms to remove non-finite values
