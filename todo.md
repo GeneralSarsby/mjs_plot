@@ -6,10 +6,7 @@ things to get done
 Bugfixes
 --------
 
-The reset graph button isn't generating the colours correctlly.
-I think it might be that set_data is itterating through visable data not data_backup.
-
-The curser display sould 'bounce' of the right side of the screen, just like it does on the botton. Use font metrics to find the size, but include the tick size too so that it isn't under the ticks ether.
+None known. If found please inform.
 
 Features
 --------
