@@ -126,7 +126,9 @@ padding:10px
  <body onresize="draw_graphs()" onload="draw_graphs()">
  
  <div id="topmatter">
- <nav><a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> 
+ <nav>
+ <a href="playground/mjslab.html">[Playground]</a>
+ <a href="docs.html#walkthrough">[Walkthrough]</a> <a href="docs.html#demos">[Demos]</a> <a href="docs.html#motivation">[Motivation]</a> 
  <a href="docs.html#implementation">[Implementation]</a> <a href="docs.html#helpers">[Helpers]</a>  <a href="docs.html#weaknesses">[Weaknesses]</a> 
  <a href="docs.html#style">[Style]</a> <a href="docs.html#download">[Downloads]</a>  <a href="docs.html#contact">[Contact]</a> </nav>
 
@@ -140,12 +142,13 @@ padding:10px
 
  <div id="startmatter">
 <p>
-<strong>MJS plot</strong> is a plotting library written in javascript.
-It was written with data logging from scientific applications in mind.
+<strong>MJS plot</strong> is a way to get highly interactive graphs in a web browser, with a special focus on scientific and time-series data.
+Data in graphs can be quickly analysed with non-destructive transforms, and common trends fitted.
+
 </p>
 <p>
-The graph below is interactive. You can drag or pinch to zoom in.
-There are pop-up menus at the top and bottom that reveal more features.
+You can click+drag or pinch on touch screens to zoom in.
+There are hover-over menus at the top and bottom that reveal more features.
 </p>
  <canvas id="democanvas" width="776" height="387"></canvas><br>
  <div id="boxes">
@@ -155,46 +158,45 @@ There are pop-up menus at the top and bottom that reveal more features.
 One file, no dependencies. Few <a href="implementation.html">boilerplate lines</a>. Open source licence.
  </div>
 
-     <div class="featurebox">
+<div class="featurebox">
 <h2>Interactive </h2>
 Zoom, Pan, fit lines, transformations, symbol type, hide/show lines and more. 
- </div>
- 
-   <div class="featurebox">
+</div>
+
+<div class="featurebox">
 <h2>Persistence</h2>
 User made changes stay put. Page reloads won't reset the view.
- </div>
- 
-    <div class="featurebox">
+</div>
+
+<div class="featurebox">
 <h2>Mobile Touch</h2>
 Data analysis on your phone or tablet. Pinch to zoom and under-finger views.
- </div>
- 
-  <div class="featurebox">
+</div>
+
+<div class="featurebox">
 <h2>HTML5</h2>
-Uses the HTML5 canvas element. It's supported in all modern browsers on desktop and mobile
- </div>
- 
-   <div class="featurebox">
+Widely supported, even view graphs on your games console or e-reader wherever you are.
+</div>
+
+<div class="featurebox">
 <h2>Responsive</h2>
-Plot on nearly any size canvas.
-As well as figuring out a new scale that always is sensible. Try resizing this page.
- </div>
- 
-      <div class="featurebox">
+Plot on nearly any size canvas. MJSplot will find a sensible scale. Try resizing this page.
+</div>
+
+<div class="featurebox">
 <h2>Time-series data</h2>
 Time axes for graphs. From milliseconds to years there is a scale that works. <a href="demos/timedemo.html">[demo]</a>
- </div>
- 
-       <div class="featurebox">
+</div>
+
+<div class="featurebox">
 <h2>Out-of-the-box OK</h2>
 Auto-detect axes scales, colours separated in HSL. Clean simple style.
- </div>
- 
-        <div class="featurebox">
+</div>
+
+<div class="featurebox">
 <h2>No data traps</h2>
-Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), and as 300dpi PNG for print.
- </div>
+Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), 300dpi PNGs and SVGs. 
+</div>
  
  
  </div>
@@ -597,15 +599,15 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 	index_pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
 	index_pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
 	index_pressure_graph.default_graphics_style.title = "Example Graph";
-	index_pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
-	index_pressure_graph.default_graphics_style.x_axis_title =  "Hours";
-	index_pressure_graph.default_graphics_style.font_name =  "helvetica";
+	index_pressure_graph.default_graphics_style.subtitle = 'Pressure Logs';
+	index_pressure_graph.default_graphics_style.x_axis_title = "";
+	index_pressure_graph.default_graphics_style.font_name =  "serif";
 	index_pressure_graph.default_graphics_style.axis_labels_font_size = 12;
 	index_pressure_graph.default_graphics_style.tick_labels_font_size= 12;
 	index_pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
 	index_pressure_graph.default_graphics_style.hidden_lines = [ false, true, true, false, true, true, false ];
-	index_pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
-	index_pressure_graph.default_graphics_style.color_fg =  "#111111";
+	index_pressure_graph.default_graphics_style.color_bg =  "white";
+	index_pressure_graph.default_graphics_style.color_fg =  "black";
 	index_pressure_graph.default_graphics_style.show_grid = true;
 	index_pressure_graph.default_graphics_style.y_scale_mode = "log";
 	index_pressure_graph.default_graphics_style.x_scale_mode =  "time";

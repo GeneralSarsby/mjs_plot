@@ -135,14 +135,14 @@ title('Load Graph for Solar Cell');
 subtitle('four cells of 2.5x5cm');
 x_axis('resistances / Ohms');
 y_axis('power / Watts');
-
+//load in the data
 currents = [70.8,71.1,71.3,71.2,71.3,71.2,71.0,69.2,65.9,59.7,56,54.8,52.9,51.8,48.4,47.4,46.6,44.8,43.3,42.6,40.0,38.1,36.5,35.5,33,27.1,25.6,21.6,6.3];
 voltages = [0.109,.461,.8,1.016,1.204,1.333,1.483,1.657,1.783,1.874,1.91,1.915,1.929,1.937,1.958,1.92,1.966,1.976,1.983,1.986,1.994,2,2.01,2.01,2.02,2.04,2.04,2.06,2.09];
-
+//do some maths with it
 currents = times(currents,0.001);
 resistances = divide(voltages ,currents);
 powers = times(voltages,currents);
-
+//call plot
 plot(resistances ,powers);
 captions('run 1');
 
@@ -502,7 +502,7 @@ window.removeResizeListener = function(element, fn){
 	
 	
 	
-	var __graph = mjs_plot.new_graph("__graph","canvas4");
+	var __graph = mjs_plot.new_graph("__graph_theis","canvas4");
 	__graph.default_graphics_style.color_bg='white';
 	__graph.default_graphics_style.color_fg='black';
 	__graph.default_graphics_style.scaling_factor=1.0;

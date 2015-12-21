@@ -572,25 +572,9 @@ function download_text(text,filename,type){
 	document.body.removeChild(pom);
 }
 
-function show_text_to_screen(text,graph){
-
-	var pom = document.createElement('button');
-	var textDiv = document.createElement('div');
-	
-	pom.setAttribute('onclick', 'location.reload()');
-	pom.innerHTML  = "back";
-	pom.style.display = 'block';
-	
-	var export_textarea = document.createElement('textarea');
-	export_textarea.style.width = 0.8*graph.canvas.width+'px';
-	export_textarea.style.height = 0.8*graph.canvas.height+'px';
-	
-	textDiv.appendChild(pom);
-	textDiv.appendChild(export_textarea);
-	
-	export_textarea.value = text;
-	graph.canvas.parentNode.appendChild(textDiv);
-	graph.canvas.parentNode.removeChild(graph.canvas);
+function new_window_with_text(text,title,width,height){
+ var url = 'data:text/plain;charset=utf-8;base64,' + btoa(text);
+ window.open(url, title, "width="+width+", height="+height);		
 }
 
 function save_gs(name, gs){
@@ -4325,8 +4309,11 @@ function mouse_up_event(event,graph){
 				
 				
 			}
-			show_text_to_screen(text,graph);
-			//theBody.innerHTML = text;
+			new_window_with_text(text,
+				graph.graphics_style.title,
+				graph.canvas.width,
+				graph.canvas.height
+			);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -4345,10 +4332,12 @@ function mouse_up_event(event,graph){
 					text += graph.data[i][1][ii] + ' '
 				}
 				text += graph.data[i][1][ii] + '];\n';
-				
-				
 			}
-			show_text_to_screen(text,graph);
+			new_window_with_text(text,
+				graph.graphics_style.title,
+				graph.canvas.width,
+				graph.canvas.height
+			);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
@@ -4357,7 +4346,6 @@ function mouse_up_event(event,graph){
 			text = JSON.stringify(graph.data);
 			download_text(text,'mjsplot_graph.json');
 		}
-		
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('tabbed');
@@ -4433,7 +4421,8 @@ function mouse_up_event(event,graph){
 			text+= graph_name+'.default_graphics_style = '+gs_code+'; '+nl;
 
 			var shower = MJS_PLOT_LINK_LOADER;
-			show_text_to_screen(shower+graph_name+LZString.compressToEncodedURIComponent(text),graph);
+			var url = shower+graph_name+LZString.compressToEncodedURIComponent(text);
+			window.open(url, graph.graphics_style.title, "width="+graph.canvas.width+", height="+graph.canvas.height);
 			
 		}my-=dy;
 		

@@ -53,7 +53,7 @@ overflow:hidden;
 	height:100px;
  }
 	
-
+a {color:white}
 	 
 </style>
 	<script src="../mjs_plot_0_3_n.js"></script>
@@ -77,7 +77,8 @@ overflow:hidden;
   <option value="about_text">About</option>
 </select>
 
-
+<a href="mjslab_thesis.html">Thesis Plot Playground</a>
+<a href="import_n_plot.html">Advanced Data Importer (Beta)</a>
 </div>
  
  
@@ -97,43 +98,20 @@ overflow:hidden;
 
   
    <div id='basic_intro' class='example'>
-// Here you can provide data, do some manipultions, and plot the result.
-
-// the contents of this editor will be evaluated.
-// It is just simple javascript with a few helper functions.
-
-// When you are done editing, click the run button in the top left.
-// In this example I've used some IV data to demonstate.
-currents = [70.8,71.1,71.3,71.2,71.3,71.2,71.0,69.2,65.9,59.7,56,54.8,52.9,51.8,48.4,47.4,46.6,44.8,43.3,42.6,40.0,38.1,36.5,35.5,33,27.1,25.6,21.6,6.3];
-voltages = [.109,.461,.8,1.016,1.204,1.333,1.483,1.657,1.783,1.874,1.91,1.915,1.929,1.937,1.958,1.92,1.966,1.976,1.983,1.986,1.994,2,2.01,2.01,2.02,2.04,2.04,2.06,2.09];
-
-//You can print messages to the box below
-println('There are ',voltages.length, ' measurments');
-
-//basic maths works times(x,y),add(x,y),sub(x,y),divide(x,y),log(x),sqrt(x),sqr(x),exp(x)
-//each work on arrays element-wise, or number on element.
-
-//convert current in mA to A
-currents = times(currents,0.001);
-
-resistances = divide(voltages ,currents);
-powers = times(voltages,currents);
-
-//plot in the form (x,y). Call plot() again to add new lines.
-plot(resistances ,powers)
-
-//setup a few things on the graph.
-captions('run 1');
 title('Load Graph for Solar Cell');
 subtitle('four cells of 2.5x5cm');
 x_axis('resistances / Ohms');
 y_axis('power / Watts');
-
-// To learn more, use the Load Example option above.
-
-// For hackers thinking that can break stuff as this is ran eval()-style
-// You can. Sure. Go for it. 
-
+//load in the data
+currents = [70.8,71.1,71.3,71.2,71.3,71.2,71.0,69.2,65.9,59.7,56,54.8,52.9,51.8,48.4,47.4,46.6,44.8,43.3,42.6,40.0,38.1,36.5,35.5,33,27.1,25.6,21.6,6.3];
+voltages = [0.109,.461,.8,1.016,1.204,1.333,1.483,1.657,1.783,1.874,1.91,1.915,1.929,1.937,1.958,1.92,1.966,1.976,1.983,1.986,1.994,2,2.01,2.01,2.02,2.04,2.04,2.06,2.09];
+//do some maths with it
+currents = times(currents,0.001); //mA to amps
+resistances = divide(voltages ,currents);
+powers = times(voltages,currents);
+//call plot
+plot(resistances ,powers);
+captions('run 1');
  </div>
   <div id='errors_example' class='example'>
 // as of version 0_3 MJSplot has basic support for plotting error bars.
