@@ -4384,131 +4384,35 @@ function mouse_up_event(event,graph){
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('png hi');
-			graph.canvas.width *= 3;
-			graph.canvas.height *= 3;
-			gs.scaling_factor *= 3;
-			graph.transparent = true;
-			graph.mjs_plot();
-			var dataUrl = graph.canvas.toDataURL();
-			window.open(dataUrl, "toDataURL() image", "width=600, height=400");
-			graph.transparent = false;
-			gs.scaling_factor /= 3;
-			graph.canvas.width /= 3;
-			graph.canvas.height /= 3;
-			graph.mjs_plot();
+			graph.export_png(graph.canvas.width*3,graph.canvas.height*3,3);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('png low');
-			graph.transparent = true;
-			graph.mjs_plot();
-			var dataUrl = graph.canvas.toDataURL();
-			window.open(dataUrl, "toDataURL() image", "width=600, height=400");
-			graph.transparent = false;
-			graph.mjs_plot();
+			graph.export_png(graph.canvas.width,graph.canvas.height,1);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('png (small figure)');
-			//TODO should figure out a way to allways get the fonts to be the correct size. 
-			var temp_width = graph.canvas.width;
-			var temp_height = graph.canvas.height;
-			graph.canvas.width = 1000;
-			graph.canvas.height = 750;
-			gs.scaling_factor *= 2.5;
-			graph.transparent = true;
-			graph.mjs_plot();
-			var dataUrl = graph.canvas.toDataURL();
-			window.open(dataUrl, "toDataURL() image", "width=1000, height=750");
-			graph.transparent = false;
-			gs.scaling_factor /= 2.5;
-			graph.canvas.width  = temp_width;
-			graph.canvas.height = temp_height;
-			graph.mjs_plot();
+			graph.export_png(1000,750,2.5);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('png (large figure)');
-			//TODO should figure out a way to allways get the fonts to be the correct size. 
-			var temp_width = graph.canvas.width;
-			var temp_height = graph.canvas.height;
-			graph.canvas.width = 1000*2;
-			graph.canvas.height = 750*2;
-			gs.scaling_factor *= 2.5;
-			graph.transparent = true;
-			graph.mjs_plot();
-			var dataUrl = graph.canvas.toDataURL();
-			window.open(dataUrl, "toDataURL() image", "width=1000, height=750");
-			graph.transparent = false;
-			gs.scaling_factor /= 2.5;
-			graph.canvas.width  = temp_width;
-			graph.canvas.height = temp_height;
-			graph.mjs_plot();
+			graph.export_png(1000*2,750*2,2.5);
 		}
 		my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('svg');
-			//make a div to put a tempoary inline svg in.
-			var svgDiv = document.createElement('div');
-			svgDiv.innerHTML = '<svg id="_mjsplotSVG" version="1.1" width="'+graph.canvas.width+'" height="'+graph.canvas.height+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>';
-			document.body.appendChild(svgDiv);
-			//set the graph to SVG mode and plot to the svg
-			graph.isSVG=true;
-			graph.mjs_plot();
-			//get the svg that was just plotted
-			var svg = document.getElementById("_mjsplotSVG").outerHTML;
-			// get a headder on it for utf-8
-			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
-			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
-			document.body.removeChild(svgDiv);
-			graph.isSVG=false;
-			graph.mjs_plot();
+			graph.export_svg(graph.canvas.width,graph.canvas.height);
 		}my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('svg (small fig)');
-			var temp_width = graph.canvas.width;
-			var temp_height = graph.canvas.height;
-			graph.canvas.width = 1000/2.5;
-			graph.canvas.height = 750/2.5;
-			
-			var svgDiv = document.createElement('div');
-			svgDiv.innerHTML = '<svg id="_mjsplotSVG" version="1.1" width="'+graph.canvas.width+'" height="'+graph.canvas.height+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>';
-			document.body.appendChild(svgDiv);
-			graph.isSVG=true;
-			graph.mjs_plot();
-			var svg = document.getElementById("_mjsplotSVG").outerHTML;
-			
-			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
-			
-			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
-			document.body.removeChild(svgDiv);
-			graph.isSVG=false;
-			graph.canvas.width  = temp_width;
-			graph.canvas.height = temp_height;
-			graph.mjs_plot();
+			graph.export_svg(1000/2.5,750/2.5);
 		}my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('svg (large fig)');
-			var temp_width = graph.canvas.width;
-			var temp_height = graph.canvas.height;
-			graph.canvas.width = 2*1000/2.5;
-			graph.canvas.height = 2*750/2.5;
-			
-			var svgDiv = document.createElement('div');
-			svgDiv.innerHTML = '<svg id="_mjsplotSVG" version="1.1" width="'+graph.canvas.width+'" height="'+graph.canvas.height+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>';
-			document.body.appendChild(svgDiv);
-			graph.isSVG=true;
-			graph.mjs_plot();
-			var svg = document.getElementById("_mjsplotSVG").outerHTML;
-			
-			var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
-			
-			download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
-			document.body.removeChild(svgDiv);
-			graph.isSVG=false;
-			graph.canvas.width  = temp_width;
-			graph.canvas.height = temp_height;
-			graph.mjs_plot();
+			graph.export_svg(2*1000/2.5,2*750/2.5);
 		}my-=dy;
 		if ( end_y > my - dy && end_y < my){
 			console.log('html (link)');
@@ -7616,27 +7520,29 @@ new_graph : function (graphname,canvasname){
 	ctx.beginPath();
 	for (var i = 0;i<positionsx.pos.length;i++){
 		var x = positionsx.pos[i];
+		if (x > graph_line_thickness && x < canvas.width - graph_line_thickness){
 		var label = positionsx.strings[i];
 		
 		ctx.fillText(label,x,canvas.height-tick_len*1.2-tick_lables_font_padding - o - j);
 		j *= -1;
 		
-		ctx.moveTo(x,0);
+		ctx.moveTo(x,graph_line_thickness/2);
 		ctx.lineTo(x,tick_len);
-		ctx.moveTo(x,canvas.height);
+		ctx.moveTo(x,canvas.height-graph_line_thickness/2);
 		ctx.lineTo(x,canvas.height-tick_len);
-		
+		}
 	}
 	ctx.stroke();
 	ctx.beginPath();
 	for (var i = 0;i<positionsx.minor_pos.length;i++){
+		
 		x = positionsx.minor_pos[i];
-		
-		ctx.moveTo(x,0);
+		if (x > graph_line_thickness && x < canvas.width - graph_line_thickness){
+		ctx.moveTo(x,graph_line_thickness/2);
 		ctx.lineTo(x,minor_tick_len);
-		ctx.moveTo(x,canvas.height);
+		ctx.moveTo(x,canvas.height-graph_line_thickness/2);
 		ctx.lineTo(x,canvas.height-minor_tick_len);
-		
+		}
 	}
 	ctx.stroke();
 	gs.x_precision = positionsx.precision;
@@ -7644,28 +7550,29 @@ new_graph : function (graphname,canvasname){
 	ctx.beginPath();
 	for (var i = 0;i<positionsy.pos.length;i++){
 		var y = canvas.height - positionsy.pos[i];
+		if (y > graph_line_thickness && y < canvas.height - graph_line_thickness){
 		var label = positionsy.strings[i];
 		//if it is near the top, don't put a label, as this is where the axis label is.
 		if (y > tick_len+lable_spacing+axis_labels_font_size+tick_labels_font_size/2 && y < canvas.height - tick_labels_font_size - tick_lables_font_padding-tick_len-tick_labels_font_size/2){
 			ctx.fillText(label,tick_len*1.2+tick_lables_font_padding+2,y+3);
 		}
 		
-		ctx.moveTo(0,y);
+		ctx.moveTo(graph_line_thickness/2,y);
 		ctx.lineTo(tick_len,y);
-		ctx.moveTo(canvas.width,y);
+		ctx.moveTo(canvas.width-graph_line_thickness/2,y);
 		ctx.lineTo(canvas.width-tick_len,y);
-		
+		}
 	}
 	ctx.stroke();
 	ctx.beginPath();
 	for (var i = 0;i<positionsy.minor_pos.length;i++){
 		y = canvas.height - positionsy.minor_pos[i];
-		
-		ctx.moveTo(0,y);
+		if (y > graph_line_thickness && y < canvas.height - graph_line_thickness){
+		ctx.moveTo(graph_line_thickness/2,y);
 		ctx.lineTo(minor_tick_len,y);
-		ctx.moveTo(canvas.width,y);
+		ctx.moveTo(canvas.width-graph_line_thickness/2,y);
 		ctx.lineTo(canvas.width-minor_tick_len,y);
-		
+		}
 	}
 	ctx.stroke();
 	gs.y_precision = positionsy.precision;
@@ -8252,7 +8159,47 @@ new_graph : function (graphname,canvasname){
 		full_screen_graph.canvas.width = window.innerWidth;
 		full_screen_graph.canvas.height = window.innerHeight;
 		full_screen_graph.mjs_plot();
-},
+	},
+	export_svg : function (width,height){
+		var temp_width = this.canvas.width;
+		var temp_height = this.canvas.height;
+		this.canvas.width = width;
+		this.canvas.height = height;
+		
+		var svgDiv = document.createElement('div');
+		svgDiv.innerHTML = '<svg id="_mjsplotSVG" version="1.1" width="'+
+			this.canvas.width+
+			'" height="'+
+			this.canvas.height+
+			'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>';
+		document.body.appendChild(svgDiv);
+		this.isSVG=true;
+		this.mjs_plot();
+		var svg = document.getElementById("_mjsplotSVG").outerHTML;
+		var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
+		download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
+		document.body.removeChild(svgDiv);
+		this.isSVG=false;
+		this.canvas.width  = temp_width;
+		this.canvas.height = temp_height;
+		this.mjs_plot();
+	},
+	export_png :function(width,height,sf){
+		var temp_width = this.canvas.width;
+		var temp_height = this.canvas.height;
+		this.canvas.width = width;
+		this.canvas.height = height;
+		this.graphics_style.scaling_factor *= sf;
+		this.transparent = true;
+		this.mjs_plot();
+		var dataUrl = this.canvas.toDataURL();
+		window.open(dataUrl, "toDataURL() image", "width="+width+", height="+height);
+		this.transparent = false;
+		this.graphics_style.scaling_factor /= sf;
+		this.canvas.width  = temp_width;
+		this.canvas.height = temp_height;
+		this.mjs_plot();
+	}
 
 };//end of graph object
 	graph.canvas = canvas;
