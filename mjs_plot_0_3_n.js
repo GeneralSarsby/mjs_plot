@@ -271,13 +271,18 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 	  - fixed bug with data display not 'bouncing' off the right side of the screen.
 	  - fixed bug if mouseMove is called befor mjs_plot trying to draw an image that isn't rendered yet.
 	  - fixed UI bug where user trys to set an empty string ( a falsy type) and then it is ignored. Added getString function which garrentees a string to return.
+0_9_10 - added svg+png export type, the background data is rendered as a high resolution PNG, while the text and ticks are SVG
+	  - added us for svg+png in the export menu, this does need an overhaul.
+	  - fixed bug with error bars not being handled corrently while being cleaned.
+	  
+	  
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_9';
+var MJS_PLOT_VERSION = '0_3_10';
 var MJS_PLOT_AUTOR = 'MJS';
-var MJS_PLOT_DATE = '2015';
+var MJS_PLOT_DATE = '2016';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
 
 var MJS_PLOT_LINK_LOADER = "http://generalsarsby.github.io/mjs_plot/load.html#";
@@ -2258,11 +2263,11 @@ function mouse_move_event_actual(event,graph){
 		}
 		
 		if (graph.drawexportmenu){
-			if (x > canvas.width - 8*edge && y > canvas.height-edge*14){
+			if (x > canvas.width - 16*edge && y > canvas.height-edge*14){
 				//ctx.font= (0.55*edge) + 'px ' + gs.font_name;//"24px Courier New";
 				//box
 				ctx.fillStyle = gs.color_bg;
-				ctx.rect(canvas.width - 8*edge,canvas.height-edge*14,edge*8,edge*14);
+				ctx.rect(canvas.width - 16*edge,canvas.height-edge*14,edge*16,edge*14);
 				ctx.fill();
 				ctx.stroke();
 				ctx.fillStyle = gs.color_fg;
@@ -2285,6 +2290,13 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('svg (large figure)',lx,  ly);ly-=dy;
 				
 				ctx.fillText('HTML [link]',lx,  ly);ly-=dy;
+				
+				lx = canvas.width - 15.8*edge;
+				ly = canvas.height - edge*10.1;
+				ctx.fillText('svg+png',lx,  ly);ly-=dy;
+				ctx.fillText('svg+png(small fig)',lx,  ly);ly-=dy;
+				ctx.fillText('svg+png(large fig)',lx,  ly);ly-=dy;
+				
 			} else {
 				graph.drawexportmenu = false;
 			}
@@ -3579,12 +3591,8 @@ function mouse_up_event(event,graph){
 		for (var i = 0;i<2;i++){
 			if (end_y > ly-(i+1)*ldy && end_y < ly-i*ldy && end_x>lx && end_x < lx+4*ldx){
 				for (var j = 0;j<4;j++){
-					//var label = timeoptionsstrings[i][j];
-					
 					var selected = end_x>lx+j*ldx && end_x < lx+(j+1)*ldx;
-					
 					if (selected){graph.timemenuoptions[i] = j;}
-					
 				}
 			}
 		}
@@ -4390,18 +4398,34 @@ function mouse_up_event(event,graph){
 			graph.export_png(1000*2,750*2,2.5);
 		}
 		my-=dy;
-		if ( end_y > my - dy && end_y < my){
-			console.log('svg');
-			graph.export_svg(graph.canvas.width,graph.canvas.height);
-		}my-=dy;
-		if ( end_y > my - dy && end_y < my){
-			console.log('svg (small fig)');
-			graph.export_svg(1000/2.5,750/2.5);
-		}my-=dy;
-		if ( end_y > my - dy && end_y < my){
-			console.log('svg (large fig)');
-			graph.export_svg(2*1000/2.5,2*750/2.5);
-		}my-=dy;
+		if (end_x > canvas.width - 8*edge){
+			if ( end_y > my - dy && end_y < my){
+				console.log('svg');
+				graph.export_svg(graph.canvas.width,graph.canvas.height);
+			}my-=dy;
+			if ( end_y > my - dy && end_y < my){
+				console.log('svg (small fig)');
+				graph.export_svg(1000/2.5,750/2.5);
+			}my-=dy;
+			if ( end_y > my - dy && end_y < my){
+				console.log('svg (large fig)');
+				graph.export_svg(2*1000/2.5,2*750/2.5);
+			}my-=dy;
+		} else {
+			if ( end_y > my - dy && end_y < my){
+				console.log('svgpng');
+				graph.export_svg_png(graph.canvas.width,graph.canvas.height,3);
+			}my-=dy;
+			if ( end_y > my - dy && end_y < my){
+				console.log('svgpng (small fig)');
+				graph.export_svg_png(1000/2.5,750/2.5,3);
+			}my-=dy;
+			if ( end_y > my - dy && end_y < my){
+				console.log('svgpng (large fig)');
+				graph.export_svg_png(2*1000/2.5,2*750/2.5,3);
+			}my-=dy;
+		}
+		
 		if ( end_y > my - dy && end_y < my){
 			console.log('html (link)');
 			var text = '';
@@ -5089,6 +5113,17 @@ function SVGContext(ctx){
 	this.getImageData = this._ctx.getImageData;
 	this.measureText = function(s){return {width:this._ctx.measureText(s).width}} ;
 	
+	this.image = function (x,y,w,h,data){
+		this._shape = document.createElementNS(svgNS, "image");
+		
+		this._shape.setAttributeNS(null, "x", x.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS(null, "y", y.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS(null, "width", w.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS(null, "height", h.toFixed(this._pixel_precision));
+		this._shape.setAttributeNS('http://www.w3.org/1999/xlink', "xlink:href", data );
+		this.target.appendChild(this._shape);
+		this._isdrawn = true;
+	}
 }
 
 function drawSplash(canvas,ctx){
@@ -5879,6 +5914,7 @@ new_graph : function (graphname,canvasname){
 	orignal_canvas_height : 400,
 	isFullscreen : false,
 	isSVG : false, // when using the SVG render is set to true.
+	isPNGSVG : false,
 	svg : '',
 	errors : [],
 	
@@ -7152,7 +7188,13 @@ new_graph : function (graphname,canvasname){
 	
 	var gs = this.graphics_style;
 	var ctx = this.canvas.getContext('2d');
-	if (this.isSVG){var ctx = new SVGContext(ctx)};
+	if (this.isPNGSVG){
+		this.isSVG=true;
+	}
+	if (this.isSVG){
+		var oldctx = ctx;
+		var ctx = new SVGContext(ctx);
+	}
 	
 	ctx.lineJoin="round";
 	var canvas = this.canvas;
@@ -7192,9 +7234,9 @@ new_graph : function (graphname,canvasname){
 	ctx.fillStyle = gs.color_bg;
 	ctx.strokeStyle = gs.color_fg;
 	
+	
 	if (this.transparent ){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-	
 	} else {
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 	}
@@ -7354,7 +7396,15 @@ new_graph : function (graphname,canvasname){
 	//for histogram find the 0 point or use the bottom of the screen.
 	var hist_zero = Math.min(this.units_to_pixels(0,'y'),canvas.height);
 	
-	var full_auto_zoom = gs.y_scale_auto_min && gs.y_scale_auto_max && gs.x_scale_auto_min && gs.x_scale_auto_max
+	
+	if (this.isPNGSVG){
+		var svgctx = ctx;
+		ctx = oldctx;
+		this.isSVG=false;
+	}
+	
+	
+	var full_auto_zoom = gs.y_scale_auto_min && gs.y_scale_auto_max && gs.x_scale_auto_min && gs.x_scale_auto_max;
 	//point drawing code here
 	for (i = 0;i<this.data.length;i++){
 		ctx.strokeStyle = this.colors[i];
@@ -7477,12 +7527,12 @@ new_graph : function (graphname,canvasname){
 		if (this.isSVG){ctx.endGroup();}
 		
 	}
-	ctx.lineWidth = graph_line_thickness;
-	ctx.strokeStyle = gs.color_fg;//'#000000';
-	ctx.fillStyle = gs.color_fg;;//'#000000';
 	
-	if (!drawn_something && this.no_data == false && gs.function_lines.length ==0){
-		this.errors.push("there might be data around, just not where you're looking");
+	
+	if (this.isPNGSVG){
+		ctx = svgctx;
+		this.isSVG=true;
+		ctx.image(0,0,canvas.width,canvas.height,this.pngbackground );
 	}
 	
 	if (!this.isSVG){
@@ -7491,6 +7541,15 @@ new_graph : function (graphname,canvasname){
 			this.needs_drag_image = false;
 		}
 	}
+	
+	ctx.lineWidth = graph_line_thickness;
+	ctx.strokeStyle = gs.color_fg;//'#000000';
+	ctx.fillStyle = gs.color_fg;;//'#000000';
+	
+	if (!drawn_something && this.no_data == false && gs.function_lines.length ==0){
+		this.errors.push("there might be data around, just not where you're looking");
+	}
+	
 	
 	//draw the ticks and the points. 
 	//for x
@@ -8169,6 +8228,45 @@ new_graph : function (graphname,canvasname){
 		download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
 		document.body.removeChild(svgDiv);
 		this.isSVG=false;
+		this.canvas.width  = temp_width;
+		this.canvas.height = temp_height;
+		this.mjs_plot();
+	},
+	export_svg_png : function (width,height,sf){
+		
+		var temp_width = this.canvas.width;
+		var temp_height = this.canvas.height;
+		this.canvas.width = width*sf;
+		this.canvas.height = height*sf;
+		this.graphics_style.scaling_factor *= sf;
+		this.transparent = true;
+		this.needs_drag_image = true;
+		this.mjs_plot();
+		
+		var ctx = this.canvas.getContext('2d');
+		ctx.putImageData(this.graph_image_for_drag,0,0);
+		this.pngbackground = this.canvas.toDataURL();
+		this.transparent = false;
+		this.graphics_style.scaling_factor /= sf;
+		this.canvas.width = width;
+		this.canvas.height = height;
+		var svgDiv = document.createElement('div');
+		svgDiv.innerHTML = '<svg id="_mjsplotSVG" version="1.1" width="'+
+			this.canvas.width+
+			'" height="'+
+			this.canvas.height+
+			'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>';
+		document.body.appendChild(svgDiv);
+		this.isSVG=false;
+		this.isPNGSVG=true;
+		this.mjs_plot();
+		var svg = document.getElementById("_mjsplotSVG").outerHTML;
+		var xmlheadder = '<?xml version="1.0" encoding="utf-8" standalone="yes"?> ';
+		download_text(xmlheadder+svg,'mjsplot_graph.svg','data:image/svg+xml;charset=utf-8');
+		document.body.removeChild(svgDiv);
+		this.isSVG=false;
+		this.isPNGSVG=false;
+		
 		this.canvas.width  = temp_width;
 		this.canvas.height = temp_height;
 		this.mjs_plot();
