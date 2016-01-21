@@ -94,6 +94,8 @@ overflow:hidden;
   <button onclick = '__make_graph_large()'>Large</button>
   <br>
    <button onclick = '__export_svg()'>Export svg</button>
+   
+   <button onclick = '__export_svg_png()'>Export svg+png</button>
    <br>
   <input type='text' id='pageWidth' value='418'></input>px Page width. 481px : 312pt(latex)
   
@@ -126,6 +128,10 @@ overflow:hidden;
   function __export_svg(){
 	__graph.export_svg(__graph.canvas.width,__graph.canvas.height);
   }
+  function __export_svg_png(){
+	__graph.export_svg_png(__graph.canvas.width,__graph.canvas.height,3);
+  }
+  
   
   </script>
   
