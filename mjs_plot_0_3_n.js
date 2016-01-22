@@ -758,8 +758,11 @@ function mjs_time_difference_print(milliseconds){
 	//if the day is first hp==2 put the day mon tue wed...
 	var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 	var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-	
-	//if (hp == 2){s+=days[d.getDay()];}
+	if (hp == 2 && lp == 3){
+		s+=days[d.getDay()];
+		s+= ' ' + padLeft(d.getHours(), 2, '0')+'h';
+		return s;
+	}
 	//if (hp == 2){s+=months[d.getMonth()];}
 	
 	if ( hp == 2 && lp == 2 ){
@@ -1473,6 +1476,28 @@ function mouse_move_event_actual(event,graph){
 				ctx.lineTo(canvas.width,y);
 				ctx.stroke();
 			}
+			if (gs.mouse_mode === 'addmarkertext'){
+				label = graph.markerText;
+				ctx.textAlign="center";
+				ctx.fillText(label,x,y);
+			}
+			if (gs.mouse_mode === 'addmarkerline'){
+				label =  '  click and drag to draw' ;
+				ctx.fillText(label,x+cs,y+cs);
+			}
+			if (gs.mouse_mode === 'addmarkerbox'){
+				label =  '  click and drag to draw' ;
+				ctx.fillText(label,x+cs,y+cs);
+			}
+			if (gs.mouse_mode === 'removeMarker'){
+				for (var i=0;i<gs.markers.length;i++){
+					var m = gs.markers[i];
+					ctx.beginPath();
+					ctx.arc(graph.units_to_pixels(m.x,'x'), graph.units_to_pixels(m.y,'y'), cs , 0 ,Math.PI*2, true);
+					ctx.stroke();
+				}
+				
+			}
 			if (gs.mouse_mode === 'mouse'){
 			
 				//fit text handle
@@ -1628,6 +1653,7 @@ function mouse_move_event_actual(event,graph){
 			ctx.beginPath();
 			ctx.rect(0,0,edge*4,edge);
 			ctx.rect(4*edge,0,edge*4,edge);
+			ctx.rect(14*edge,0,edge*3,edge);
 			ctx.rect(canvas.width-5*edge,0,edge*3,edge);
 			ctx.fill();
 			ctx.stroke();
@@ -1638,6 +1664,8 @@ function mouse_move_event_actual(event,graph){
 			ctx.fillText("symbol/line",0.2*edge,0.8*edge);
 			ctx.fillText("Graph",4.2*edge,0.8*edge);
 			ctx.fillText("Style",canvas.width-4.8*edge,0.8*edge);
+			ctx.fillText("Markers",14.2*edge,0.8*edge);
+			
 			ctx.fillStyle = gs.color_bg;
 			
 			//mouse mode to drag button
@@ -2214,6 +2242,27 @@ function mouse_move_event_actual(event,graph){
 			}
 		}
 		
+		if (graph.drawmarkermenu){
+			if (x < 21*edge && x > 14*edge && y < edge*10){
+				ctx.fillStyle = gs.color_bg;
+				ctx.rect(14*edge,0,edge*7,edge*10);
+				ctx.fill();
+				ctx.stroke();
+				ctx.fillStyle = gs.color_fg;
+				ctx.beginPath();
+				var ly = edge*0.8;
+				var dy = -edge;
+				var lx = 14.2*edge;
+				ctx.fillText('Marker',lx, ly);ly-=dy;
+				ctx.fillText('Clear All',lx, ly);ly-=dy;
+				ctx.fillText('Remove (pick)',lx, ly);ly-=dy;
+				ctx.fillText('Add Text',lx,  ly);ly-=dy;
+				ctx.fillText('Add line',lx,  ly);ly-=dy;
+				ctx.fillText('Add box',lx,  ly);ly-=dy;
+			} else {
+				graph.drawmarkermenu = false;
+			}
+		}
 		if (graph.drawgraphmenu){
 			if (x < 12*edge && x > 4*edge && y < edge*10){
 				ctx.fillStyle = gs.color_bg;
@@ -3007,6 +3056,18 @@ function mouse_move_event_actual(event,graph){
 			return;
 		}
 	}
+	
+	if (mouse_down && gs.mouse_mode === 'addmarkerline'){
+		ctx.beginPath();
+		ctx.moveTo(start_x,start_y);
+		ctx.lineTo(x,y);
+		ctx.stroke();
+	}
+	if (mouse_down && gs.mouse_mode === 'addmarkerbox'){
+		ctx.beginPath();
+		ctx.rect(start_x+1,start_y+1,x-start_x-1,y-start_y-1);
+		ctx.stroke();
+	}
 }
 
 function mouse_down_event(event,graph){
@@ -3458,6 +3519,53 @@ function mouse_up_event(event,graph){
 		return;
 	}
 	
+	if(graph.drawmarkermenu){
+	var ly = Math.floor(end_y/edge);
+	switch(ly){
+		case 0:
+			graph.drawmarkermenu=false;
+			break;
+		case 1:
+			gs.markers = [];
+			graph.drawmarkermenu=false;
+			graph.mjs_plot();
+			break
+		case 2:
+			graph.pre_mouse_mode = gs.mouse_mode;
+			gs.mouse_mode = 'removeMarker';
+			graph.drawmarkermenu=false;
+			break
+		case 3:
+			graph.pre_mouse_mode = gs.mouse_mode;
+			gs.mouse_mode = 'addmarkertext';
+			graph.markerText = getString("Text:",'' );
+			graph.drawmarkermenu=false;
+			break;
+		case 4:
+			graph.pre_mouse_mode = gs.mouse_mode;
+			gs.mouse_mode = 'addmarkerline';
+			graph.drawmarkermenu=false;
+			break;
+		case 5:
+			graph.pre_mouse_mode = gs.mouse_mode;
+			gs.mouse_mode = 'addmarkerbox';
+			graph.drawmarkermenu=false;
+			break;
+		case 6:
+			graph.pre_mouse_mode = gs.mouse_mode;
+			gs.mouse_mode = 'addmarkerarrow';
+			graph.markerText = getString("Text:",'' );
+			graph.drawmarkermenu=false;
+			break;
+		}
+		//graph.mjs_plot();
+		setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+		return;
+	}
+	
+	
+	
+	
 	if(graph.drawStylemenu){
 		var ly = Math.floor(end_y/edge);
 		var lx = Math.floor((canvas.width-end_x)/edge)-2; //true for right side false for left
@@ -3564,6 +3672,12 @@ function mouse_up_event(event,graph){
 		gs.mouse_mode = 'mouse';
 		mouse_move_event(event,graph);
 		return;
+		}
+		if ( end_x > 14*edge && end_x < 17*edge){
+			//mouse button
+			graph.drawmarkermenu = true;
+			mouse_move_event(event,graph);
+			return;
 		}
 		if ( end_x < canvas.width && end_x > canvas.width - edge){
 		//show/hide captions
@@ -4802,6 +4916,81 @@ function mouse_up_event(event,graph){
 		graph.mjs_plot();
 		return;
 	}
+	if (gs.mouse_mode === 'addmarkertext'){
+		
+		var x = graph.pixels_to_units(end_x,'x');
+		var y = graph.pixels_to_units(end_y,'y');
+		
+		gs.markers.push( { x: x,y:y,type:'text',text:graph.markerText}  );
+		gs.mouse_mode = graph.pre_mouse_mode;
+		graph.mjs_plot();
+		return;
+	}
+	if (gs.mouse_mode === 'addmarkerarrow'){
+		
+		var x = graph.pixels_to_units(end_x,'x');
+		var y = graph.pixels_to_units(end_y,'y');
+		var dx = start_x-end_x;
+		var dy = start_y-end_y;
+		
+		gs.markers.push( { x: x,y:y,type:'arrowntext',text:graph.markerText,dx:dx,dy:dy}  );
+		gs.mouse_mode = graph.pre_mouse_mode;
+		graph.mjs_plot();
+		return;
+	}
+	if (gs.mouse_mode === 'addmarkerline'){
+		console.log('adding marker line');
+		var sx = graph.pixels_to_units(start_x,'x');
+		var sy = graph.pixels_to_units(start_y,'y');
+		var ex = graph.pixels_to_units(end_x,'x');
+		var ey = graph.pixels_to_units(end_y,'y');
+		var dx = (ex-sx)/2;
+		var dy = (ey-sy)/2;
+		var x = (sx+ex)/2;
+		var y = (sy+ey)/2;
+		
+		gs.markers.push( { x: x,y:y,type:'line',text:'',dx:dx,dy:dy }  );
+		gs.mouse_mode = graph.pre_mouse_mode;
+		graph.mjs_plot();
+		return;
+	}
+	if (gs.mouse_mode === 'addmarkerbox'){
+		console.log('adding marker line');
+		var sx = graph.pixels_to_units(start_x,'x');
+		var sy = graph.pixels_to_units(start_y,'y');
+		var ex = graph.pixels_to_units(end_x,'x');
+		var ey = graph.pixels_to_units(end_y,'y');
+		var dx = Math.abs(ex-sx)/2;
+		var dy = Math.abs(ey-sy)/2;
+		var x = (sx+ex)/2;
+		var y = (sy+ey)/2;
+		
+		gs.markers.push( { x: x,y:y,type:'box',text:'',dx:dx,dy:dy }  );
+		gs.mouse_mode = graph.pre_mouse_mode;
+		graph.mjs_plot();
+		return;
+	}
+	
+	
+	if (gs.mouse_mode === 'removeMarker'){
+		var best_dist = 1e200; 
+		var dist = 1e200;
+		var pi=0;
+		for (i = 0;i<gs.markers.length;i++){
+			var m = gs.markers[i];
+			dist = Math.sqrt( Math.pow(graph.units_to_pixels(m.x,'x')-end_x,2) + Math.pow(graph.units_to_pixels(m.y,'y')-end_y,2)  );
+			if (dist < best_dist){
+				best_dist = dist;
+				pi = i;
+			}
+		}
+		if (best_dist < edge){
+			gs.markers.splice(pi,1);
+			graph.mjs_plot();
+			return;
+		}
+	}
+	
 	
 	if (gs.mouse_mode === 'mouse'){
 	
@@ -5905,6 +6094,7 @@ new_graph : function (graphname,canvasname){
 	drawcaptionmenu:false,
 	drawxmenu:false,
 	drawymenu:false,
+	drawmarkermenu:false,
 	timemenuoptions : [0,0], //which button is selected, [top row,bottom row] left to right.
 	plot_failed : false,
 	transparent : false,
@@ -7924,6 +8114,76 @@ new_graph : function (graphname,canvasname){
 		}
 	} // end of series loop
 	
+	//draw the markers
+	for (var i = 0;i<gs.markers.length;i++){
+		var marker = gs.markers[i];
+		var x =0;
+		var y=0;
+		var dx=0;
+		var dy=0;
+		x = this.units_to_pixels(marker.x,'x');
+		y = this.units_to_pixels(marker.y,'y');
+		switch (marker.type){
+			case 'text':
+				ctx.textAlign="center";
+				ctx.fillText(marker.text,x, y);
+				break
+			case 'line':
+				ctx.beginPath();
+				x = this.units_to_pixels(marker.x-marker.dx,'x');
+				y = this.units_to_pixels(marker.y-marker.dy,'y');
+				ctx.moveTo(x,y);
+				x = this.units_to_pixels(marker.x+marker.dx,'x');
+				y = this.units_to_pixels(marker.y+marker.dy,'y');
+				ctx.lineTo(x,y);
+				ctx.stroke();
+				break;
+			case 'box':
+				ctx.beginPath();
+				x = this.units_to_pixels(marker.x-marker.dx,'x');
+				y = this.units_to_pixels(marker.y-marker.dy,'y');
+				dx = this.units_to_pixels(marker.x+marker.dx,'x');
+				dy = this.units_to_pixels(marker.y+marker.dy,'y');
+				ctx.rect(x,y,dx-x,dy-y);
+				ctx.stroke();
+				break;
+			case 'arrowntext':
+				
+				var x1 = this.units_to_pixels(marker.x,'x');
+				var y1 = this.units_to_pixels(marker.y,'y');
+				
+				var x2 = x+marker.dx;
+				var y2 = y+marker.dy;
+				ctx.textAlign="center";
+				ctx.fillText(marker.text,x2,y2);
+				ctx.beginPath();
+				ctx.moveTo(x1,y1);
+				var m = (y2-y1)/(x2-x1);
+				console.log(m);
+				var c = y2/(m*x2);
+				console.log(c);
+				var w = ctx.measureText(marker.text).width;
+				console.log(w);
+				var h = axis_labels_font_size;
+				console.log(h);
+				var possibleX = [x1+w/2,x1-w/2,(y1-h/2-c)/m,(y1+h/2-c)/m];
+				console.log(possibleX);
+				if (x2>x1){
+					x2= Math.min( (y1 +h/2-c )/m, x1+w/2);
+					x2 =x1+w/2;
+				} else {
+					x2= Math.max( (y1 -h/2-c )/m, x1-w/2);
+					x2 =x1-w/2;
+				}
+				y2 = m*x2+c;
+				ctx.lineTo(x2,y2);
+				ctx.stroke();
+				
+				
+				break;
+		}
+	}
+	
 	ctx.lineWidth = graph_line_thickness;
 	ctx.textAlign="center"; 
 	ctx.strokeStyle = gs.color_fg;
@@ -8371,6 +8631,7 @@ get_graph_style : function (){
 	 y_precision :2, //as above for y
 	 fit_text_position:{x:0.1,y:0.2}, //fraction accross and fraction down.
 	 caption_position:{x:-10,y:10}, //raw pixels down and accross (is then scaled by scaling_factor)
+	 markers : [], //user added annotations
 	 function_lines :[] // userdefined lines that are drawn over the graph. each item in the array is a string of the function
 	 }
 }

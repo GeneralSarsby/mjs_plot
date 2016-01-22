@@ -8,6 +8,7 @@
 	<script src="pressure2.js"></script>
 <style>
 
+
 #topmatter {
 background:#262C42;
 color:#ECF0F1;
@@ -69,18 +70,23 @@ font-weight: 600;
 }
 
 .featurebox {
-width: 251px;
-	margin:5px;
+	flex:1;
+	min-width: 160px;
+	margin:0.5em;
+	text-align: center;
 	border: solid 1px #ccc;
 	 border-radius: 5px;
-	display: inline-block;
 	vertical-align: middle;
 	background-color: #fff;
 }
 	
 #boxes{
-	min-width: 320px;max-width:800px;
-	text-align: center;
+	min-width: 320px;
+	max-width:800px;
+	display: flex;
+	flex-wrap:wrap;
+	justify-content: space-between;
+	border: 1px solid black;
 }
 #boxes h2{margin: 5px; font-size:medium}
 
@@ -92,20 +98,24 @@ margin-right:auto;
 padding:10px
 }
 
-#demos{
-	min-width: 320px;max-width:1200px;
-	margin-left:auto;
-	margin-right:auto;
-	padding:10px;
-	text-align: center;
+
+.demos{
+	min-width: 320px;
+	max-width:1200px;
+	display: flex;
+	flex-wrap:wrap;
+	border: 1px solid black;
+	justify-content: space-around;
+	margin-left: auto;
+	margin-right: auto;
 }
 .demobox {
 	margin:5px;
-	display: inline-block;
-	text-align: left;
-	width: 45%;
 	min-width: 320px;
-	vertical-align: top;
+	flex:1 1 40%;
+	border:1px solid blue;
+	flex-grow:1;
+	flex-shrink: 2;
 }
 
 .imgdemobox {
@@ -115,10 +125,17 @@ padding:10px
 	text-align: center;
 	width: 45%;
 	min-width: 320px;
-	vertical-align: top;
 	background-color: #fff;
 	border-radius: 5px;
 }
+
+.code{
+	display: flex 1;
+	max-width:1200px;
+	flex-grow: 3;
+	flex-shrink:1;
+}
+
 
 
 </style>
@@ -202,9 +219,9 @@ Easily get your data out. Export as CSV, JSON, code (c-style, matlab-style), 300
  </div>
  
  </div>
- 
- <div id="demos">
-<h3> Features</h3>
+ <h3> Features</h3>
+ <div class="demos">
+
 	 
  <div class="demobox">
   <h2>Measuring</h2>
@@ -423,9 +440,9 @@ There are pre-defined sizes for small and large figures commonly used in papers 
  <div class="imgdemobox">
 	  <img src="pics/figureSizes.png" alt="figureSizes"  style="max-height:300px"> 
  </div>
- 
+ <div>
    <h3>Playground</h3>
- 
+ <div class='demos'>
  <div class="demobox">
  <h2>Build Your Own</h2>
  <hr>
@@ -437,9 +454,11 @@ This is a space where you can import data, manipulate it, and then plot using MJ
 The interface on this page is simplified and made to imitate like matplotlib and matlab.
 </p>
 </div>
+ <div>
  
  <h3>Demos</h3>
-  <hr>
+ 
+ <div class='demos'>
 <div class="demobox">
  <h2><a href='./demos/data.html'> Three Fullscreen </a></h2>
  <p> 
@@ -463,10 +482,10 @@ The interface on this page is simplified and made to imitate like matplotlib and
 Also Mobile Friendly. You can try out different fits from this data set.
  </p>
  </div>
-
+</div>
 
  <h3>Contact</h3>
- <hr>
+ <div class='demos'>
   <div class="demobox">
  <h2> Contact</h2>
  <p>
@@ -476,11 +495,11 @@ Also Mobile Friendly. You can try out different fits from this data set.
 <a href="https://plus.google.com/114017013549078536058" rel="publisher">Google+</a> Posts about MJS plot are sometimes made here.
  </p>
  </div>
-
+</div>
  
  <h3> Implementation</h3>
- <hr>
 
+ <div class='demos'>
  
 <div class="demobox">
 <p>
@@ -497,7 +516,7 @@ The a quick api reference <a href="implementation.html"> is available</a> as wel
  
  
  
- <div class="demobox">
+ <div class="demobox code">
  <h2>Plating Data</h2>
  <hr>
 <p>The minimal code to get a graph.</p>
@@ -517,7 +536,7 @@ demo1Graph.mjs_plot();<br>
  </div>
  
  
-  <div class="demobox">
+  <div class="demobox code">
  <h2>Customisation</h2>
  <hr>
 <p>Accessible via the graphics_style and default_graphics_style</p>
@@ -542,7 +561,7 @@ demo2Graph.mjs_plot();<br>
  
  
  
-   <div class="demobox">
+   <div class="demobox  code">
  <h2>Multiple Lines</h2>
  <hr>
 <p>As many lines as you want. Each line gets a colour that is separated in HLS space.</p>
@@ -560,7 +579,7 @@ demo2Graph.mjs_plot();<br>
  </div>
  
  
-   <div class="demobox">
+   <div class="demobox code">
  <h2>Working with Time</h2>
  <hr>
 <p>Time strings get processed into milliseconds from epoch. Many time strings work, but the
@@ -585,13 +604,13 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
  <div class="demobox">
 <canvas height="206" width="329" id="demo4"></canvas>
  </div>
- 
+ </div> 
 <br>
 <br>
 <p> MJS 2014-2015</p>
 
  <img src="logo.png" alt="logo"> 
-</div> 
+
 <script>
 	var index_pressure_graph = mjs_plot.new_graph("index_pressure_graph","democanvas");
 	time = mjs_plot.convert_time_strings(pressureTimes);
@@ -661,23 +680,24 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 	
 	function draw_graphs(){
 	//resize to page
-	index_pressure_graph.canvas.width = index_pressure_graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	var padding = 2;
+	index_pressure_graph.canvas.width = index_pressure_graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	index_pressure_graph.canvas.height = Math.min(0.628*index_pressure_graph.canvas.width,0.6*window.innerHeight) ;
 	index_pressure_graph.mjs_plot();
 	
-	demo1Graph.canvas.width = demo1Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo1Graph.canvas.width = demo1Graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	demo1Graph.canvas.height = Math.min(0.628*demo1Graph.canvas.width,0.6*window.innerHeight) ;
 	demo1Graph.mjs_plot();
 	
-	demo2Graph.canvas.width = demo2Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo2Graph.canvas.width = demo2Graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	demo2Graph.canvas.height = Math.min(0.628*demo2Graph.canvas.width,0.6*window.innerHeight) ;
 	demo2Graph.mjs_plot();
 	
-	demo3Graph.canvas.width = demo3Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo3Graph.canvas.width = demo3Graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	demo3Graph.canvas.height = Math.min(0.628*demo3Graph.canvas.width,0.6*window.innerHeight) ;
 	demo3Graph.mjs_plot();
 	
-	demo4Graph.canvas.width = demo4Graph.canvas.parentNode.clientWidth-20 ;//there is 10px padding
+	demo4Graph.canvas.width = demo4Graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	demo4Graph.canvas.height = Math.min(0.628*demo4Graph.canvas.width,0.6*window.innerHeight) ;
 	demo4Graph.mjs_plot();
 	
