@@ -731,7 +731,7 @@ function getDrawFunctionRotateable(s){
 		if (isNaN(t[i])){ commands.push(t[i]); } 
 		else { d.push(parseFloat(t[i])); }
 	}
-	str = 'd='+d.toSource()+';n=0;';
+	str = 'd=['+d.join(',')+'];n=0;';
 	for (var i =0;i<commands.length;i++){
 		switch (commands[i]){
 			case "b":
