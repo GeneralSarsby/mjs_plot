@@ -86,7 +86,7 @@ font-weight: 600;
 	display: flex;
 	flex-wrap:wrap;
 	justify-content: space-between;
-	border: 1px solid black;
+	
 }
 #boxes h2{margin: 5px; font-size:medium}
 
@@ -104,7 +104,7 @@ padding:10px
 	max-width:1200px;
 	display: flex;
 	flex-wrap:wrap;
-	border: 1px solid black;
+	
 	justify-content: space-around;
 	margin-left: auto;
 	margin-right: auto;
@@ -113,7 +113,6 @@ padding:10px
 	margin:5px;
 	min-width: 320px;
 	flex:1 1 40%;
-	border:1px solid blue;
 	flex-grow:1;
 	flex-shrink: 2;
 }
@@ -680,7 +679,7 @@ demo4Graph.default_graphics_style.y_scale_mode =  "log";<br>
 	
 	function draw_graphs(){
 	//resize to page
-	var padding = 2;
+	var padding = 5;
 	index_pressure_graph.canvas.width = index_pressure_graph.canvas.parentNode.clientWidth-padding ;//there is 10px padding
 	index_pressure_graph.canvas.height = Math.min(0.628*index_pressure_graph.canvas.width,0.6*window.innerHeight) ;
 	index_pressure_graph.mjs_plot();
