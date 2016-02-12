@@ -8313,9 +8313,9 @@ new_graph : function (graphname,canvasname){
 		var handles = marker.handles
 		marker.x = 0;
 		marker.y = 0;
-		for (var i=0,l=handles.length;i<l;i++){
-			marker.x += handles[i][0];
-			marker.y += handles[i][1];
+		for (var j=0,l=handles.length;j<l;j++){
+			marker.x += handles[j][0];
+			marker.y += handles[j][1];
 		}
 		marker.x /= handles.length;
 		marker.y /= handles.length;
