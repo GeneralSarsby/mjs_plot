@@ -20,7 +20,12 @@ save trim rects, and cut rests as an array.
 Have tools in the fit menu to clear mask, view mask (draw darkened sections to the screen), add to mask (rect like tool), remove from mask(reck like tool too).
 The process that a use will take to disregard a point will be, fit menu>mask>add to mask> user draws rect that covers the bad point.
 
+0_4_n 
+-----
 
- 
+This is the next big version. It will have API breaking changes.
+and ajax data loading support!
+better responsive design handling.
+load a background image?
 
  

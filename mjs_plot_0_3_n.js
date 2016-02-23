@@ -280,13 +280,16 @@ BREAKING CHANGES MADE rename 0_2_13 to 0_3_1
 		the text when added with a shape has an offset defined by pixels on the screen,
 		rather than by graph units, this means better scaling when zooming in.
 		to get text drawn on the other side of the object, draw the ojects the other way around.
+0_3_12 - added accumulate funciton, this creates an acumulate count from y.
+	   - speed improvements by reducing the number of calls to mjs_plot(). this should help working with (large > 100k) data.
+	   
 	  
 	  
 *********************************************** */
 
 mjs_plot = (function () {
 
-var MJS_PLOT_VERSION = '0_3_11';
+var MJS_PLOT_VERSION = '0_3_12';
 var MJS_PLOT_AUTOR = 'MJS';
 var MJS_PLOT_DATE = '2016';
 var MJS_PLOT_WEBSITE = 'http://generalsarsby.github.io/mjs_plot/';
@@ -2539,7 +2542,7 @@ function mouse_move_event_actual(event,graph){
 				ctx.fillText('custom y=f(x,y)',16.2*edge, canvas.height - edge*10.3);
 				ctx.fillText('custom filter',16.2*edge, canvas.height - edge*9.3);
 				
-				
+				ctx.fillText('accumulate(y)',16.2*edge, canvas.height - edge*4.3);
 				ctx.fillText('view last n',16.2*edge, canvas.height - edge*3.3);
 				ctx.fillText('(y - mean)/sigma',16.2*edge, canvas.height - edge*2.3);
 				ctx.fillText('x spacing',16.2*edge, canvas.height - edge*1.3);
@@ -3275,8 +3278,12 @@ function mouse_up_event(event,graph){
 		var lx = Math.floor((canvas.width-end_x)/2/edge); //1 for left, 0 for right
 		var ly = Math.floor(end_y/edge);
 		graph.drawcaptionmenu=false;
+		if (ly==0){
+			setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+			return;
+		}
 		if (ly==1){
-			gs.show_captions= !gs.show_captions ;
+			gs.show_captions= !gs.show_captions;
 		}
 		if (ly==7){
 			gs.captions_display= "none";
@@ -3337,7 +3344,8 @@ function mouse_up_event(event,graph){
 		switch(ly){
 			case 0:
 				graph.drawxmenu = false
-				break;
+				mouse_move_event(event,graph);
+				return;
 			case 1:
 				if (lx < 8){
 					gs.x_scale_auto_min=true;
@@ -3415,12 +3423,11 @@ function mouse_up_event(event,graph){
 	if (graph.drawymenu){
 		var lx = Math.floor(end_x/edge)-2;
 		var ly = Math.floor((canvas.height-end_y)/edge);
-		console.log(lx);
-		console.log(ly);
 		switch(ly){
 			case 0:
 				graph.drawymenu = false
-				break;
+				mouse_move_event(event,graph);
+				return;
 			case 1:
 				if (lx < 8){
 					gs.y_scale_auto_min=true;
@@ -3500,6 +3507,8 @@ function mouse_up_event(event,graph){
 		var ly = Math.floor(end_y/edge);
 		if (ly==0){
 			graph.drawmodemenu=false;
+			setTimeout(function(){ mouse_move_event(event,graph); }, 0);
+			return;
 		}
 		
 		if (ly==1){
@@ -3588,7 +3597,8 @@ function mouse_up_event(event,graph){
 	switch(ly){
 		case 0:
 			graph.drawgraphmenu=false;
-			break;
+			mouse_move_event(event,graph);
+			return;
 		case 1:
 			gs.title = getString("new title",gs.title );
 			break;
@@ -3706,12 +3716,14 @@ function mouse_up_event(event,graph){
 		switch(ly){
 		case 0:
 			graph.drawStylemenu=false;
-			break;
+			mouse_move_event(event,graph);
+			return;
 		case 1:
 			//pick font
 			graph.drawStylemenu=false;
 			graph.drawFontMenu=true;
-			break;
+			mouse_move_event(event,graph);
+			return;
 		case 2:
 			if (lx){gs.title_font_size--;} else {gs.title_font_size++;}
 			break;
@@ -3768,12 +3780,14 @@ function mouse_up_event(event,graph){
 	//top buttons
 	if (end_y < edge){
 		if ( end_x < 4*edge){
-		//dot button
 		graph.drawmodemenu = true;
+		mouse_move_event(event,graph);
+		return;
 		}
 		if ( end_x  >4*edge && end_x  <8 *edge){
-		//dot button
 		graph.drawgraphmenu = true;
+		mouse_move_event(event,graph);
+		return;
 		}
 		if ( end_x < 10*edge && end_x > 9*edge){
 		//drag button
@@ -3816,6 +3830,8 @@ function mouse_up_event(event,graph){
 		if ( end_x < canvas.width && end_x > canvas.width - edge){
 		//show/hide captions
 			graph.drawcaptionmenu = true;
+			mouse_move_event(event,graph);
+			return;
 		}
 		if ( end_x < canvas.width - edge && end_x > canvas.width - 2*edge){
 		//infomation button 
@@ -3823,6 +3839,8 @@ function mouse_up_event(event,graph){
 		}
 		if ( end_x < canvas.width - 2*edge && end_x > canvas.width - 5*edge){
 			graph.drawStylemenu = true;
+			mouse_move_event(event,graph);
+			return;
 		}
 		
 		graph.mjs_plot();
@@ -4408,6 +4426,10 @@ function mouse_up_event(event,graph){
 			gs.data_transforms[n] = "spacing";
 			gs.data_transforms_args[n] = [];
 		}
+		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*5 && end_y < canvas.height - edge*4){
+			gs.data_transforms[n] = "accumulate";
+			gs.data_transforms_args[n] = [ ];
+		}
 		if ( end_x < 22*edge && end_x >16*edge && end_y > canvas.height - edge*4 && end_y < canvas.height - edge*3){
 			// view last n button
 			console.log('view_last_n');
@@ -4757,18 +4779,21 @@ function mouse_up_event(event,graph){
 			gs.fits = 'poly5';
 		}
 		
-		graph.mjs_plot();
 		
 		if ( end_x < 18*edge && end_x > 15*edge && end_y > canvas.height-edge){
 			//pressed the fit menu button again
 			graph.drawfitsmenu = false;
+			mouse_move_event(event,graph);
+			return;
 		}
 		if ( end_x < 21*edge && end_x > 18*edge && end_y > canvas.height-edge){
 			//pressed none fits button
 			gs.fits = 'none';
 			graph.drawfitsmenu = false;
 			
+			
 		}
+		graph.mjs_plot();
 		console.log(gs.fits);
 		mouse_move_event(event,graph);
 		return;
@@ -4777,9 +4802,13 @@ function mouse_up_event(event,graph){
 	if (end_y>canvas.height-edge){
 		if ( end_x < 2*edge && end_x > 0*edge){
 			graph.drawxmenu = true;
+			mouse_move_event(event,graph);
+				return;
 		}
 		if ( end_x < 4*edge && end_x > 2*edge){
 			graph.drawymenu = true;
+			mouse_move_event(event,graph);
+				return;
 		}
 		if ( end_x < 5*edge && end_x > 4*edge){
 			gs.show_grid = !gs.show_grid;
@@ -4825,15 +4854,12 @@ function mouse_up_event(event,graph){
 			return;
 		}
 		if ( end_x < canvas.width && end_x > canvas.width - edge){
-		//export data button
-			//data_out(graph);
-			//return;
-			//open the export menu
 			graph.drawexportmenu = true;
+			mouse_move_event(event,graph);
+				return;
 		}
 		if ( end_x < canvas.width-edge && end_x > canvas.width - 2*edge){
-		//day/night data button
-			//gs.day_night_mode = !gs.day_night_mode;
+			//day/night data button
 			var temp = gs.color_fg 
 			gs.color_fg = gs.color_bg;
 			gs.color_bg = temp;
@@ -5928,7 +5954,6 @@ var transforms = {
 			tallys[0] = 0.0;
 			for (j = 0;j<data[i][0].length-1;j++){
 				tally += (data[i][0][j+1] - data[i][0][j]) * (data[i][1][j+1] + data[i][1][j])/2;
-				console.log(tally);
 				tallys[j+1] = tally;
 			}
 			for (j = 0;j<data[i][0].length;j++){
@@ -5936,6 +5961,14 @@ var transforms = {
 			}
 		}
 		graph.transform_text_y= 'int('+graph.transform_text_y +')';
+	},
+	accumulate: function(data,args,graph){
+		for (i = 0;i<data.length;i++){
+			for (j = 1;j<data[i][0].length;j++){
+				data[i][1][j] = data[i][1][j] + data[i][1][j-1]; 
+			}
+		}
+		graph.transform_text_y= 'accumulate('+graph.transform_text_y +')';
 	},
 	smooth: function(data,args,graph){
 		//simple linear smooth for now...
@@ -6192,6 +6225,40 @@ var transforms = {
 		graph.transform_text_y= 'spacing('+graph.transform_text_y +')';
 		
 	},
+	dft: function(data,args,graph){
+		/*
+		 * need to have x data evenly spaced, run check and throw error if not.
+		 * 
+		 * use dft and plot magnitude vs freq
+		 * 
+		 * find what the freqs corrispond to
+		 * 
+		 * move data to 1st jan 1970? or do I need a differnt time axis that
+		 * isn't absolute time.
+		 * 		 
+		 function computeDft(inreal, inimag) {
+			var n = inreal.length;
+			var outreal = new Array(n);
+			var outimag = new Array(n);
+			for (var k = 0; k < n; k++) {  // For each output element
+				var sumreal = 0;
+				var sumimag = 0;
+				for (var t = 0; t < n; t++) {  // For each input element
+					var angle = 2 * Math.PI * t * k / n;
+					sumreal +=  inreal[t] * Math.cos(angle) + inimag[t] * Math.sin(angle);
+					sumimag += -inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);
+				}
+				outreal[k] = sumreal;
+				outimag[k] = sumimag;
+			}
+			return [outreal, outimag];
+		}
+		
+		 
+		 */
+		 
+		 
+	},
 	time_to_num: function(data,args,graph){
 		//convert a time to a number
 		var axis = args[2];
@@ -6366,10 +6433,11 @@ new_graph : function (graphname,canvasname){
 		},
 		draw_dot : function(graph,ctx,series,start,end,dot_size){
 			graph.points_drawn+=end-start;
+			var xi, yi;
 			ctx.beginPath();
 			for (var j =start;j<end;j++){
-				var xi = graph.units_to_pixels(graph.data[series][0][j],'x');
-				var yi = graph.units_to_pixels(graph.data[series][1][j],'y');
+				xi = graph.units_to_pixels(graph.data[series][0][j],'x');
+				yi = graph.units_to_pixels(graph.data[series][1][j],'y');
 				ctx.rect(xi-dot_size/2,yi-dot_size/2,dot_size,dot_size);
 			}
 			ctx.fill();
@@ -7541,6 +7609,7 @@ new_graph : function (graphname,canvasname){
 	mjs_plot : function () {
 	"use strict";
 	var start_time = new Date();
+	console.log('Plotting ' + start_time.getSeconds() );
 	//catch errors in plotting
 	if (this.plot_failed){
 		this.errors.push('failed for unknown reason');
@@ -7881,6 +7950,9 @@ new_graph : function (graphname,canvasname){
 			}
 			if (  line_mode.indexOf('interp') >-1  ){
 				this.drawing_methods.draw_interp(this,ctx,i,seq_start[k],seq_end[k]);
+			}
+			if (  line_mode.indexOf('scribble') >-1  ){
+				this.drawing_methods.draw_scribble(this,ctx,i,seq_start[k],seq_end[k]);
 			}
 			if (  line_mode.indexOf('hist') >-1  ){
 				this.drawing_methods.draw_hist(this,ctx,i,seq_start[k],seq_end[k]);
@@ -8304,8 +8376,14 @@ new_graph : function (graphname,canvasname){
 		
 		var marker = gs.markers[i];
 		var handles = marker.handles
-		marker.x = handles.reduce((l,e,i)=>(l+e[0]),0)/handles.length;
-		marker.y = handles.reduce((l,e,i)=>(l+e[1]),0)/handles.length;
+		marker.x = 0;
+		marker.y = 0;
+		for (var j=0,l=handles.length;j<l;j++){
+			marker.x += handles[j][0];
+			marker.y += handles[j][1];
+		}
+		marker.x /= handles.length;
+		marker.y /= handles.length;
 		var x=0;
 		var y=0;
 		var dx=0;

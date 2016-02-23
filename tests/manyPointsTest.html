@@ -23,24 +23,40 @@ height: 100%;
 	<script>
 
 	
+	var seed = 123456789;
+
+function rand(){
+  seed = (1524 * seed + 757) % 123456789;
+  return seed / 123456789;
+}
+
+
+	
 	var ManyPointsGraph = mjs_plot.new_graph("ManyPointsGraph","canvas4");
 	
-	var ya= [];
-	var yb = [];
-	var yc = [];
-	var x = [];
-	var points = 1000;//100000;
-	for (var i = 0;i<points;i++){
-		x.push(i);
-		ya.push(Math.random()+2);
-		//ya.push(i*0.5);
-		yb.push(Math.random()*0.8 + 2*i/points);
-		yc.push(Math.random()*1.14 + 3*Math.sin(i/points));
-	}
-	ManyPointsGraph.set_data([[x,ya],[x,yb],[x,yc]]);
-	//ManyPointsGraph.set_data([[x,ya]]);
 	
-	ManyPointsGraph.set_captions(['a','b','c']);
+	var points = 4096;//100000;
+	var series = 10;
+	var d = [];
+	var x = [];
+	var y = [];
+	var c = [];
+	for (var s = 0;s<series;s++){
+		var x = [];
+		var y = [];
+		var g = rand()*3;
+		var m = 2*(rand()-0.5);
+		for (var i = 0;i<points;i++){
+			
+			x.push(i);
+			y.push(rand()*0.1+ i*m/points+g);
+		}
+		c.push('line ' + s);
+		d.push([x,y]);
+	}
+	ManyPointsGraph.set_data(d);
+	
+	ManyPointsGraph.set_captions(c);
 	
 	ManyPointsGraph.default_graphics_style.title = "Lots of Data";
 	ManyPointsGraph.graphics_style.subtitle = '3x'+points;
