@@ -25,7 +25,7 @@ The process that a use will take to disregard a point will be, fit menu>mask>add
 
 This is the next big version. It will have API breaking changes.
 and ajax data loading support!
-better responsive design handling.
 load a background image?
 
- 
+get error bar handling improved through the transforms.
+eather just kill them on the first transform or handle them properly. (kill)
