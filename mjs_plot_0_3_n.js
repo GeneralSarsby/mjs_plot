@@ -3346,8 +3346,6 @@ function mouse_up_event(event,graph){
 	if (graph.drawxmenu){
 		var lx = Math.floor(end_x/edge);
 		var ly = Math.floor((canvas.height-end_y)/edge);
-		console.log(lx);
-		console.log(ly);
 		switch(ly){
 			case 0:
 				graph.drawxmenu = false
@@ -7616,7 +7614,6 @@ new_graph : function (graphname,canvasname){
 	mjs_plot : function () {
 	"use strict";
 	var start_time = new Date();
-	console.log('Plotting ' + start_time.getSeconds() );
 	//catch errors in plotting
 	if (this.plot_failed){
 		this.errors.push('failed for unknown reason');
