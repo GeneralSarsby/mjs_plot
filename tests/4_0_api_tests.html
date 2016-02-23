@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF8">
+    
+	<script src="../mjs_plot_0_4_n.js"></script>
+  </head>
+  <body>
+<h1>Fixed Sized Graphs</h1>
+
+ <canvas id="canvas4" width="600" height="400"></canvas><br>
+
+</body>
+	<script>
+
+	var xs = [],ys=[],ye=[];
+	for (var i=0;i<100;i++){xs.push(i);ys.push(i+Math.random());ye.push(1+5*Math.random());}
+	//ys = xs.map ( a=>a + Math.random() );
+	ys2 = xs.map (a=> 2*a + Math.random() * a );
+	//ye = ys.map (v=>0.01*v);
+	
+	//make a graph and give it the id of the canvas
+	var apigraph = mjs_plot.new_graph("canvas4");
+	apigraph.title('API TEST','for version 0_4');
+	apigraph.xlabel('this is x');
+	apigraph.ylabel('this is y');
+	apigraph.plot(xs,ys,ye,'line 1');
+	apigraph.loglog(xs,ys2,'line 2');
+	apigraph.plot([1,4,5,8,7,4,8,5,9,6,5,2,4],'other');
+
+	//set the resizing options.
+	//this will match the graph to the size of the parent, so you can use css on the parent.
+	apigraph.forceFullPage();
+	//apigraph.matchParentSize();
+
+
+
+
+
+    </script>
+</html>
