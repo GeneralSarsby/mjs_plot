@@ -764,6 +764,13 @@ function getDrawFunctionRotateable(s){
 var arrow = 'b m 1 0 l -5 -2 l -4 0 l -5 2 l 1 0 c f';
 drawArrow= getDrawFunctionRotateable(arrow);
 
+function sumArray(a){
+	var buf = 0;
+	for (var i=0,l=a.length;i<l;i++){
+		buf += a[i];
+	}
+	return buf;
+}
 
 function mjs_time_difference_print(milliseconds){
 	//for printing the elapsed time. not absolute time.
