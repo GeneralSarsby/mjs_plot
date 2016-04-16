@@ -9,7 +9,7 @@ body {color: #333;background-color: #eee;
 	margin:10px;padding:10px;min-width: 320px;max-width:800px;margin-left:auto;margin-right:auto;margin-top:0px;
 padding-top:0px;font-family: "helvetica"}
 p {}
-h1 {font-size: 12vw;text-align:center; background-color: #eee;margin: 0px auto 0px}
+h1 {text-align:center; background-color: #eee;margin: 0px auto 0px}
 h3{font-weight: normal;margin:10px;text-align:center;}
 h2{margin: 5px; font-size:medium}
 a:visited{color:#333}
@@ -37,26 +37,27 @@ width: 251px;
 <h1><a href="index.html">MJSplot</a></h1>
 
 <h2 id="walkthrough"> Quick Walkthrough </h2>
-<p> I've loaded the <tt>Pressures</tt> graph with some real data collected from an experimental fridge for you to try.</p>
+<p> I've loaded the example graph on the <a href="index.html">index</a> page with some real data collected from an experimental fridge for you to try. Below 
+are a few things for you to try to get fimilar with the avaliable controls</p>
 <ol>
  <li> Mouse over and you will see a cross hairs indicating position x and y. The numerical precision of the indicators is sensible for the scale.
  <li> Click and drag a rectangle over a section to zoom in. Mobile users can use two fingers to draw out a rectangle, then release to zoom.
  <li> Single click to use the auto-zoom (can see everything). Mobile users can use the 'Auto Zoom' button in the lower left.
  <li> Right click to zoom out. Mobile users can use the 'Zoom Out' button in the lower left.
  <li> Hovering over the top and bottom will reveal buttons and menus.
- <li> On the bottom buttons, click the <img src="./ylog_button.png" alt="y log button" height="20" width="20"> button. It changes the y axis to logarithmic (base 10).
+ <li> On the bottom buttons, click the <img src="pics/ylog_button.png" alt="y log button" height="20" width="20"> button. It changes the y axis to logarithmic (base 10).
  <li> Start zooming around, see how the y axis scale always looks good (even when zoomed in tight).
- <li> At the top: click the  <img src="./measure_button.png" alt="measure button" height="20" width="20"> button to change to measure mode. (You started in the zoom mode)
+ <li> At the top: click the  <img src="pics/measure_button.png" alt="measure button" height="20" width="20"> button to change to measure mode. (You started in the zoom mode)
  <li> Click and drag to measure deltas, measure the gradient g=, and measure the time-constant of an exponential decay tau=. (this is an log-lin graph now after all). For examples: find out the heights of the peaks on the pink line (still)? Or how long did the step in the pot pressure last near -2 hours? What was the rate of the acp40out near the beginning?
  <li> Reload the page. Your zooming in and the axis choice are as you left them. Everything you change on the graph is saved to LocalStorage .
- <li> Data looking a bit rough? hover over the bottom to find the <img src="./f_x_button.png" alt="function button" height="20"> menu button. Click it to reveal some functions.
+ <li> Data looking a bit rough? hover over the bottom to find the <img src="pics/f_x_button.png" alt="function button" height="20"> menu button. Click it to reveal some functions.
  Find and click the <tt>smooth</tt> button. This runs a smoothing transform on the data. You can see the y-axis title has changed to reflect you choice, and under the subtitle there is [smooth] showing the stack of transforms. All of the transforms in the <img src="./f_x_button.png" alt="function button" height="20"> menu can stack on top of each other, except for <tt>reset</tt> that removes all transforms, and <tt>pop</tt> that removes just the last one.
  <li> Not enough smoothing? Some transforms can modify their arguments by clicking on it again. Here it changes the smoothing aperture, you can see the y-axis change to show this too.
  <li> You can switch lines on and off in the <tt>lines</tt> menu.
  <li> Try out some regression analysis in the <tt>fits</tt> menu. 
 </ol>
 
-<p> Want to know more? read the <a href='./cheat_sheet.png'> Cheat Sheet (png) </a>, <a href='./cheat_sheet.svg'>(svg)</a>.</p>
+<p> Want to know more? read the <a href='pics/cheat_sheet.png'> Cheat Sheet (png) </a>, <a href='pics/cheat_sheet.svg'>(svg)</a>.</p>
 <!--
 <p> That's my two minutes up. But you might be interested in the other key features: getting your data out in a copypastable way. White on black. Independent axes scale auto zooms. Sticky point measure mode. Captioning and digital display options. And simply just why the other graphs don't look as good.</p>
 -->
@@ -199,7 +200,6 @@ The seconds line just tells MJSplot to use these (very large) numbers as times.
 <p>Look at the two time-series example from the <a href="#demos">[Demos]</a> section</p>
 
 
-
 <h2 id="helpers">Helpers</h2>
 
 <p> Exporting your data to a javascript file isn't a very common thing to do. I've written a few helper functions to make the job easier.</p>
@@ -210,13 +210,10 @@ The seconds line just tells MJSplot to use these (very large) numbers as times.
 
 <p>I expect this list of helpers to grow as there is more adoption. If you've written one and would like to share, email it to me and I'll put it here.</p>
 
-
-
-
 <h2 id="weaknesses">Weaknesses</h2>
 <p>
-Numbers smaller than 1e-250 are zero, Data larger than +-1e250 is undrawable. Datasets larger than 20k can be slow, but your mileage may vary.
-Touchscreen interactivity can be small. Fullscreen dosn't work on Apple's safari. 
+Numbers smaller than 1e-250 are zero, Data larger than +-1e250 is undrawable. Datasets larger than 100k can be slow, but your mileage may vary.
+Touchscreen interactivity can be small. Fullscreen will not work on Apple's safari until it implements the Fullscreen API. 
 </p>
 
 <h2 id="style">A note on style</h2>
@@ -526,30 +523,7 @@ Makes programming safe names from the captions.
 
 <br>
 <br>
-<p> MJS 2014-2015</p>
+<p> MJS 2014-2016</p>
 </body>
 
-<script>
-	var pressure_graph = new_graph("pressure_graph","democanvas");
-	pressure_graph.set_data([[time,acp40out],[time,pot],[time,bigroots],[time,cond],[time,acp40],[time,littleroots],[time,still]]);
-	pressure_graph.set_captions(['acp40out','pot','bigroots','cond','acp40in','littleroots','still']);
-	pressure_graph.default_graphics_style.title = "Example Graph";
-	pressure_graph.default_graphics_style.subtitle = 'Scientific Data';
-	pressure_graph.default_graphics_style.x_axis_title =  "Hours";
-	pressure_graph.default_graphics_style.y_axis_title =  "Pressure /mbar";
-	pressure_graph.default_graphics_style.hidden_lines = [ false, false, false, true, true, true, true ];
-	pressure_graph.default_graphics_style.color_fg =  "#111111";
-	pressure_graph.default_graphics_style.color_bg =  "#eeeeee";
-	
-	pressure_graph.mjs_plot();
-	
-	
-	
-	function draw_graphs(){
-	//resize to page
-	pressure_graph.canvas.width = document.body.clientWidth-20;
-	pressure_graph.canvas.height = Math.min(0.628*pressure_graph.canvas.width,0.7*window.innerHeight) ;
-	pressure_graph.mjs_plot();
-	}
-</script>
 </html>
